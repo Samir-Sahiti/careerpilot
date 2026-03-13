@@ -1,51 +1,35 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
-import { Toaster } from "sonner";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  weight: ["400", "500", "700", "800"],
-  display: "swap",
+const geistSans = Geist({
+    variable: "--font-geist-sans",
+    subsets: ["latin"],
 });
 
-const inter = Inter({
-  variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  display: "swap",
+const geistMono = Geist_Mono({
+    variable: "--font-geist-mono",
+    subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "CareerPilot – Your AI Career Co-Pilot",
-  description:
-    "Analyze job fits, practice mock interviews, and map your path to the next level — all powered by AI.",
+    title: "CareerPilot – AI Career Copilot",
+    description:
+        "Manage your entire career journey in one place. Get CV analysis, job fit scores, mock interviews, and career ladder planning powered by AI.",
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang="en"
-      className={`${plusJakartaSans.variable} ${inter.variable}`}
-    >
-      <body className="antialiased">
-        {children}
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            style: {
-              background: "#111827",
-              border: "1px solid #1E3A5F",
-              color: "#F1F5F9",
-            },
-          }}
-        />
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en">
+            <body
+                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
+                {children}
+            </body>
+        </html>
+    );
 }
