@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS cvs (
   file_name    TEXT        NOT NULL,
   file_path    TEXT        NOT NULL,   -- path inside the `cvs` storage bucket
   parsed_text  TEXT,                   -- raw text extracted from the PDF/DOCX
+  parsed_data  JSONB,                  -- structured profile data from AI
   is_active    BOOLEAN     NOT NULL DEFAULT TRUE,
   uploaded_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
