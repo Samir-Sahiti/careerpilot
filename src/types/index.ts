@@ -25,8 +25,28 @@ export interface Cv {
     file_name: string;
     file_path: string;           // path inside the `cvs` storage bucket
     parsed_text: string | null;
+    parsed_data: ParsedCvData | null; // structured profile data from AI
     is_active: boolean;
     uploaded_at: string;
+}
+
+export interface ParsedCvData {
+    current_role: string;
+    seniority_level: 'Junior' | 'Mid' | 'Senior' | 'Lead' | 'Principal';
+    years_of_experience: number;
+    skills: string[];
+    education: {
+      degree: string;
+      institution: string;
+      year?: number;
+    }[];
+    experience: {
+      title: string;
+      company: string;
+      duration: string;
+      summary: string;
+    }[];
+    achievements: string[];
 }
 
 /** Mirrors the `job_analyses` table */
