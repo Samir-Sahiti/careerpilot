@@ -5,8 +5,9 @@ import { createClient } from "@supabase/supabase-js";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
-import pdfParse from "pdf-parse";
 import mammoth from "mammoth";
+// pdf-parse is purely CommonJS and breaks Turbopack ESM resolution when imported normally
+const pdfParse = require("pdf-parse");
 
 export async function POST(req: Request) {
   try {
