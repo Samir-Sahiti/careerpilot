@@ -1,7 +1,92 @@
-export default function JobsPage() {
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { JobAnalyzerForm } from "@/components/jobs/JobAnalyzerForm";
+import { JobAnalysisList } from "@/components/jobs/JobAnalysisList";
+import Link from "next/link";
+import { CopyX, ArrowRight, Loader2 } from "lucide-react";
+import { Cv } from "@/types";
+
+export default async function JobsPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Check if they have an active CV
+  const { data: cvData, error } = await supabase
+    .from("cvs")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  // Condition 1: No active CV
+  if (!cvData || error) {
     return (
-        <div className="p-8">
-            <h1 className="text-2xl font-semibold">Job Analyser</h1>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 animate-fade-in-up max-w-md mx-auto">
+        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[#1E3A5F]/30 border border-[#1E3A5F]">
+          <CopyX className="w-8 h-8 text-blue-400" />
         </div>
+        <div>
+          <h2
+            className="text-2xl font-bold text-white mb-2"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
+            No CV uploaded
+          </h2>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            We need your CV to compare against job descriptions. Upload one first
+            to unlock the Job Analyser.
+          </p>
+        </div>
+        <Link
+          href="/cv"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors text-sm"
+        >
+          Upload your CV
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
     );
+  }
+
+  const cv = cvData as Cv;
+
+  // Condition 2: CV uploaded, but parsed_data is not generated yet
+  if (!cv.parsed_data) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 animate-fade-in-up">
+        <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+        <h2
+          className="text-xl font-semibold text-white"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
+          AI is still processing your CV...
+        </h2>
+        <p className="text-gray-400 text-sm">
+          Check back in a minute to start analysing jobs.
+        </p>
+        <Link
+          href="/dashboard"
+          className="text-blue-400 hover:text-blue-300 text-sm font-medium mt-4"
+        >
+          ← Back to dashboard
+        </Link>
+      </div>
+    );
+  }
+
+  // Condition 3: Ready to analyse
+  return (
+    <div className="max-w-5xl mx-auto space-y-12 animate-fade-in-up pb-12">
+      <JobAnalyzerForm cvId={cv.id} />
+      <JobAnalysisList />
+    </div>
+  );
 }
+

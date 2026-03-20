@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS job_analyses (
   company          TEXT,
   job_raw_text     TEXT        NOT NULL,
   fit_score        INTEGER     CHECK (fit_score >= 0 AND fit_score <= 100),
+  recommendation   TEXT        CHECK (recommendation IN ('apply', 'maybe', 'skip')),
+  recommendation_reason TEXT,
   matched_skills   TEXT[]      NOT NULL DEFAULT '{}',
   missing_skills   TEXT[]      NOT NULL DEFAULT '{}',
   cv_suggestions   TEXT[]      NOT NULL DEFAULT '{}',

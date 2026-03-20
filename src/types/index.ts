@@ -58,6 +58,8 @@ export interface JobAnalysis {
     company: string | null;
     job_raw_text: string;
     fit_score: number | null;    // 0–100
+    recommendation: 'apply' | 'maybe' | 'skip' | null;
+    recommendation_reason: string | null;
     matched_skills: string[];
     missing_skills: string[];
     cv_suggestions: string[];
