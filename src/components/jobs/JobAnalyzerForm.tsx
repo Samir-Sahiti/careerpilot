@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Briefcase, Building2, FileText, Sparkles, Loader2 } from "lucide-react";
 
@@ -19,8 +19,9 @@ const ANALYSIS_STEPS = [
 
 export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [jobTitle, setJobTitle] = useState("");
+  const [jobTitle, setJobTitle] = useState(searchParams.get("target_role") || "");
   const [company, setCompany] = useState("");
   const [jobRawText, setJobRawText] = useState("");
   const [loading, setLoading] = useState(false);

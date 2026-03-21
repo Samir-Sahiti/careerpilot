@@ -100,8 +100,7 @@ export interface CareerRoadmap {
     id: string;
     user_id: string;
     current_role: string;
-    target_role: string;
-    steps: CareerStep[];
+    paths: any[];
     created_at: string;
 }
 
