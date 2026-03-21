@@ -79,9 +79,8 @@ CREATE TABLE IF NOT EXISTS career_roadmaps (
   id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id       UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   "current_role"  TEXT        NOT NULL,
-  "target_role"   TEXT        NOT NULL,
-  steps         JSONB       NOT NULL DEFAULT '[]',
-  -- JSONB shape: [{ id, title, description, skills_to_learn, projects_to_build, estimated_months }]
+  paths         JSONB       NOT NULL DEFAULT '[]',
+  -- JSONB shape: array of { path_title, next_role, timeline_estimate, missing_skills, recommended_projects, experience_needed }
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
