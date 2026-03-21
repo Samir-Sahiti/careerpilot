@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS interview_sessions (
   user_id          UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   job_analysis_id  UUID        REFERENCES job_analyses(id) ON DELETE SET NULL,
   questions        JSONB       NOT NULL DEFAULT '[]',
+  overall_score    INTEGER     CHECK (overall_score >= 0 AND overall_score <= 100),
   -- JSONB shape: [{ id, question, user_answer, score, feedback }]
   created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
