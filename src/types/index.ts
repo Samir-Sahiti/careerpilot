@@ -80,7 +80,8 @@ export interface InterviewSession {
     id: string;
     user_id: string;
     job_analysis_id: string | null;
-    questions: InterviewQuestion[];
+    questions: any[]; // Or define a stricter InterviewQuestion array type if desired
+    overall_score: number | null;
     created_at: string;
 }
 
