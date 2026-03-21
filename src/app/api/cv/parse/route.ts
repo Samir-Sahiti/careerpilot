@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
 import { cookies } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
 import { generateObject } from "ai";
@@ -10,8 +11,12 @@ import mammoth from "mammoth";
 const pdfParse = require("pdf-parse");
 
 export async function POST(req: Request) {
+  let innerCvId: string | null = null;
+  let adminClient: any = null;
+
   try {
     const { cvId } = await req.json();
+    innerCvId = cvId;
 
     if (!cvId) {
       return NextResponse.json({ error: "Missing cvId" }, { status: 400 });
@@ -49,6 +54,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const rateLimit = await checkRateLimit(supabase, user.id, "/api/cv/parse");
+    if (!rateLimit.allowed) {
+      await fallbackFail(supabase, cvId, rateLimit.message || "Rate limit error");
+      return NextResponse.json({ error: rateLimit.message }, { status: 429, headers: { "Retry-After": "3600" } });
+    }
+
     // Verify cv_id belongs to user and get the file path
     const { data: cvData, error: cvError } = await supabase
       .from("cvs")
@@ -58,6 +69,7 @@ export async function POST(req: Request) {
       .single();
 
     if (cvError || !cvData) {
+      await fallbackFail(supabase, cvId, "CV not found or unauthorized");
       return NextResponse.json({ error: "CV not found or unauthorized" }, { status: 404 });
     }
 
@@ -69,12 +81,17 @@ export async function POST(req: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+    adminClient = supabaseAdmin;
+
+    // Reset to pending if it was a retry
+    await supabaseAdmin.from("cvs").update({ parse_status: "pending", parse_error: null }).eq("id", cvId);
 
     const { data: fileBlob, error: downloadError } = await supabaseAdmin.storage
       .from("cvs")
       .download(file_path);
 
     if (downloadError || !fileBlob) {
+      await fallbackFail(supabaseAdmin, cvId, "Failed to download CV file from storage");
       return NextResponse.json(
         { error: "Failed to download CV file" },
         { status: 500 }
@@ -97,6 +114,7 @@ export async function POST(req: Request) {
       const parsedDocx = await mammoth.extractRawText({ buffer });
       extractedText = parsedDocx.value;
     } else {
+      await fallbackFail(supabaseAdmin, cvId, "Unsupported file type. Only PDF and DOCX are allowed.");
       return NextResponse.json(
         { error: "Unsupported file type. Only PDF and DOCX are allowed." },
         { status: 400 }
@@ -104,6 +122,7 @@ export async function POST(req: Request) {
     }
 
     if (!extractedText.trim()) {
+      await fallbackFail(supabaseAdmin, cvId, "No text could be extracted from the file structure");
       return NextResponse.json({ error: "No text could be extracted from the file" }, { status: 400 });
     }
 
@@ -141,22 +160,41 @@ export async function POST(req: Request) {
       .update({
         parsed_text: extractedText,
         parsed_data: object,
+        parse_status: "success",
+        parse_error: null
       })
       .eq("id", cvId);
 
     if (updateError) {
+      await fallbackFail(supabaseAdmin, cvId, "Failed to map CV database parsed row");
       return NextResponse.json(
         { error: "Failed to update CV with parsed data" },
         { status: 500 }
       );
     }
 
+    await consumeRateLimit(supabase, user.id, "/api/cv/parse");
+
     return NextResponse.json({ success: true, cv_id: cvId });
   } catch (error: any) {
     console.error("CV parsing error:", error);
+    if (innerCvId && adminClient) {
+      await fallbackFail(adminClient, innerCvId, error?.message || "Internal AI execution error");
+    }
     return NextResponse.json(
       { error: error?.message || "Internal server error during parsing" },
       { status: 500 }
     );
+  }
+}
+
+async function fallbackFail(client: any, id: string, message: string) {
+  try {
+    await client.from("cvs").update({
+      parse_status: "failed",
+      parse_error: message
+    }).eq("id", id);
+  } catch (err) {
+    console.error("Failed to commit fallback fail state", err);
   }
 }

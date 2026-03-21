@@ -10,7 +10,9 @@ import { useRouter } from "next/navigation";
 export function CVUpload({ onCancel }: { onCancel?: () => void }) {
   const router = useRouter();
   const supabase = createClient();
-  const [uploadState, setUploadState] = useState<"idle" | "uploading" | "parsing" | "success">("idle");
+  const [uploadState, setUploadState] = useState<"idle" | "uploading" | "parsing" | "success" | "failed">("idle");
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [currentCvId, setCurrentCvId] = useState<string | null>(null);
 
   const handleUpload = async (file: File) => {
     try {
@@ -64,33 +66,67 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
       }
 
       const cvId = insertData.id;
+      setCurrentCvId(cvId);
 
-      // 4. Call POST /api/cv/parse
+      // 4. Fire Parse & Poll
       setUploadState("parsing");
+      setParseError(null);
 
-      const parseRes = await fetch("/api/cv/parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cvId })
-      });
-      
-      if (!parseRes.ok) {
-        throw new Error("Failed to parse the CV via AI API.");
-      }
-
-      setUploadState("success");
-      toast.success("CV uploaded and parsed successfully!");
-      
-      // Short delay to let the user see the success checkmark before reloading the view
-      setTimeout(() => {
-        router.refresh();
-        if (onCancel) onCancel(); // If re-uploading, this will switch back to profile view
-      }, 1500);
+      dispatchParse(cvId);
+      pollStatus(cvId, Date.now());
 
     } catch (error: any) {
       toast.error(error.message || "An unexpected error occurred");
       setUploadState("idle");
     }
+  };
+
+  const dispatchParse = (cvId: string) => {
+    fetch("/api/cv/parse", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cvId })
+    }).catch(err => console.error("Parse request disconnected", err));
+  };
+
+  const pollStatus = (cvId: string, startTime: number) => {
+    const check = async () => {
+      if (Date.now() - startTime > 120_000) {
+        setUploadState("failed");
+        setParseError("Parsing timed out after 2 minutes. Claude might be heavily overloaded.");
+        return;
+      }
+
+      const { data, error } = await supabase.from("cvs").select("parse_status, parse_error").eq("id", cvId).single();
+      
+      if (!error && data) {
+        if (data.parse_status === "success") {
+          setUploadState("success");
+          toast.success("CV uploaded and parsed successfully!");
+          setTimeout(() => {
+            router.refresh();
+            if (onCancel) onCancel();
+          }, 1500);
+          return; // Exit loop
+        } else if (data.parse_status === "failed") {
+          setUploadState("failed");
+          setParseError(data.parse_error || "Failed to extract CV context.");
+          return; // Exit loop
+        }
+      }
+      
+      // Still pending or network blip, wait 5s and poll again
+      setTimeout(check, 5000);
+    };
+    check();
+  };
+
+  const handleRetry = () => {
+    if (!currentCvId) return;
+    setUploadState("parsing");
+    setParseError(null);
+    dispatchParse(currentCvId);
+    pollStatus(currentCvId, Date.now());
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -133,14 +169,16 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
       </div>
 
       <div
-        {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer flex flex-col items-center justify-center min-h-[300px] gap-4 ${
+        {...(uploadState === "idle" ? getRootProps() : {})}
+        className={`border-2 border-dashed rounded-xl p-12 text-center transition-all ${uploadState === "idle" ? "cursor-pointer" : "cursor-default"} flex flex-col items-center justify-center min-h-[300px] gap-4 ${
           isDragActive
             ? "border-blue-500 bg-blue-500/10"
-            : "border-[#1E3A5F] bg-[#111827] hover:border-blue-500/50 hover:bg-[#111827]/80"
-        } ${uploadState !== "idle" ? "opacity-50 pointer-events-none" : ""}`}
+            : uploadState === "failed" 
+              ? "border-red-500/50 bg-red-500/5"
+              : "border-[#1E3A5F] bg-[#111827] hover:border-blue-500/50 hover:bg-[#111827]/80"
+        } ${uploadState === "uploading" ? "opacity-50 pointer-events-none" : ""}`}
       >
-        <input {...getInputProps()} />
+        <input {...(uploadState === "idle" ? getInputProps() : {})} disabled={uploadState !== "idle"} />
         
         {uploadState === "idle" && (
           <>
@@ -179,6 +217,32 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
               <CheckCircle2 className="w-10 h-10 text-green-500" />
             </div>
             <p className="text-xl font-medium text-white">Upload complete!</p>
+          </div>
+        )}
+
+        {uploadState === "failed" && (
+          <div className="flex flex-col items-center gap-4 max-w-md text-center">
+            <div className="p-3 bg-red-500/10 rounded-full mb-1">
+              <X className="w-10 h-10 text-red-500" />
+            </div>
+            <p className="text-xl font-medium text-white">Parsing Failed</p>
+            <p className="text-sm text-red-400 bg-red-500/10 p-3 rounded-lg border border-red-500/20 break-words w-full">
+              {parseError || "Internal processing error."}
+            </p>
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => setUploadState("idle")}
+                className="px-6 py-2.5 bg-[#1E3A5F] hover:bg-[#2A4B75] text-white rounded-lg font-medium transition-colors border border-[#1E3A5F]"
+              >
+                Upload Different File
+              </button>
+              <button
+                onClick={handleRetry}
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20"
+              >
+                Retry Parse
+              </button>
+            </div>
           </div>
         )}
       </div>

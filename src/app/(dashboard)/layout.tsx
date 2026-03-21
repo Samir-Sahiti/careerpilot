@@ -18,10 +18,18 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+
+  const displayName = profile?.full_name || user.email?.split("@")[0] || "User";
+
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Sidebar acts as the navigation for the entire dashboard */}
-      <Sidebar userEmail={user.email ?? "unknown@user.com"} />
+      <Sidebar userEmail={user.email ?? "unknown@user.com"} displayName={displayName} />
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto">

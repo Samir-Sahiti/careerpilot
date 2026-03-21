@@ -10,7 +10,8 @@ import {
   MessageSquare, 
   TrendingUp, 
   Menu, 
-  X 
+  X,
+  Settings
 } from "lucide-react";
 import { SignOutButton } from "@/components/layout/SignOutButton";
 
@@ -22,7 +23,7 @@ const navLinks = [
   { name: "Career Ladder", href: "/career", icon: TrendingUp },
 ];
 
-export function Sidebar({ userEmail }: { userEmail: string }) {
+export function Sidebar({ userEmail, displayName }: { userEmail: string; displayName: string }) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -69,13 +70,29 @@ export function Sidebar({ userEmail }: { userEmail: string }) {
         </nav>
       </div>
 
+      {/* Settings Link at Bottom */}
+      <div className="mt-auto pt-4 px-2">
+        <Link
+          href="/settings"
+          onClick={() => setIsMobileOpen(false)}
+          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            pathname === "/settings"
+              ? "bg-blue-600/20 text-blue-400"
+              : "text-gray-400 hover:bg-white/5 hover:text-white"
+          }`}
+        >
+          <Settings className="h-5 w-5" />
+          Settings
+        </Link>
+      </div>
+
       {/* Bottom: User Info & Sign Out */}
-      <div className="mt-8 border-t border-[#1E3A5F] pt-4">
+      <div className="mt-4 border-t border-[#1E3A5F] pt-4">
         <div className="mb-2 px-3 flex flex-col gap-0.5 pointer-events-none">
-          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Logged in as
+          <span className="text-sm font-bold text-gray-200 truncate" title={displayName}>
+            {displayName}
           </span>
-          <span className="text-sm font-medium text-gray-300 truncate" title={userEmail}>
+          <span className="text-xs font-medium text-gray-500 truncate" title={userEmail}>
             {userEmail}
           </span>
         </div>

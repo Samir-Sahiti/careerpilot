@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
 import { cookies } from "next/headers";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -75,6 +76,11 @@ export async function POST(req: Request) {
 
     const parsedCv = cv.parsed_data as ParsedCvData;
 
+    const rateLimit = await checkRateLimit(supabase, user.id, "/api/interview/generate");
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: rateLimit.message }, { status: 429, headers: { "Retry-After": "3600" } });
+    }
+
     // ── AI Generation ────────────────────────────────────────────────────────
     const prompt = `You are an expert technical interviewer and career coach.
 
@@ -139,6 +145,8 @@ For each question, provide "guidance": 1–2 sentences explaining what a "good" 
         { status: 500 }
       );
     }
+
+    await consumeRateLimit(supabase, user.id, "/api/interview/generate");
 
     return NextResponse.json({ id: sessionData.id });
   } catch (error: unknown) {

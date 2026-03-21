@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   }
 
   // ── Parallel fetch — all four queries fire simultaneously ──────────────────
-  const [cvResult, jobsResult, interviewsResult, roadmapResult] =
+  const [cvResult, jobsResult, interviewsResult, roadmapResult, profileResult] =
     await Promise.all([
       // Active CV (single row or null)
       supabase
@@ -52,15 +52,23 @@ export default async function DashboardPage() {
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
+
+      // Profile details
+      supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .single()
     ]);
 
   const cv = (cvResult.data as Cv | null) ?? null;
   const jobs = (jobsResult.data as JobAnalysis[]) ?? [];
   const interviews = (interviewsResult.data as InterviewSession[]) ?? [];
   const roadmap = (roadmapResult.data as CareerRoadmap | null) ?? null;
+  const profile = profileResult?.data as { full_name: string } | null;
 
-  // Greeting: use name from email before the @
-  const displayName = user.email?.split("@")[0] ?? "there";
+  // Greeting: use name from profile or fallback to email prefix
+  const displayName = profile?.full_name || user.email?.split("@")[0] || "there";
 
   return (
     <div className="space-y-8 animate-fade-in-up">
