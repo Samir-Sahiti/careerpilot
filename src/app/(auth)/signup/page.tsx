@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,12 +22,23 @@ export default function SignupPage() {
       return;
     }
 
+    if (!displayName.trim()) {
+      toast.error("Please enter a display name");
+      return;
+    }
+
+    if (displayName.trim().length > 50) {
+      toast.error("Display name must be 50 characters or less");
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        data: { full_name: displayName.trim() },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
@@ -60,6 +72,20 @@ export default function SignupPage() {
         </div>
 
         <form onSubmit={handleSignup} className="flex flex-col gap-5">
+          <div>
+            <label className="auth-label" htmlFor="displayName">Display Name</label>
+            <input
+              id="displayName"
+              type="text"
+              required
+              maxLength={50}
+              className="auth-input"
+              placeholder="e.g. Samir"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </div>
+
           <div>
             <label className="auth-label" htmlFor="email">Email</label>
             <input

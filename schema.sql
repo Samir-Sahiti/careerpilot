@@ -25,14 +25,16 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- Tracks every CV file a user uploads. Files are stored in the `cvs` bucket.
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS cvs (
-  id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id      UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  file_name    TEXT        NOT NULL,
-  file_path    TEXT        NOT NULL,   -- path inside the `cvs` storage bucket
-  parsed_text  TEXT,                   -- raw text extracted from the PDF/DOCX
-  parsed_data  JSONB,                  -- structured profile data from AI
-  is_active    BOOLEAN     NOT NULL DEFAULT TRUE,
-  uploaded_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  file_name     TEXT        NOT NULL,
+  file_path     TEXT        NOT NULL,   -- path inside the `cvs` storage bucket
+  is_active     BOOLEAN     NOT NULL DEFAULT true,
+  parsed_text   TEXT,                   -- raw text extracted from the PDF/DOCX
+  parsed_data   JSONB,                  -- structured profile data from AI
+  parse_status  TEXT        NOT NULL DEFAULT 'pending',
+  parse_error   TEXT,
+  uploaded_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- -----------------------------------------------------------------------------
@@ -83,6 +85,14 @@ CREATE TABLE IF NOT EXISTS career_roadmaps (
   -- JSONB shape: array of { path_title, next_role, timeline_estimate, missing_skills, recommended_projects, experience_needed }
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS rate_limit_events (
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  route       TEXT        NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_rate_limit_events_user_time ON rate_limit_events(user_id, created_at);
 
 
 -- =============================================================================

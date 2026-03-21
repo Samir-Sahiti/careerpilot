@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
 import { cookies } from "next/headers";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -59,6 +60,11 @@ export async function POST(req: Request) {
       }
     }
 
+    const rateLimit = await checkRateLimit(supabase, user.id, "/api/career/roadmap");
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: rateLimit.message }, { status: 429, headers: { "Retry-After": "3600" } });
+    }
+
     // 3. AI Generation
     const cv = parsed_data as ParsedCvData;
     const systemPrompt = `
@@ -108,6 +114,8 @@ Provide the structured career roadmap paths.
       .single();
 
     if (insertError) throw insertError;
+
+    await consumeRateLimit(supabase, user.id, "/api/career/roadmap");
 
     return NextResponse.json({ roadmap: insertedRoadmap, cached: false });
 

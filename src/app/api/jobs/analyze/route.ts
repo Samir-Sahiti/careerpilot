@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
 import { cookies } from "next/headers";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -76,26 +77,10 @@ export async function POST(req: Request) {
 
     const parsedCv = cv.parsed_data as ParsedCvData;
 
-    // ── Rate Limiting (max 5 per hour) ────────────────────────────────────────
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const { count, error: countError } = await supabase
-      .from("job_analyses")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .gte("created_at", oneHourAgo);
-
-    if (countError) {
-      return NextResponse.json(
-        { error: "Failed to check analysis rate limit" },
-        { status: 500 }
-      );
-    }
-
-    if (count !== null && count >= 5) {
-      return NextResponse.json(
-        { error: "Rate limit exceeded. You can only perform 5 job analyses per hour." },
-        { status: 429 }
-      );
+    // ── Rate Limiting ────────────────────────────────────────
+    const rateLimit = await checkRateLimit(supabase, user.id, "/api/jobs/analyze");
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: rateLimit.message }, { status: 429, headers: { "Retry-After": "3600" } });
     }
 
     // ── AI analysis ───────────────────────────────────────────────────────────
@@ -170,6 +155,8 @@ Be honest and specific. Base the score on genuine match quality — do not infla
         { status: 500 }
       );
     }
+
+    await consumeRateLimit(supabase, user.id, "/api/jobs/analyze");
 
     return NextResponse.json({ id: newRow.id });
   } catch (error: unknown) {

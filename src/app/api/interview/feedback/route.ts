@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
 import { cookies } from "next/headers";
 import { streamText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -55,6 +56,14 @@ export async function POST(req: Request) {
     }
 
     const parsedCv = cvData.parsed_data as ParsedCvData;
+
+    const rateLimit = await checkRateLimit(supabase, user.id, "/api/interview/feedback");
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: rateLimit.message }, { status: 429, headers: { "Retry-After": "3600" } });
+    }
+    
+    // We consume right away before streaming since we can't cleanly hook post-stream in Serverless easily
+    await consumeRateLimit(supabase, user.id, "/api/interview/feedback");
 
     // ── AI Stream ────────────────────────────────────────────────────────────
 
