@@ -69,7 +69,7 @@ export interface JobAnalysis {
 /** Shape of each element inside interview_sessions.questions (JSONB) */
 export interface InterviewQuestion {
     id: string;
-    question: string;
+    question_text: string;
     user_answer: string | null;
     score: number | null;        // 0–10
     feedback: string | null;
@@ -85,14 +85,14 @@ export interface InterviewSession {
     created_at: string;
 }
 
-/** Shape of each element inside career_roadmaps.steps (JSONB) */
-export interface CareerStep {
-    id: string;
-    title: string;
-    description: string;
-    skills_to_learn: string[];
-    projects_to_build: string[];
-    estimated_months: number;
+/** Shape of each element inside career_roadmaps.paths (JSONB) */
+export interface CareerPath {
+    path_title: string;
+    next_role: string;
+    timeline_estimate: string;
+    missing_skills: string[];
+    recommended_projects: string[];
+    experience_needed: string;
 }
 
 /** Mirrors the `career_roadmaps` table */
@@ -100,7 +100,7 @@ export interface CareerRoadmap {
     id: string;
     user_id: string;
     current_role: string;
-    paths: any[];
+    paths: CareerPath[];
     created_at: string;
 }
 

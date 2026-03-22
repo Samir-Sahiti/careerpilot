@@ -46,13 +46,15 @@ export function CareerRoadmapWidget({ roadmap }: CareerRoadmapWidgetProps) {
             {/* Target role */}
             <div className="flex-1 min-w-0 text-right sm:text-right">
               <p className="text-gray-500 text-xs uppercase tracking-wider mb-1 font-medium">Target</p>
-              <p className="text-green-400 text-sm font-semibold truncate">{roadmap.target_role}</p>
+              <p className="text-green-400 text-sm font-semibold truncate">
+                {roadmap.paths?.[0]?.next_role || "Next Level"}
+              </p>
             </div>
           </div>
 
-          {/* Steps count */}
+          {/* Paths count */}
           <p className="text-gray-500 text-xs">
-            {roadmap.steps.length} step{roadmap.steps.length !== 1 ? "s" : ""} in your roadmap
+            {roadmap.paths?.length || 0} path{(roadmap.paths?.length || 0) !== 1 ? "s" : ""} in your roadmap
           </p>
 
           <Link
