@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
-import { cookies } from "next/headers";
 import { streamText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { Cv, ParsedCvData } from "@/types";
@@ -19,20 +18,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // ── Auth ─────────────────────────────────────────────────────────────────
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll() {},
-        },
-      }
-    );
+    const supabase = await createClient();
 
     const {
       data: { user },

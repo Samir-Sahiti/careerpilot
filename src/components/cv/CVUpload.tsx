@@ -81,12 +81,24 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
     }
   };
 
-  const dispatchParse = (cvId: string) => {
-    fetch("/api/cv/parse", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cvId })
-    }).catch(err => console.error("Parse request disconnected", err));
+  const dispatchParse = async (cvId: string) => {
+    try {
+      const res = await fetch("/api/cv/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cvId })
+      });
+      
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setUploadState("failed");
+        setParseError(data.error || `Server responded with ${res.status}`);
+      }
+    } catch (err) {
+      console.error("Parse request disconnected", err);
+      setUploadState("failed");
+      setParseError("Network request failed");
+    }
   };
 
   const pollStatus = (cvId: string, startTime: number) => {

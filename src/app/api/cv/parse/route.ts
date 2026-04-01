@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
-import { cookies } from "next/headers";
-import { createClient } from "@supabase/supabase-js";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import mammoth from "mammoth";
-// pdf-parse is purely CommonJS and breaks Turbopack ESM resolution when imported normally
-const pdfParse = require("pdf-parse");
 
 export const maxDuration = 60;
 
@@ -24,27 +20,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing cvId" }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              );
-            } catch {
-              // ignore
-            }
-          },
-        },
-      }
-    );
+    const supabase = await createClient();
 
     // Get the authenticated user
     const {
@@ -77,12 +53,7 @@ export async function POST(req: Request) {
 
     const { file_path, file_name } = cvData;
 
-    // Use service role to completely bypass RLS when fetching the storage object directly
-    // This allows backend downloads without worrying about session issues for storage fetching
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabaseAdmin = createAdminClient();
     adminClient = supabaseAdmin;
 
     // Reset to pending if it was a retry
@@ -110,6 +81,12 @@ export async function POST(req: Request) {
     const fileExt = file_name.split(".").pop()?.toLowerCase();
     
     if (fileExt === "pdf") {
+      if (typeof globalThis !== "undefined") {
+        if (!globalThis.DOMMatrix) (globalThis as any).DOMMatrix = class DOMMatrix {};
+        if (!globalThis.Path2D) (globalThis as any).Path2D = class Path2D {};
+        if (!globalThis.ImageData) (globalThis as any).ImageData = class ImageData {};
+      }
+      const pdfParse = require("pdf-parse");
       const parsedPdf = await pdfParse(buffer);
       extractedText = parsedPdf.text;
     } else if (fileExt === "docx") {

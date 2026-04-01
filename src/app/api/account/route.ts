@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 export async function DELETE(req: Request) {
   try {
@@ -14,10 +13,7 @@ export async function DELETE(req: Request) {
     }
 
     // 2. Instantiate Service Role client correctly bypassing RLS natively
-    const supabaseAdmin = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const supabaseAdmin = createAdminClient();
 
     // 3. Delete the account globally (Casscading postgres deletes rule)
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
