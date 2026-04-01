@@ -37,11 +37,9 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
   const [questions, setQuestions] = useState<InterviewQuestion[]>(initialQs);
   const [currentIndex, setCurrentIndex] = useState(0);
   
-  // The user's active typed answer for the current question
-  const [currentAnswer, setCurrentAnswer] = useState(questions[0]?.user_answer || "");
   const [isSaving, setIsSaving] = useState(false);
 
-  // Auto-scroll ref for streaming feedback
+  // The auto-scroll ref for streaming feedback
   const feedbackEndRef = useRef<HTMLDivElement>(null);
 
   const currentQ = questions[currentIndex];
@@ -73,7 +71,7 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
       const qsClone = [...questions];
       qsClone[currentIndex] = {
         ...qsClone[currentIndex],
-        user_answer: currentAnswer, // store their text
+        user_answer: prompt, // store their submitted text
         feedback: cleanFeedback,
         score,
       };
@@ -87,7 +85,7 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             questionIndex: currentIndex,
-            answer: currentAnswer,
+            answer: prompt,
             feedback: cleanFeedback,
             score,
           }),
@@ -105,16 +103,9 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
     }
   });
 
-  // Sync the `input` managed by useCompletion with our `currentAnswer` visually
-  useEffect(() => {
-    // If the streaming hook handles input, sync it internally
-    setCurrentAnswer(input);
-  }, [input]);
-
   // When changing questions, reset the input to any previously saved answer or blank
   useEffect(() => {
     const q = questions[currentIndex];
-    setCurrentAnswer(q.user_answer || "");
     setInput(q.user_answer || "");
   }, [currentIndex, questions, setInput]);
 
@@ -154,7 +145,7 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
 
   const onSubmitAnswerWrapper = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentAnswer.trim() || isQuestionAnswered) return;
+    if (!input.trim() || isQuestionAnswered) return;
     
     // Trigger the actual Vercel AI useCompletion POST request
     handleSubmit(e);
@@ -216,7 +207,7 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
             Your Answer
           </label>
           <textarea
-            value={currentAnswer}
+            value={input}
             onChange={handleInputChange} // bound directly to useCompletion
             disabled={isLoading || isQuestionAnswered || isSaving}
             placeholder="Type your answer here exactly as you would speak it..."
@@ -227,7 +218,7 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={!currentAnswer.trim() || isSaving}
+                disabled={!input.trim() || isSaving}
                 className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors text-sm"
               >
                 Submit Answer
