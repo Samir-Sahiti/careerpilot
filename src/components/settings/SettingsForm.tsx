@@ -20,6 +20,8 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Security State
+  const [newEmail, setNewEmail] = useState(email);
+  const [isSavingEmail, setIsSavingEmail] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -57,6 +59,23 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
       toast.error(error.message || "Failed to update profile");
     } finally {
       setIsSavingProfile(false);
+    }
+  };
+
+  const handleSaveEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEmail || newEmail === email) return;
+
+    setIsSavingEmail(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail });
+      if (error) throw error;
+
+      toast.success("Confirmation links sent to both old and new email addresses!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update email");
+    } finally {
+      setIsSavingEmail(false);
     }
   };
 
@@ -174,18 +193,33 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
         </div>
 
         <div className="p-6 bg-[#0D1117] space-y-6">
-          <div className="max-w-md">
-            <label className="block text-sm font-medium text-gray-400 mb-1.5">
-              Email Address
-            </label>
-            <input
-              type="email"
-              disabled
-              value={email}
-              className="w-full bg-[#1A263A]/50 border border-[#2A4B75]/50 text-gray-400 rounded-lg px-4 py-2.5 cursor-not-allowed"
-            />
-            <p className="text-xs text-gray-500 mt-2">Email addresses cannot be changed currently.</p>
-          </div>
+          <form onSubmit={handleSaveEmail} className="max-w-md space-y-4">
+            <h3 className="text-sm font-semibold text-gray-200">Change Email Address</h3>
+            <div>
+              <label htmlFor="newEmail" className="block text-sm font-medium text-gray-300 mb-1.5">
+                Email Address
+              </label>
+              <input
+                id="newEmail"
+                type="email"
+                required
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                className="w-full bg-[#1A263A] border border-[#2A4B75] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isSavingEmail || newEmail === email}
+              className="px-6 py-2.5 bg-[#1E3A5F] hover:bg-[#2A4B75] text-white rounded-lg font-medium transition-colors border border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isSavingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              {isSavingEmail ? "Updating Email..." : "Update Email"}
+            </button>
+            <p className="text-xs text-gray-500 mt-2">
+              You will receive a confirmation link at both your old and new email addresses to verify the change.
+            </p>
+          </form>
 
           <div className="border-t border-[#1E3A5F] pt-6"></div>
 

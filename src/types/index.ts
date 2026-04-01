@@ -1,141 +1,154 @@
 // =============================================================================
 // CareerPilot — Shared TypeScript types
-// These interfaces mirror the database tables 1-to-1.
-// Column names use camelCase here to match JS conventions; the DB uses snake_case.
 // =============================================================================
 
-
-// =============================================================================
-// Database row types (match every column in schema.sql)
-// =============================================================================
-
-/** Mirrors the `profiles` table */
+// ── Profile ───────────────────────────────────────────────────────────────────
 export interface Profile {
-    id: string;                  // UUID — same as auth.users.id
-    full_name: string | null;
-    avatar_url: string | null;
-    created_at: string;          // ISO timestamp
-    updated_at: string;
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-/** Mirrors the `cvs` table */
+// ── CV ────────────────────────────────────────────────────────────────────────
 export interface Cv {
-    id: string;
-    user_id: string;
-    file_name: string;
-    file_path: string;           // path inside the `cvs` storage bucket
-    parsed_text: string | null;
-    parsed_data: ParsedCvData | null; // structured profile data from AI
-    parse_status: string;        // 'pending' | 'success' | 'failed'
-    parse_error: string | null;
-    is_active: boolean;
-    uploaded_at: string;
+  id: string;
+  user_id: string;
+  file_name: string;
+  file_path: string;
+  parsed_text: string | null;
+  parsed_data: ParsedCvData | null;
+  parse_status: string;       // 'pending' | 'success' | 'failed'
+  parse_error: string | null;
+  is_active: boolean;
+  uploaded_at: string;
 }
 
 export interface ParsedCvData {
-    current_role: string;
-    seniority_level: 'Junior' | 'Mid' | 'Senior' | 'Lead' | 'Principal';
-    years_of_experience: number;
-    skills: string[];
-    education: {
-      degree: string;
-      institution: string;
-      year?: number;
-    }[];
-    experience: {
-      title: string;
-      company: string;
-      duration: string;
-      summary: string;
-    }[];
-    achievements: string[];
+  current_role: string;
+  seniority_level: 'Junior' | 'Mid' | 'Senior' | 'Lead' | 'Principal';
+  years_of_experience: number;
+  skills: string[];
+  education: { degree: string; institution: string; year?: number }[];
+  experience: { title: string; company: string; duration: string; summary: string }[];
+  achievements: string[];
 }
 
-/** Mirrors the `job_analyses` table */
+// ── Job Analysis ──────────────────────────────────────────────────────────────
+export interface SalaryEstimate {
+  currency: string;        // e.g. "GBP", "USD"
+  low: number;             // e.g. 45000
+  mid: number;             // e.g. 60000
+  high: number;            // e.g. 75000
+  factors: string[];       // e.g. ["Remote role", "4 years experience"]
+  negotiation_tip: string;
+}
+
 export interface JobAnalysis {
-    id: string;
-    user_id: string;
-    cv_id: string | null;
-    job_title: string;
-    company: string | null;
-    job_raw_text: string;
-    fit_score: number | null;    // 0–100
-    recommendation: 'apply' | 'maybe' | 'skip' | null;
-    recommendation_reason: string | null;
-    matched_skills: string[];
-    missing_skills: string[];
-    cv_suggestions: string[];
-    created_at: string;
+  id: string;
+  user_id: string;
+  cv_id: string | null;
+  job_title: string;
+  company: string | null;
+  job_raw_text: string;
+  fit_score: number | null;
+  recommendation: 'apply' | 'maybe' | 'skip' | null;
+  recommendation_reason: string | null;
+  matched_skills: string[];
+  missing_skills: string[];
+  cv_suggestions: string[];
+  salary_estimate: SalaryEstimate | null;
+  created_at: string;
 }
 
-/** Shape of each element inside interview_sessions.questions (JSONB) */
+// ── Interview ─────────────────────────────────────────────────────────────────
 export interface InterviewQuestion {
-    id: string;
-    question_text: string;
-    type: 'behavioral' | 'technical' | 'role-specific';
-    guidance: string;
-    user_answer: string | null;
-    score: number | null;        // 0–100
-    feedback: string | null;
+  id: string;
+  question_text: string;
+  type: 'behavioral' | 'technical' | 'role-specific';
+  guidance: string;
+  user_answer: string | null;
+  score: number | null;    // 0–100
+  feedback: string | null;
 }
 
-/** Mirrors the `interview_sessions` table */
 export interface InterviewSession {
-    id: string;
-    user_id: string;
-    job_analysis_id: string | null;
-    questions: InterviewQuestion[];
-    overall_score: number | null; // 0–100
-    created_at: string;
+  id: string;
+  user_id: string;
+  job_analysis_id: string | null;
+  questions: InterviewQuestion[];
+  overall_score: number | null;
+  created_at: string;
 }
 
-/** Shape of each element inside career_roadmaps.paths (JSONB) */
+// ── Career Roadmap ─────────────────────────────────────────────────────────────
 export interface CareerPath {
-    path_title: string;
-    next_role: string;
-    timeline_estimate: string;
-    missing_skills: string[];
-    recommended_projects: string[];
-    experience_needed: string;
+  path_title: string;
+  next_role: string;
+  timeline_estimate: string;
+  missing_skills: string[];
+  recommended_projects: string[];
+  experience_needed: string;
 }
 
-/** Mirrors the `career_roadmaps` table */
 export interface CareerRoadmap {
-    id: string;
-    user_id: string;
-    current_role: string;
-    paths: CareerPath[];
-    created_at: string;
+  id: string;
+  user_id: string;
+  current_role: string;
+  paths: CareerPath[];
+  created_at: string;
 }
 
+// ── Cover Letter ──────────────────────────────────────────────────────────────
+export interface CoverLetter {
+  id: string;
+  user_id: string;
+  job_analysis_id: string | null;
+  job_title: string;
+  company: string | null;
+  content: string;
+  created_at: string;
+}
 
-// =============================================================================
-// Application-level DTOs (used in UI / API request/response shapes)
-// =============================================================================
+// ── Application Tracker ───────────────────────────────────────────────────────
+export type ApplicationStatus = 'saved' | 'applied' | 'interviewing' | 'offered' | 'rejected';
 
-/** Payload sent when the user submits a job listing for analysis */
+export interface Application {
+  id: string;
+  user_id: string;
+  job_analysis_id: string | null;
+  cover_letter_id: string | null;
+  job_title: string;
+  company: string | null;
+  job_url: string | null;
+  status: ApplicationStatus;
+  applied_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ── DTOs ──────────────────────────────────────────────────────────────────────
 export interface AnalyseJobPayload {
-    cvId: string;
-    jobTitle: string;
-    company?: string;
-    jobRawText: string;
+  cvId: string;
+  jobTitle: string;
+  company?: string;
+  jobRawText: string;
 }
 
-/** Payload sent when starting a mock-interview session */
 export interface StartInterviewPayload {
-    jobAnalysisId: string;
+  jobAnalysisId: string;
 }
 
-/** Payload sent when the user submits an answer during a mock interview */
 export interface SubmitAnswerPayload {
-    sessionId: string;
-    questionId: string;
-    answer: string;
+  sessionId: string;
+  questionId: string;
+  answer: string;
 }
 
-/** Payload sent when generating a career roadmap */
 export interface GenerateRoadmapPayload {
-    currentRole: string;
-    targetRole: string;
-    cvId?: string;
+  currentRole: string;
+  targetRole: string;
+  cvId?: string;
 }

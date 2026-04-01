@@ -21,11 +21,7 @@ export async function POST(req: Request) {
 
     const supabase = await createClient();
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -40,24 +36,16 @@ export async function POST(req: Request) {
       .single();
 
     if (cvError || !cvData) {
-      return NextResponse.json(
-        { error: "Active CV not found or does not belong to you" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Active CV not found" }, { status: 404 });
     }
 
     const cv = cvData as Cv;
-
     if (!cv.parsed_data) {
-      return NextResponse.json(
-        { error: "CV has not been parsed yet. Please wait for processing to complete." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "CV has not been parsed yet." }, { status: 400 });
     }
 
     const parsedCv = cv.parsed_data as ParsedCvData;
 
-    // ── Rate Limiting ────────────────────────────────────────
     const rateLimit = await checkRateLimit(supabase, user.id, "/api/jobs/analyze");
     if (!rateLimit.allowed) {
       return NextResponse.json({ error: rateLimit.message }, { status: 429, headers: { "Retry-After": "3600" } });
@@ -66,8 +54,7 @@ export async function POST(req: Request) {
     // ── AI analysis ───────────────────────────────────────────────────────────
     const prompt = `You are an expert technical recruiter and career coach.
 
-A candidate is applying for the following role:
-
+A candidate is applying for:
 JOB TITLE: ${jobTitle}
 ${company ? `COMPANY: ${company}` : ""}
 
@@ -86,15 +73,18 @@ ${parsedCv.experience.map((e) => `- ${e.title} at ${e.company} (${e.duration}): 
 
 ---
 
-Analyse how well the candidate matches this role. Provide:
-1. A fit_score from 0–100 (integer) reflecting overall match quality.
-2. recommendation: should the candidate 'apply', 'maybe' apply, or 'skip' this role?
-3. recommendation_reason: a candid 1-2 sentence explanation for your recommendation
-4. matched_skills: skills from the candidate's profile that directly match the role requirements
-5. missing_skills: important skills/requirements from the job description the candidate lacks
-6. cv_suggestions: 3–5 concrete, actionable suggestions for how the candidate could improve their CV / Resume or profile to better match this role (e.g. "Add your experience with Docker to your skills section — the role lists it as required")
-
-Be honest and specific. Base the score on genuine match quality — do not inflate the score.`;
+Provide:
+1. fit_score (0–100 integer) — genuine match quality, do not inflate
+2. recommendation: 'apply' / 'maybe' / 'skip' — honest assessment
+3. recommendation_reason: 1–2 candid sentences
+4. matched_skills: candidate skills that directly match the role
+5. missing_skills: required skills the candidate lacks
+6. cv_suggestions: 3–5 specific, actionable improvements (e.g. "Add Docker to skills — the role lists it as required")
+7. salary_estimate: a realistic salary range for this role in the likely market. Be conservative and honest.
+   - Infer currency and location from the job listing (default to USD if unclear)
+   - low/mid/high should reflect real market rates for the seniority level inferred from the listing
+   - factors: list 3–5 key things influencing the range (e.g. "Remote-friendly", "Series B startup", "Requires 5+ years")
+   - negotiation_tip: 1–2 sentences on the candidate's best leverage points given their matched skills`;
 
     const { object: analysis } = await generateObject({
       model: anthropic("claude-haiku-4-5"),
@@ -105,11 +95,19 @@ Be honest and specific. Base the score on genuine match quality — do not infla
         matched_skills: z.array(z.string()),
         missing_skills: z.array(z.string()),
         cv_suggestions: z.array(z.string()),
+        salary_estimate: z.object({
+          currency: z.string(),
+          low: z.number(),
+          mid: z.number(),
+          high: z.number(),
+          factors: z.array(z.string()),
+          negotiation_tip: z.string(),
+        }).nullable().optional(),
       }),
       prompt,
     });
 
-    // ── Persist result ────────────────────────────────────────────────────────
+    // ── Persist ───────────────────────────────────────────────────────────────
     const { data: newRow, error: insertError } = await supabase
       .from("job_analyses")
       .insert({
@@ -124,25 +122,20 @@ Be honest and specific. Base the score on genuine match quality — do not infla
         matched_skills: analysis.matched_skills,
         missing_skills: analysis.missing_skills,
         cv_suggestions: analysis.cv_suggestions,
+        salary_estimate: analysis.salary_estimate ?? null,
       })
       .select("id")
       .single();
 
     if (insertError || !newRow) {
-      console.error("Failed to insert job_analysis:", insertError);
-      return NextResponse.json(
-        { error: "Failed to save analysis result" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to save analysis" }, { status: 500 });
     }
 
     await consumeRateLimit(supabase, user.id, "/api/jobs/analyze");
 
     return NextResponse.json({ id: newRow.id });
   } catch (error: unknown) {
-    console.error("Job analysis error:", error);
-    const message =
-      error instanceof Error ? error.message : "Internal server error";
+    const message = error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

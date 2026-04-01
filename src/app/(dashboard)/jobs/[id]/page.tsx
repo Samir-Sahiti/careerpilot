@@ -1,37 +1,78 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { JobAnalysis } from "@/types";
+import { JobAnalysis, SalaryEstimate } from "@/types";
 import { FitScoreArc } from "@/components/jobs/FitScoreArc";
+import { TrackApplicationButton } from "@/components/jobs/TrackApplicationButton";
 import Link from "next/link";
-import { 
-  ArrowLeft, 
-  Building2, 
-  MapPin, 
-  CheckCircle2, 
-  XCircle, 
+import {
+  ArrowLeft,
+  Building2,
+  CheckCircle2,
+  XCircle,
   Lightbulb,
   MessageSquare,
-  AlertTriangle
+  AlertTriangle,
+  FileEdit,
+  DollarSign,
+  TrendingUp,
 } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+// ── Salary range bar ──────────────────────────────────────────────────────────
+function SalaryRangeBar({ salary }: { salary: SalaryEstimate }) {
+  const range = salary.high - salary.low;
+  const midPct = range > 0 ? ((salary.mid - salary.low) / range) * 100 : 50;
+
+  const fmt = (n: number) =>
+    new Intl.NumberFormat("en", {
+      notation: "compact",
+      maximumFractionDigits: 0,
+    }).format(n);
+
+  return (
+    <div className="space-y-4">
+      {/* Range row */}
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-semibold text-gray-400 w-16 text-right shrink-0">
+          {salary.currency} {fmt(salary.low)}
+        </span>
+        <div className="relative flex-1 h-3 bg-[#1E3A5F]/60 rounded-full">
+          {/* Fill to mid */}
+          <div
+            className="absolute left-0 top-0 h-full bg-blue-600/60 rounded-full"
+            style={{ width: `${midPct}%` }}
+          />
+          {/* Mid marker */}
+          <div
+            className="absolute top-1/2 w-4 h-4 bg-blue-400 rounded-full border-2 border-[#0A0F1C] shadow"
+            style={{ left: `${midPct}%`, transform: "translate(-50%, -50%)" }}
+          />
+        </div>
+        <span className="text-sm font-semibold text-gray-400 w-16 shrink-0">
+          {salary.currency} {fmt(salary.high)}
+        </span>
+      </div>
+      {/* Mid label */}
+      <p className="text-center text-xs text-gray-500">
+        Mid-range estimate:{" "}
+        <span className="text-white font-semibold">
+          {salary.currency} {fmt(salary.mid)}
+        </span>
+      </p>
+    </div>
+  );
+}
+
 export default async function JobAnalysisResultPage({ params }: PageProps) {
-  const resolvedParams = await params;
-  const analysisId = resolvedParams.id;
+  const { id: analysisId } = await params;
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  // ── Fetch the analysis securely ──────────────────────────────────────────
   const { data: analysisData, error } = await supabase
     .from("job_analyses")
     .select("*")
@@ -39,60 +80,41 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
     .eq("user_id", user.id)
     .single();
 
-  if (error || !analysisData) {
-    notFound();
-  }
+  if (error || !analysisData) notFound();
 
   const analysis = analysisData as JobAnalysis;
 
-  // ── Recommendation formatting ────────────────────────────────────────────
   const rec = analysis.recommendation || "maybe";
   let recTheme = "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
   let RecIcon = AlertTriangle;
-
-  if (rec === "apply") {
-    recTheme = "bg-green-500/10 text-green-400 border-green-500/20";
-    RecIcon = CheckCircle2;
-  } else if (rec === "skip") {
-    recTheme = "bg-red-500/10 text-red-400 border-red-500/20";
-    RecIcon = XCircle;
-  }
+  if (rec === "apply") { recTheme = "bg-green-500/10 text-green-400 border-green-500/20"; RecIcon = CheckCircle2; }
+  if (rec === "skip")  { recTheme = "bg-red-500/10 text-red-400 border-red-500/20";     RecIcon = XCircle; }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up pb-12">
-      {/* ── Top Navigation ────────────────────────────────────────────────── */}
-      <Link
-        href="/jobs"
-        className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
-      >
+
+      {/* Back */}
+      <Link href="/jobs" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
         <ArrowLeft className="w-4 h-4" />
         Back to all analyses
       </Link>
 
-      {/* ── Header Card ───────────────────────────────────────────────────── */}
+      {/* Header card */}
       <div className="bg-[#111827] border border-[#1E3A5F] rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row gap-8 items-start sm:items-center relative overflow-hidden">
-        {/* Glow */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/2 -translate-y-1/2" />
-        
-        {/* Score Ring */}
         <FitScoreArc score={analysis.fit_score ?? 0} />
-
         <div className="flex-1 space-y-4 relative z-10 w-full">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white" style={{ fontFamily: "var(--font-heading)" }}>
               {analysis.job_title}
             </h1>
-            <div className="flex flex-wrap items-center gap-4 mt-2 text-gray-400 text-sm">
-              {analysis.company && (
-                <span className="flex items-center gap-1.5 font-medium text-gray-300">
-                  <Building2 className="w-4 h-4" />
-                  {analysis.company}
-                </span>
-              )}
-            </div>
+            {analysis.company && (
+              <span className="flex items-center gap-1.5 font-medium text-gray-300 text-sm mt-2">
+                <Building2 className="w-4 h-4" />
+                {analysis.company}
+              </span>
+            )}
           </div>
-
-          {/* AI Recommendation Banner */}
           <div className={`flex items-start gap-3 p-4 rounded-xl border ${recTheme}`}>
             <RecIcon className="w-5 h-5 mt-0.5 shrink-0" />
             <div>
@@ -107,21 +129,17 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* ── Details Grid ──────────────────────────────────────────────────── */}
+      {/* Skills grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Matched Skills */}
         <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-4">
           <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
             <CheckCircle2 className="w-5 h-5 text-green-500" />
             <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Matched Skills</h3>
           </div>
-          {analysis.matched_skills && analysis.matched_skills.length > 0 ? (
+          {analysis.matched_skills?.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {analysis.matched_skills.map((skill, i) => (
-                <span key={i} className="px-3 py-1 bg-[#1E3A5F]/30 text-green-400 text-sm font-medium rounded-md border border-green-500/20">
-                  {skill}
-                </span>
+                <span key={i} className="px-3 py-1 bg-[#1E3A5F]/30 text-green-400 text-sm font-medium rounded-md border border-green-500/20">{skill}</span>
               ))}
             </div>
           ) : (
@@ -129,41 +147,35 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
           )}
         </div>
 
-        {/* Missing Skills */}
         <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-4">
           <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
             <XCircle className="w-5 h-5 text-red-500" />
-            <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Missing Required Skills</h3>
+            <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Missing Skills</h3>
           </div>
-          {analysis.missing_skills && analysis.missing_skills.length > 0 ? (
+          {analysis.missing_skills?.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {analysis.missing_skills.map((skill, i) => (
-                <span key={i} className="px-3 py-1 bg-[#1E3A5F]/30 text-red-400 text-sm font-medium rounded-md border border-red-500/20">
-                  {skill}
-                </span>
+                <span key={i} className="px-3 py-1 bg-[#1E3A5F]/30 text-red-400 text-sm font-medium rounded-md border border-red-500/20">{skill}</span>
               ))}
             </div>
           ) : (
             <p className="text-sm text-gray-500 italic">You meet all listed requirements!</p>
           )}
         </div>
-
       </div>
 
-      {/* ── CV Suggestions ────────────────────────────────────────────────── */}
+      {/* CV Suggestions */}
       <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
           <Lightbulb className="w-5 h-5 text-amber-500" />
           <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Actionable CV Suggestions</h3>
         </div>
-        {analysis.cv_suggestions && analysis.cv_suggestions.length > 0 ? (
+        {analysis.cv_suggestions?.length > 0 ? (
           <ul className="space-y-3">
-            {analysis.cv_suggestions.map((suggestion, i) => (
+            {analysis.cv_suggestions.map((s, i) => (
               <li key={i} className="flex gap-3 text-sm text-gray-300">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-[#1E3A5F]/50 flex items-center justify-center text-xs font-bold text-amber-500">
-                  {i + 1}
-                </span>
-                <span className="pt-0.5 leading-relaxed">{suggestion}</span>
+                <span className="shrink-0 w-6 h-6 rounded-full bg-[#1E3A5F]/50 flex items-center justify-center text-xs font-bold text-amber-500">{i + 1}</span>
+                <span className="pt-0.5 leading-relaxed">{s}</span>
               </li>
             ))}
           </ul>
@@ -172,17 +184,65 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
         )}
       </div>
 
-      {/* ── Floating CTA Action ───────────────────────────────────────────── */}
-      <div className="pt-6 border-t border-[#1E3A5F] flex sm:justify-end">
+      {/* Salary Estimate */}
+      {analysis.salary_estimate && (
+        <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-6">
+          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
+            <DollarSign className="w-5 h-5 text-emerald-500" />
+            <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Salary Estimate</h3>
+            <span className="ml-auto text-xs text-gray-600 font-normal">
+              Verify with Glassdoor or Levels.fyi
+            </span>
+          </div>
+
+          <SalaryRangeBar salary={analysis.salary_estimate} />
+
+          {/* Factors */}
+          {analysis.salary_estimate.factors?.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {analysis.salary_estimate.factors.map((f, i) => (
+                <span key={i} className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-md border border-emerald-500/20">
+                  {f}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Negotiation tip */}
+          {analysis.salary_estimate.negotiation_tip && (
+            <div className="flex items-start gap-3 bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg p-4">
+              <TrendingUp className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-gray-300 leading-relaxed">
+                <span className="text-emerald-400 font-semibold">Negotiation tip: </span>
+                {analysis.salary_estimate.negotiation_tip}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* CTAs */}
+      <div className="pt-6 border-t border-[#1E3A5F] flex flex-wrap items-center gap-3 sm:justify-end">
+        <TrackApplicationButton
+          jobAnalysisId={analysis.id}
+          jobTitle={analysis.job_title}
+          company={analysis.company}
+        />
+        <Link
+          href={`/cover-letter?job_analysis_id=${analysis.id}`}
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-[#111827] border border-[#1E3A5F] hover:border-blue-500/50 hover:bg-[#1E3A5F]/30 text-gray-300 hover:text-white font-medium rounded-lg transition-all text-sm"
+        >
+          <FileEdit className="w-4 h-4" />
+          Generate Cover Letter
+        </Link>
         <Link
           href={`/interview/new?job_id=${analysis.id}`}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors text-sm shadow-lg shadow-blue-900/20"
+          className="flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors text-sm shadow-lg shadow-blue-900/20"
         >
           <MessageSquare className="w-4 h-4" />
           Start Interview Prep
         </Link>
       </div>
-
     </div>
   );
 }
