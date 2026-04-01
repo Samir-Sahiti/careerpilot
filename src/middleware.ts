@@ -41,7 +41,10 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/cv") ||
     pathname.startsWith("/jobs") ||
     pathname.startsWith("/interview") ||
-    pathname.startsWith("/career");
+    pathname.startsWith("/career") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/cover-letter") ||
+    pathname.startsWith("/applications");
 
   // Unauthenticated user trying to access a protected route → redirect to /login
   if (!session && isDashboardRoute) {

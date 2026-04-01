@@ -26,6 +26,8 @@ export interface Cv {
     file_path: string;           // path inside the `cvs` storage bucket
     parsed_text: string | null;
     parsed_data: ParsedCvData | null; // structured profile data from AI
+    parse_status: string;        // 'pending' | 'success' | 'failed'
+    parse_error: string | null;
     is_active: boolean;
     uploaded_at: string;
 }
@@ -70,8 +72,10 @@ export interface JobAnalysis {
 export interface InterviewQuestion {
     id: string;
     question_text: string;
+    type: 'behavioral' | 'technical' | 'role-specific';
+    guidance: string;
     user_answer: string | null;
-    score: number | null;        // 0–10
+    score: number | null;        // 0–100
     feedback: string | null;
 }
 
@@ -80,8 +84,8 @@ export interface InterviewSession {
     id: string;
     user_id: string;
     job_analysis_id: string | null;
-    questions: any[]; // Or define a stricter InterviewQuestion array type if desired
-    overall_score: number | null;
+    questions: InterviewQuestion[];
+    overall_score: number | null; // 0–100
     created_at: string;
 }
 

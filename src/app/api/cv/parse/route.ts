@@ -10,6 +10,8 @@ import mammoth from "mammoth";
 // pdf-parse is purely CommonJS and breaks Turbopack ESM resolution when imported normally
 const pdfParse = require("pdf-parse");
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   let innerCvId: string | null = null;
   let adminClient: any = null;

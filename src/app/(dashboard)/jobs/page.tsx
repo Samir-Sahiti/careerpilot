@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { JobAnalyzerForm } from "@/components/jobs/JobAnalyzerForm";
 import { JobAnalysisList } from "@/components/jobs/JobAnalysisList";
 import Link from "next/link";
-import { CopyX, ArrowRight, Loader2 } from "lucide-react";
+import { CopyX, ArrowRight, Loader2, AlertTriangle } from "lucide-react";
 import { Cv } from "@/types";
 
 export default async function JobsPage() {
@@ -57,7 +57,36 @@ export default async function JobsPage() {
 
   const cv = cvData as Cv;
 
-  // Condition 2: CV uploaded, but parsed_data is not generated yet
+  // Condition 2: CV parse failed — show a clear error, not an endless spinner
+  if (cv.parse_status === "failed") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 animate-fade-in-up max-w-md mx-auto">
+        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20">
+          <AlertTriangle className="w-8 h-8 text-red-400" />
+        </div>
+        <div>
+          <h2
+            className="text-2xl font-bold text-white mb-2"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
+            CV parsing failed
+          </h2>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            {cv.parse_error || "There was an error processing your CV."}
+          </p>
+        </div>
+        <Link
+          href="/cv"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors text-sm"
+        >
+          Fix CV
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+    );
+  }
+
+  // Condition 3: CV still being parsed (pending)
   if (!cv.parsed_data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 animate-fade-in-up">
@@ -72,16 +101,16 @@ export default async function JobsPage() {
           Check back in a minute to start analysing jobs.
         </p>
         <Link
-          href="/dashboard"
+          href="/cv"
           className="text-blue-400 hover:text-blue-300 text-sm font-medium mt-4"
         >
-          ← Back to dashboard
+          ← View CV status
         </Link>
       </div>
     );
   }
 
-  // Condition 3: Ready to analyse
+  // Condition 4: Ready to analyse
   return (
     <div className="max-w-5xl mx-auto space-y-12 animate-fade-in-up pb-12">
       <JobAnalyzerForm cvId={cv.id} />
@@ -89,4 +118,3 @@ export default async function JobsPage() {
     </div>
   );
 }
-

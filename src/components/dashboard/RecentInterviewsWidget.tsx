@@ -1,19 +1,10 @@
 import Link from "next/link";
 import { MessageSquare, ArrowRight, Mic } from "lucide-react";
-import { InterviewSession, InterviewQuestion } from "@/types";
+import { InterviewSession } from "@/types";
 import { format } from "date-fns";
 
 interface RecentInterviewsWidgetProps {
   sessions: InterviewSession[];
-}
-
-/** Compute average score from graded questions, returns null if no graded answers yet */
-function computeOverallScore(questions: InterviewQuestion[]): number | null {
-  const graded = questions.filter((q) => q.score !== null);
-  if (graded.length === 0) return null;
-  const sum = graded.reduce((acc, q) => acc + (q.score ?? 0), 0);
-  // scores are 0-10 per question, display as percentage
-  return Math.round((sum / (graded.length * 10)) * 100);
 }
 
 function ScoreBadge({ score }: { score: number | null }) {
@@ -60,23 +51,21 @@ export function RecentInterviewsWidget({ sessions }: RecentInterviewsWidgetProps
       {/* Content */}
       {sessions.length > 0 ? (
         <ul className="flex flex-col divide-y divide-[#1E3A5F]/50">
-          {sessions.map((session) => {
-            const score = computeOverallScore(session.questions);
-            return (
-              <li key={session.id} className="flex items-center justify-between py-3 gap-3">
-                <div className="min-w-0">
-                  <p className="text-white text-sm font-medium">
-                    Practice session
-                  </p>
-                  <p className="text-gray-500 text-xs mt-0.5">
-                    {format(new Date(session.created_at), "MMM d, yyyy")} ·{" "}
-                    {session.questions.length} questions
-                  </p>
-                </div>
-                <ScoreBadge score={score} />
-              </li>
-            );
-          })}
+          {sessions.map((session) => (
+            <li key={session.id} className="flex items-center justify-between py-3 gap-3">
+              <div className="min-w-0">
+                <p className="text-white text-sm font-medium">
+                  Practice session
+                </p>
+                <p className="text-gray-500 text-xs mt-0.5">
+                  {format(new Date(session.created_at), "MMM d, yyyy")} ·{" "}
+                  {session.questions.length} questions
+                </p>
+              </div>
+              {/* Use the pre-computed overall_score saved to DB — no error-prone re-derivation */}
+              <ScoreBadge score={session.overall_score} />
+            </li>
+          ))}
         </ul>
       ) : (
         /* Empty state */

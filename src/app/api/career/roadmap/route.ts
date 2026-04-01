@@ -7,6 +7,8 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { ParsedCvData } from "@/types";
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   try {
     let force = false;

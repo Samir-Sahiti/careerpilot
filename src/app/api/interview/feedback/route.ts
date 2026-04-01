@@ -6,6 +6,8 @@ import { streamText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { Cv, ParsedCvData } from "@/types";
 
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   try {
     const { prompt, question, type, jobTitle, company } = await req.json();
