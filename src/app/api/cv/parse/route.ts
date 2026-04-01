@@ -86,7 +86,13 @@ export async function POST(req: Request) {
         if (!globalThis.Path2D) (globalThis as any).Path2D = class Path2D {};
         if (!globalThis.ImageData) (globalThis as any).ImageData = class ImageData {};
       }
-      const pdfParse = require("pdf-parse");
+      const pdfParseModule = require("pdf-parse");
+      const pdfParse = typeof pdfParseModule === "function" ? pdfParseModule : pdfParseModule.default;
+      
+      if (typeof pdfParse !== "function") {
+        throw new Error("pdf-parse is not a function after require. It is: " + typeof pdfParseModule);
+      }
+
       const parsedPdf = await pdfParse(buffer);
       extractedText = parsedPdf.text;
     } else if (fileExt === "docx") {
