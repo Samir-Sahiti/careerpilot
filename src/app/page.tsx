@@ -5,10 +5,28 @@ import { createClient } from "@/lib/supabase/server";
 // ── Feature card data ─────────────────────────────────────────────────────────
 const features = [
   {
+    emoji: "📄",
+    title: "Smart CV Parsing",
+    description:
+      "Upload your CV once. Our AI reads your PDF and extracts your entire profile to power deeply personalised insights across every tool.",
+  },
+  {
     emoji: "🎯",
     title: "Job Analyser",
     description:
       "Paste any job listing and get an instant fit score, matched skills, and a personalised skill gap analysis.",
+  },
+  {
+    emoji: "📝",
+    title: "Cover Letters",
+    description:
+      "Generate tailored, highly personalised cover letters instantly based on your CV and the specific job requirements.",
+  },
+  {
+    emoji: "📋",
+    title: "Application Tracker",
+    description:
+      "Keep all your applications organised in one place. Save notes, track statuses, and never lose a job link again.",
   },
   {
     emoji: "🎤",
@@ -195,11 +213,11 @@ export default async function LandingPage() {
             Everything your career needs
           </h2>
           <p style={{ color: "#64748B" }} className="text-lg max-w-xl mx-auto">
-            Three powerful tools, one seamless workflow.
+            A comprehensive suite of tools, one seamless workflow.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, i) => (
             <div
               key={feature.title}
