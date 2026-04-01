@@ -87,10 +87,17 @@ export async function POST(req: Request) {
         if (!globalThis.ImageData) (globalThis as any).ImageData = class ImageData {};
       }
       const pdfParseModule = require("pdf-parse");
-      const pdfParse = typeof pdfParseModule === "function" ? pdfParseModule : pdfParseModule.default;
+      // Handle the various ways the library can be wrapped by modern bundlers
+      let pdfParse = typeof pdfParseModule === "function" ? pdfParseModule : pdfParseModule.default;
       
+      // If still not a function, look for any exported function in the object
       if (typeof pdfParse !== "function") {
-        throw new Error("pdf-parse is not a function after require. It is: " + typeof pdfParseModule);
+        const keys = Object.keys(pdfParseModule);
+        pdfParse = pdfParseModule[keys.find(k => typeof pdfParseModule[k] === "function") as string];
+      }
+
+      if (typeof pdfParse !== "function") {
+        throw new Error(`pdf-parse is not a function. Module type: ${typeof pdfParseModule}. Keys: ${Object.keys(pdfParseModule).join(", ")}`);
       }
 
       const parsedPdf = await pdfParse(buffer);
