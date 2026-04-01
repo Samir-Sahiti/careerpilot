@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -14,66 +14,91 @@ interface CVSkillsEditProps {
 export function CVSkillsEdit({ cvId, parsedData }: CVSkillsEditProps) {
   const [skills, setSkills] = useState<string[]>(parsedData.skills || []);
   const [newSkill, setNewSkill] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const supabase = createClient();
+
+  // Sync state if parsedData changes from parent
+  useEffect(() => {
+    if (parsedData.skills) {
+      setSkills(parsedData.skills);
+    }
+  }, [parsedData.skills]);
 
   const handleAddSkill = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newSkill.trim()) return;
-    
     const skillToAdd = newSkill.trim();
+    if (!skillToAdd || isSubmitting) return;
+    
     if (skills.includes(skillToAdd)) {
       setNewSkill("");
+      toast.info(`"${skillToAdd}" is already in your skills.`);
       return;
     }
 
+    setIsSubmitting(true);
     const updatedSkills = [...skills, skillToAdd];
-    setSkills(updatedSkills);
-    setNewSkill("");
-
     const updatedData = { ...parsedData, skills: updatedSkills };
 
-    const { error } = await supabase
-      .from("cvs")
-      .update({ parsed_data: updatedData })
-      .eq("id", cvId);
+    try {
+      // Optimistic update
+      setSkills(updatedSkills);
+      setNewSkill("");
 
-    if (error) {
-      toast.error("Failed to add skill");
-      // Revert optimistic update
+      const { error } = await supabase
+        .from("cvs")
+        .update({ parsed_data: updatedData })
+        .eq("id", cvId);
+
+      if (error) throw error;
+      toast.success("Skill added");
+    } catch (error) {
+      console.error("Add skill error:", error);
+      toast.error("Failed to save skill changes");
+      // Revert on failure
       setSkills(skills);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleRemoveSkill = async (skillToRemove: string) => {
-    const updatedSkills = skills.filter(s => s !== skillToRemove);
-    setSkills(updatedSkills);
+    if (isSubmitting) return;
 
+    const updatedSkills = skills.filter(s => s !== skillToRemove);
     const updatedData = { ...parsedData, skills: updatedSkills };
 
-    const { error } = await supabase
-      .from("cvs")
-      .update({ parsed_data: updatedData })
-      .eq("id", cvId);
+    setIsSubmitting(true);
+    try {
+      setSkills(updatedSkills);
 
-    if (error) {
+      const { error } = await supabase
+        .from("cvs")
+        .update({ parsed_data: updatedData })
+        .eq("id", cvId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Remove skill error:", error);
       toast.error("Failed to remove skill");
-      // Revert optimistic update
       setSkills(skills);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-hidden">
       <div className="flex flex-wrap gap-2">
         {skills.map((skill) => (
           <span 
             key={skill} 
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-blue-600/10 text-blue-400 border border-blue-500/20"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-blue-600/10 text-blue-400 border border-blue-500/20 max-w-full"
           >
-            {skill}
+            <span className="truncate">{skill}</span>
             <button 
               onClick={() => handleRemoveSkill(skill)}
-              className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded-full p-0.5 transition-colors"
+              disabled={isSubmitting}
+              className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded-full p-0.5 transition-colors flex-shrink-0"
               aria-label={`Remove ${skill}`}
             >
               <X className="w-3.5 h-3.5" />
@@ -82,20 +107,22 @@ export function CVSkillsEdit({ cvId, parsedData }: CVSkillsEditProps) {
         ))}
       </div>
       
-      <form onSubmit={handleAddSkill} className="flex items-center gap-2 max-w-sm">
+      <form onSubmit={handleAddSkill} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         <input
           type="text"
           value={newSkill}
           onChange={(e) => setNewSkill(e.target.value)}
+          disabled={isSubmitting}
           placeholder="Add a skill..."
-          className="flex-1 bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          className="flex-1 bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 min-w-0"
         />
         <button 
           type="submit"
-          disabled={!newSkill.trim()}
-          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+          disabled={isSubmitting || !newSkill.trim()}
+          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 shrink-0"
         >
-          <Plus className="w-4 h-4" /> Add
+          {isSubmitting ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}
+          <span>Add Skill</span>
         </button>
       </form>
     </div>

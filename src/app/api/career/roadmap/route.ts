@@ -77,7 +77,7 @@ Provide the structured career roadmap paths.
     `;
 
     const { object } = await generateObject({
-      model: anthropic("claude-3-7-sonnet-20250219"),
+      model: anthropic("claude-haiku-4-5"),
       system: systemPrompt.trim(),
       prompt: userPrompt.trim(),
       schema: z.object({

@@ -8,9 +8,55 @@ import mammoth from "mammoth";
 
 export const maxDuration = 60;
 
+// ---------------------------------------------------------------------------
+// PDF text extraction using pdfjs-dist directly.
+// We use the legacy/build which is the CommonJS Node.js-compatible bundle.
+// The text extraction API (getTextContent) has zero DOM/canvas dependencies —
+// those are only needed for visual rendering, which we deliberately skip.
+// ---------------------------------------------------------------------------
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  const [pdfjs, pdfWorker] = await Promise.all([
+    // @ts-ignore
+    import("pdfjs-dist/legacy/build/pdf.mjs"),
+    // @ts-ignore
+    import("pdfjs-dist/legacy/build/pdf.worker.mjs")
+  ]);
+
+  // Set the worker source to the imported worker module to satisfy the loader
+  if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+    pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
+  }
+
+  const loadingTask = pdfjs.getDocument({
+    data: new Uint8Array(buffer),
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  });
+
+  const pdfDoc = await loadingTask.promise;
+  const pages: string[] = [];
+
+  for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+    const page = await pdfDoc.getPage(pageNum);
+    const content = await page.getTextContent();
+    const pageText = content.items
+      .map((item: any) => ("str" in item ? item.str : ""))
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (pageText) pages.push(pageText);
+  }
+
+  return pages.join("\n\n");
+}
+
+// ---------------------------------------------------------------------------
+// POST /api/cv/parse
+// ---------------------------------------------------------------------------
 export async function POST(req: Request) {
   let innerCvId: string | null = null;
-  let adminClient: any = null;
+  let adminClient: ReturnType<typeof createAdminClient> | null = null;
 
   try {
     const { cvId } = await req.json();
@@ -22,7 +68,6 @@ export async function POST(req: Request) {
 
     const supabase = await createClient();
 
-    // Get the authenticated user
     const {
       data: { user },
       error: userError,
@@ -34,11 +79,13 @@ export async function POST(req: Request) {
 
     const rateLimit = await checkRateLimit(supabase, user.id, "/api/cv/parse");
     if (!rateLimit.allowed) {
-      await fallbackFail(supabase, cvId, rateLimit.message || "Rate limit error");
-      return NextResponse.json({ error: rateLimit.message }, { status: 429, headers: { "Retry-After": "3600" } });
+      return NextResponse.json(
+        { error: rateLimit.message },
+        { status: 429, headers: { "Retry-After": "3600" } }
+      );
     }
 
-    // Verify cv_id belongs to user and get the file path
+    // Verify cv_id belongs to the authenticated user
     const { data: cvData, error: cvError } = await supabase
       .from("cvs")
       .select("file_path, file_name")
@@ -47,66 +94,48 @@ export async function POST(req: Request) {
       .single();
 
     if (cvError || !cvData) {
-      await fallbackFail(supabase, cvId, "CV not found or unauthorized");
-      return NextResponse.json({ error: "CV not found or unauthorized" }, { status: 404 });
+      return NextResponse.json(
+        { error: "CV not found or unauthorized" },
+        { status: 404 }
+      );
     }
 
     const { file_path, file_name } = cvData;
 
-    const supabaseAdmin = createAdminClient();
-    adminClient = supabaseAdmin;
+    // Use admin client for storage operations (bypasses RLS)
+    adminClient = createAdminClient();
 
-    // Reset to pending if it was a retry
-    await supabaseAdmin.from("cvs").update({ parse_status: "pending", parse_error: null }).eq("id", cvId);
+    // Mark as pending (useful for retries)
+    await adminClient
+      .from("cvs")
+      .update({ parse_status: "pending", parse_error: null })
+      .eq("id", cvId);
 
-    const { data: fileBlob, error: downloadError } = await supabaseAdmin.storage
+    // Download file from storage
+    const { data: fileBlob, error: downloadError } = await adminClient.storage
       .from("cvs")
       .download(file_path);
 
     if (downloadError || !fileBlob) {
-      await fallbackFail(supabaseAdmin, cvId, "Failed to download CV file from storage");
+      await markFailed(adminClient, cvId, "Failed to download CV from storage");
       return NextResponse.json(
         { error: "Failed to download CV file" },
         { status: 500 }
       );
     }
 
-    // Convert Blob to Buffer
-    const arrayBuffer = await fileBlob.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
+    const buffer = Buffer.from(await fileBlob.arrayBuffer());
+    const fileExt = file_name.split(".").pop()?.toLowerCase();
     let extractedText = "";
 
-    // Extract Text based on file extension
-    const fileExt = file_name.split(".").pop()?.toLowerCase();
-    
+    // ── Text Extraction ───────────────────────────────────────────────────────
     if (fileExt === "pdf") {
-      if (typeof globalThis !== "undefined") {
-        if (!globalThis.DOMMatrix) (globalThis as any).DOMMatrix = class DOMMatrix {};
-        if (!globalThis.Path2D) (globalThis as any).Path2D = class Path2D {};
-        if (!globalThis.ImageData) (globalThis as any).ImageData = class ImageData {};
-      }
-      const pdfParseModule = require("pdf-parse");
-      // Handle the various ways the library can be wrapped by modern bundlers
-      let pdfParse = typeof pdfParseModule === "function" ? pdfParseModule : pdfParseModule.default;
-      
-      // If still not a function, look for any exported function in the object
-      if (typeof pdfParse !== "function") {
-        const keys = Object.keys(pdfParseModule);
-        pdfParse = pdfParseModule[keys.find(k => typeof pdfParseModule[k] === "function") as string];
-      }
-
-      if (typeof pdfParse !== "function") {
-        throw new Error(`pdf-parse is not a function. Module type: ${typeof pdfParseModule}. Keys: ${Object.keys(pdfParseModule).join(", ")}`);
-      }
-
-      const parsedPdf = await pdfParse(buffer);
-      extractedText = parsedPdf.text;
+      extractedText = await extractPdfText(buffer);
     } else if (fileExt === "docx") {
-      const parsedDocx = await mammoth.extractRawText({ buffer });
-      extractedText = parsedDocx.value;
+      const result = await mammoth.extractRawText({ buffer });
+      extractedText = result.value;
     } else {
-      await fallbackFail(supabaseAdmin, cvId, "Unsupported file type. Only PDF and DOCX are allowed.");
+      await markFailed(adminClient, cvId, "Unsupported file type");
       return NextResponse.json(
         { error: "Unsupported file type. Only PDF and DOCX are allowed." },
         { status: 400 }
@@ -114,13 +143,20 @@ export async function POST(req: Request) {
     }
 
     if (!extractedText.trim()) {
-      await fallbackFail(supabaseAdmin, cvId, "No text could be extracted from the file structure");
-      return NextResponse.json({ error: "No text could be extracted from the file" }, { status: 400 });
+      await markFailed(
+        adminClient,
+        cvId,
+        "No readable text could be extracted from this file"
+      );
+      return NextResponse.json(
+        { error: "No text could be extracted from the file" },
+        { status: 400 }
+      );
     }
 
-    // AI Parsing with Vercel AI SDK
+    // ── AI Parsing ────────────────────────────────────────────────────────────
     const { object } = await generateObject({
-      model: anthropic("claude-3-7-sonnet-20250219"),
+      model: anthropic("claude-haiku-4-5"),
       schema: z.object({
         current_role: z.string(),
         seniority_level: z.enum(["Junior", "Mid", "Senior", "Lead", "Principal"]),
@@ -146,19 +182,19 @@ export async function POST(req: Request) {
       prompt: `Extract structured profile data from this CV:\n\n${extractedText}`,
     });
 
-    // Update the cvs row with parsed text and data
-    const { error: updateError } = await supabaseAdmin
+    // ── Persist Results ───────────────────────────────────────────────────────
+    const { error: updateError } = await adminClient
       .from("cvs")
       .update({
         parsed_text: extractedText,
         parsed_data: object,
         parse_status: "success",
-        parse_error: null
+        parse_error: null,
       })
       .eq("id", cvId);
 
     if (updateError) {
-      await fallbackFail(supabaseAdmin, cvId, "Failed to map CV database parsed row");
+      await markFailed(adminClient, cvId, "Failed to save parsed CV data");
       return NextResponse.json(
         { error: "Failed to update CV with parsed data" },
         { status: 500 }
@@ -171,7 +207,11 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("CV parsing error:", error);
     if (innerCvId && adminClient) {
-      await fallbackFail(adminClient, innerCvId, error?.message || "Internal AI execution error");
+      await markFailed(
+        adminClient,
+        innerCvId,
+        error?.message || "Internal server error"
+      );
     }
     return NextResponse.json(
       { error: error?.message || "Internal server error during parsing" },
@@ -180,13 +220,20 @@ export async function POST(req: Request) {
   }
 }
 
-async function fallbackFail(client: any, id: string, message: string) {
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+async function markFailed(
+  client: ReturnType<typeof createAdminClient>,
+  cvId: string,
+  message: string
+) {
   try {
-    await client.from("cvs").update({
-      parse_status: "failed",
-      parse_error: message
-    }).eq("id", id);
+    await client
+      .from("cvs")
+      .update({ parse_status: "failed", parse_error: message })
+      .eq("id", cvId);
   } catch (err) {
-    console.error("Failed to commit fallback fail state", err);
+    console.error("Failed to write error state to DB:", err);
   }
 }

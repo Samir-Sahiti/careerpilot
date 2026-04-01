@@ -36,13 +36,38 @@ export function ProfileContainer({ cv }: ProfileContainerProps) {
             Last updated: {format(updatedAt, "MMMM do, yyyy")}
           </p>
         </div>
-        <button
-          onClick={() => setIsReuploading(true)}
-          className="bg-[#111827] border border-[#1E3A5F] text-white hover:bg-[#1E3A5F]/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-        >
-          <Upload className="w-4 h-4" />
-          Re-upload CV
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={async () => {
+              if (confirm("Are you sure you want to delete your CV profile? This action will permanently remove your skills and analysis results.")) {
+                try {
+                  const res = await fetch(`/api/cv/${cv.id}`, {
+                    method: "DELETE",
+                  });
+                  if (res.ok) {
+                    window.location.reload();
+                  } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to delete CV profile");
+                  }
+                } catch (err) {
+                  console.error("Deletion error:", err);
+                  alert("An unexpected error occurred during deletion.");
+                }
+              }
+            }}
+            className="bg-[#0A0F1C] border border-red-500/30 text-red-400 hover:bg-red-500/10 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          >
+            Delete Profile
+          </button>
+          <button
+            onClick={() => setIsReuploading(true)}
+            className="bg-[#111827] border border-[#1E3A5F] text-white hover:bg-[#1E3A5F]/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Re-upload CV
+          </button>
+        </div>
       </div>
 
       {/* ── Header Card (Role, Seniority, Exp) ─────────────────────────────────── */}

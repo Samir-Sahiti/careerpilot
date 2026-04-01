@@ -85,7 +85,7 @@ Critically: If there is a mismatch between my skills and the role requirements, 
 For each question, provide "guidance": 1–2 sentences explaining what a "good" answer should cover or highlight from my specific background.`;
 
     const { object: result } = await generateObject({
-      model: anthropic("claude-3-7-sonnet-20250219"),
+      model: anthropic("claude-haiku-4-5"),
       schema: z.object({
         questions: z.array(
           z.object({

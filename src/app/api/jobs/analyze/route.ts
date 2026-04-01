@@ -97,7 +97,7 @@ Analyse how well the candidate matches this role. Provide:
 Be honest and specific. Base the score on genuine match quality — do not inflate the score.`;
 
     const { object: analysis } = await generateObject({
-      model: anthropic("claude-3-7-sonnet-20250219"),
+      model: anthropic("claude-haiku-4-5"),
       schema: z.object({
         fit_score: z.number().int().min(0).max(100),
         recommendation: z.enum(["apply", "maybe", "skip"]),
