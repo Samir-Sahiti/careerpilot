@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,11 +12,36 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const router = useRouter();
   const supabase = createClient();
+
+  // Handle immediate redirect if the user confirms email in another tab
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        toast.success("Account confirmed! Redirecting...");
+        router.push("/dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase, router]);
+
+  const validatePassword = (pw: string) => {
+    if (pw.length < 8) return "Password must be at least 8 characters long";
+    if (!/[0-9]/.test(pw)) return "Password must contain at least one number";
+    if (!/[!@#$%^&*(),.?\":{}|<>]/.test(pw)) return "Password must contain at least one special character";
+    return null;
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      toast.error(passwordError);
+      return;
+    }
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
@@ -50,6 +76,8 @@ export default function SignupPage() {
     }
 
     toast.success("Check your email to confirm your account!");
+    // Don't set loading to false here, to show "Waiting for confirmation..." state if desired
+    // Or just keep it as is.
     setLoading(false);
   };
 
@@ -110,6 +138,9 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            <p className="text-[10px] mt-1.5 opacity-60 leading-relaxed">
+              Minimum 8 characters, at least one number and one special character.
+            </p>
           </div>
 
           <div>

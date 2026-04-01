@@ -39,7 +39,7 @@ export function ProfileContainer({ cv }: ProfileContainerProps) {
         <div className="flex gap-3">
           <button
             onClick={async () => {
-              if (confirm("Are you sure you want to delete your CV profile? This action will permanently remove your skills and analysis results.")) {
+              if (confirm("Are you sure you want to delete your profile? This action will permanently remove your skills and analysis results.")) {
                 try {
                   const res = await fetch(`/api/cv/${cv.id}`, {
                     method: "DELETE",
@@ -65,7 +65,7 @@ export function ProfileContainer({ cv }: ProfileContainerProps) {
             className="bg-[#111827] border border-[#1E3A5F] text-white hover:bg-[#1E3A5F]/50 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
           >
             <Upload className="w-4 h-4" />
-            Re-upload CV
+            Re-upload CV / Resume
           </button>
         </div>
       </div>

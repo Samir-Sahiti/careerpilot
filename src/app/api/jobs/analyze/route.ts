@@ -92,7 +92,7 @@ Analyse how well the candidate matches this role. Provide:
 3. recommendation_reason: a candid 1-2 sentence explanation for your recommendation
 4. matched_skills: skills from the candidate's profile that directly match the role requirements
 5. missing_skills: important skills/requirements from the job description the candidate lacks
-6. cv_suggestions: 3–5 concrete, actionable suggestions for how the candidate could improve their CV or profile to better match this role (e.g. "Add your experience with Docker to your skills section — the role lists it as required")
+6. cv_suggestions: 3–5 concrete, actionable suggestions for how the candidate could improve their CV / Resume or profile to better match this role (e.g. "Add your experience with Docker to your skills section — the role lists it as required")
 
 Be honest and specific. Base the score on genuine match quality — do not inflate the score.`;
 

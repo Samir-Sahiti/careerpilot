@@ -15,6 +15,27 @@ export const maxDuration = 60;
 // those are only needed for visual rendering, which we deliberately skip.
 // ---------------------------------------------------------------------------
 async function extractPdfText(buffer: Buffer): Promise<string> {
+  // Polyfill browser-only APIs if they don't exist (Node.js environment requirement for PDF.js)
+  if (typeof global !== "undefined") {
+    if (!(global as any).DOMMatrix) {
+      (global as any).DOMMatrix = class DOMMatrix {
+        constructor() {}
+        static fromFloat32Array() { return new DOMMatrix(); }
+        static fromFloat64Array() { return new DOMMatrix(); }
+      };
+    }
+    if (!(global as any).DOMPoint) {
+      (global as any).DOMPoint = class DOMPoint {
+        constructor() {}
+      };
+    }
+    if (!(global as any).DOMRect) {
+      (global as any).DOMRect = class DOMRect {
+        constructor() {}
+      };
+    }
+  }
+
   const [pdfjs, pdfWorker] = await Promise.all([
     // @ts-ignore
     import("pdfjs-dist/legacy/build/pdf.mjs"),
@@ -48,7 +69,13 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
     if (pageText) pages.push(pageText);
   }
 
-  return pages.join("\n\n");
+  const finalResult = pages.join("\n\n");
+  
+  if (!finalResult.trim()) {
+    throw new Error("This PDF appears to be a scanned image or contains no selectable text. Please upload a standard PDF text document.");
+  }
+
+  return finalResult;
 }
 
 // ---------------------------------------------------------------------------
@@ -130,14 +157,27 @@ export async function POST(req: Request) {
 
     // ── Text Extraction ───────────────────────────────────────────────────────
     if (fileExt === "pdf") {
-      extractedText = await extractPdfText(buffer);
+      try {
+        extractedText = await extractPdfText(buffer);
+      } catch (err: any) {
+        console.error("PDF Extraction Error:", err);
+        await markFailed(adminClient, cvId, `PDF Extraction failed: ${err.message || "Unknown error"}`);
+        return NextResponse.json({ error: "Could not read this PDF. It might be encrypted or corrupted." }, { status: 500 });
+      }
     } else if (fileExt === "docx") {
       const result = await mammoth.extractRawText({ buffer });
       extractedText = result.value;
-    } else {
-      await markFailed(adminClient, cvId, "Unsupported file type");
+    } else if (fileExt === "doc") {
+      // Mammoth and most serverless-friendly parsers do not support legacy .doc
+      await markFailed(adminClient, cvId, "Legacy .doc format is not supported for AI analysis.");
       return NextResponse.json(
-        { error: "Unsupported file type. Only PDF and DOCX are allowed." },
+        { error: "Legacy Word (.doc) files are not supported. Please save as .docx or .pdf and try again." },
+        { status: 400 }
+      );
+    } else {
+      await markFailed(adminClient, cvId, `Unsupported file type: .${fileExt}`);
+      return NextResponse.json(
+        { error: `Unsupported file type (.${fileExt}). Only PDF and DOCX are currently supported for AI analysis.` },
         { status: 400 }
       );
     }
@@ -179,7 +219,7 @@ export async function POST(req: Request) {
         ),
         achievements: z.array(z.string()),
       }),
-      prompt: `Extract structured profile data from this CV:\n\n${extractedText}`,
+      prompt: `Extract structured profile data from this CV / Resume:\n\n${extractedText}`,
     });
 
     // ── Persist Results ───────────────────────────────────────────────────────

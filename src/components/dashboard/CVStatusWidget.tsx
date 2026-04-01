@@ -15,7 +15,7 @@ export function CVStatusWidget({ cv }: CVStatusWidgetProps) {
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-blue-400" />
           <h2 className="text-base font-semibold text-white" style={{ fontFamily: "var(--font-heading)" }}>
-            Your CV
+            Your CV / Resume
           </h2>
         </div>
         <Link
@@ -33,7 +33,7 @@ export function CVStatusWidget({ cv }: CVStatusWidgetProps) {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-              CV Uploaded
+              File Uploaded
             </span>
           </div>
 
@@ -62,14 +62,14 @@ export function CVStatusWidget({ cv }: CVStatusWidgetProps) {
           </div>
           <div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              No CV uploaded yet — add yours to unlock all features.
+              No Resume or CV uploaded yet — add yours to unlock all features.
             </p>
           </div>
           <Link
             href="/cv"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
           >
-            Upload your CV <ArrowRight className="w-4 h-4" />
+            Upload your CV / Resume <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       )}

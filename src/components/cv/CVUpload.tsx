@@ -145,6 +145,7 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
     accept: {
       "application/pdf": [".pdf"],
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "application/msword": [".doc"],
     },
     maxSize: 5 * 1024 * 1024, // 5MB
     onDropRejected: (files) => {
@@ -152,7 +153,7 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
       if (error?.code === "file-too-large") {
         toast.error("File is larger than 5MB limit");
       } else if (error?.code === "file-invalid-type") {
-        toast.error("Only PDF and DOCX files are accepted");
+        toast.error("Only PDF, DOCX, and DOC files are accepted");
       } else {
         toast.error(error?.message || "File rejected");
       }
@@ -173,10 +174,10 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
       
       <div>
         <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "var(--font-heading)" }}>
-          {onCancel ? "Update Your CV" : "Upload Your CV"}
+          {onCancel ? "Update Your CV / Resume" : "Upload Your CV / Resume"}
         </h1>
         <p className="text-gray-400 leading-relaxed">
-          Upload your latest CV in PDF or DOCX format. CareerPilot&apos;s AI will analyse your background to power all dashboard features.
+          Upload your latest CV or Resume in PDF, DOCX, or DOC format. CareerPilot&apos;s AI will analyse your background to power all dashboard features.
         </p>
       </div>
 
@@ -199,10 +200,10 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
             </div>
             <div>
               <p className="text-xl font-medium text-white mb-1">
-                {isDragActive ? "Drop your CV here" : "Click or drag and drop your CV"}
+                {isDragActive ? "Drop your CV / Resume here" : "Click or drag and drop your CV / Resume"}
               </p>
               <p className="text-sm text-gray-500">
-                PDF or DOCX (max 5MB)
+                PDF, DOCX, or DOC (max 5MB)
               </p>
             </div>
           </>
@@ -237,22 +238,31 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
             <div className="p-3 bg-red-500/10 rounded-full mb-1">
               <X className="w-10 h-10 text-red-500" />
             </div>
-            <p className="text-xl font-medium text-white">Parsing Failed</p>
+            <p className="text-xl font-medium text-white">Analysis Failed</p>
             <p className="text-sm text-red-400 bg-red-500/10 p-3 rounded-lg border border-red-500/20 break-words w-full">
               {parseError || "Internal processing error."}
             </p>
+            <p className="text-[11px] text-gray-500 italic px-4">
+              Tip: If the error persists, try converting your file to a standard PDF.
+            </p>
             <div className="flex gap-3 mt-4">
               <button
-                onClick={() => setUploadState("idle")}
+                type="button"
+                onClick={() => {
+                  setUploadState("idle");
+                  setParseError(null);
+                  setCurrentCvId(null);
+                }}
                 className="px-6 py-2.5 bg-[#1E3A5F] hover:bg-[#2A4B75] text-white rounded-lg font-medium transition-colors border border-[#1E3A5F]"
               >
                 Upload Different File
               </button>
               <button
+                type="button"
                 onClick={handleRetry}
                 className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20"
               >
-                Retry Parse
+                Retry Analysis
               </button>
             </div>
           </div>
@@ -264,9 +274,9 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
           <FileType className="w-5 h-5 text-blue-500" />
         </div>
         <div>
-          <h3 className="font-semibold text-white text-base mb-1">Why do we need your CV?</h3>
+          <h3 className="font-semibold text-white text-base mb-1">Why do we need your CV / Resume?</h3>
           <p className="text-sm text-gray-400 leading-relaxed">
-            Your CV is the foundation for CareerPilot. It allows our AI to instantly identify your skill gaps when you look at a job listing, ask highly relevant mock interview questions, and build realistic career roadmaps based on your actual experience.
+            Your file is the foundation for CareerPilot. It allows our AI to instantly identify your skill gaps when you look at a job listing, ask highly relevant mock interview questions, and build realistic career roadmaps based on your actual experience.
           </p>
         </div>
       </div>
