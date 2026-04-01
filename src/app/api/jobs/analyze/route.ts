@@ -87,7 +87,7 @@ ${parsedCv.experience.map((e) => `- ${e.title} at ${e.company} (${e.duration}): 
 ---
 
 Analyse how well the candidate matches this role. Provide:
-1. A fit_score from 0–100 (integer) reflecting overall match quality
+1. A fit_score from 0–100 (integer) reflecting overall match quality.
 2. recommendation: should the candidate 'apply', 'maybe' apply, or 'skip' this role?
 3. recommendation_reason: a candid 1-2 sentence explanation for your recommendation
 4. matched_skills: skills from the candidate's profile that directly match the role requirements
@@ -99,7 +99,7 @@ Be honest and specific. Base the score on genuine match quality — do not infla
     const { object: analysis } = await generateObject({
       model: anthropic("claude-haiku-4-5"),
       schema: z.object({
-        fit_score: z.number().int().min(0).max(100),
+        fit_score: z.number().int(),
         recommendation: z.enum(["apply", "maybe", "skip"]),
         recommendation_reason: z.string(),
         matched_skills: z.array(z.string()),

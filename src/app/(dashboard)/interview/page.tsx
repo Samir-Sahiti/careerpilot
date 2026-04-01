@@ -14,18 +14,29 @@ export default async function InterviewHistoryPage() {
   if (!user) redirect("/login");
 
   // Fetch all sessions ordered by newest first
-  const { data: sessions, error } = await supabase
-    .from("interview_sessions")
-    .select("*, job_analyses(job_title, company)")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const [sessionsRes, analysesRes] = await Promise.all([
+    supabase
+      .from("interview_sessions")
+      .select("*, job_analyses(job_title, company)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("job_analyses")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(2)
+  ]);
 
-  if (error) {
-    console.error("Failed to fetch interviews", error);
+  const sessions = sessionsRes.data || [];
+  const recentAnalyses = analysesRes.data || [];
+
+  if (sessionsRes.error) {
+    console.error("Failed to fetch interviews", sessionsRes.error);
   }
 
-  // ── Empty State ────────────────────────────────────────────────────────────
-  if (!sessions || sessions.length === 0) {
+  // ── Empty State (No sessions and no analyses) ─────────────────────────────
+  if (sessions.length === 0 && recentAnalyses.length === 0) {
     return (
       <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up pb-12">
         <h1 className="text-3xl font-extrabold text-white" style={{ fontFamily: "var(--font-heading)" }}>
@@ -41,7 +52,7 @@ export default async function InterviewHistoryPage() {
           <div className="space-y-2">
             <h2 className="text-xl font-semibold text-white">No interviews yet</h2>
             <p className="text-gray-400 max-w-md mx-auto text-sm leading-relaxed">
-              Practise your interviewing skills using our AI hiring manager tailored specifically to your CV and target role.
+              Practise your interviewing skills using our AI hiring manager tailored specifically to your CV / Resume and target role.
             </p>
           </div>
 
@@ -58,8 +69,6 @@ export default async function InterviewHistoryPage() {
       </div>
     );
   }
-
-  // ── History List ───────────────────────────────────────────────────────────
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up pb-12">
       <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -68,19 +77,60 @@ export default async function InterviewHistoryPage() {
             Mock Interviews
           </h1>
           <p className="text-gray-400 mt-2 text-sm leading-relaxed max-w-2xl">
-            Review your past mock interviews, feedback, and performance over time.
+            Prepare for your upcoming interviews with AI-powered practice sessions.
           </p>
         </div>
         <Link
           href="/interview/new"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors shadow-lg shadow-blue-900/20 text-sm shrink-0"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#111827] border border-[#1E3A5F] hover:border-blue-500/50 text-white font-medium rounded-lg transition-colors text-sm shrink-0"
         >
           <Mic className="w-4 h-4" />
-          Start New Interview
+          Custom Practice
         </Link>
       </div>
 
-      <div className="grid gap-4">
+      {/* ── Ready for Practice (Recent Analyses) ─────────────────────────────────── */}
+      {recentAnalyses.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 text-blue-400">
+            <Target className="w-4 h-4" />
+            <h2 className="text-sm font-bold uppercase tracking-widest">Ready for Practice</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {recentAnalyses.map((analysis) => (
+              <div 
+                key={analysis.id}
+                className="bg-[#0A0F1C] border border-blue-500/30 rounded-xl p-5 flex flex-col justify-between gap-4 relative overflow-hidden group"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl pointer-events-none -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-600/20 transition-colors" />
+                
+                <div className="space-y-1 relative z-10">
+                  <h3 className="text-white font-bold truncate" title={analysis.job_title}>{analysis.job_title}</h3>
+                  <div className="flex items-center gap-1.5 text-gray-400 text-xs">
+                    <Building2 className="w-3.5 h-3.5" />
+                    <span className="truncate">{analysis.company || "Company Unknown"}</span>
+                  </div>
+                </div>
+
+                <Link
+                  href={`/interview/new?job_id=${analysis.id}`}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg transition-all shadow-lg shadow-blue-900/40 relative z-10"
+                >
+                  <Mic className="w-4 h-4" />
+                  Begin Interview
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── History List ─────────────────────────────────────────────────────────── */}
+      <section className="space-y-4 pt-4">
+        <div className="flex items-center gap-2 text-gray-500">
+          <Calendar className="w-4 h-4" />
+          <h2 className="text-sm font-bold uppercase tracking-widest">Interview History</h2>
+        </div>
         {sessions.map((session) => {
           const questions = Array.isArray(session.questions) ? session.questions : [];
           // The typing on job_analyses needs to handle array vs single object returned by supabase join
@@ -154,7 +204,7 @@ export default async function InterviewHistoryPage() {
             </Link>
           );
         })}
-      </div>
+      </section>
     </div>
   );
 }

@@ -60,11 +60,11 @@ export async function POST(req: Request) {
     const cv = parsed_data as ParsedCvData;
     const systemPrompt = `
 You are an expert career advisor and technical recruiter.
-Review the candidate's CV and generate 2 to 3 distinct, highly realistic career progression paths for them.
+Review the candidate's CV and generate 3 distinct, highly realistic career progression paths for them.
 
 CRITICAL INSTRUCTIONS:
 - Ground your advice in reality. If a candidate has 1-2 years of experience, do NOT suggest they will be a CTO, VP, or Principal Engineer within 2 years. Career steps must be incremental and plausible.
-- Provide distinct paths (e.g. Individual Contributor Track, Management Track, Specialized Pivot Track).
+- Provide exactly 3 distinct paths (e.g. Individual Contributor Track, Management Track, Specialized Pivot Track).
 - Analyze their current skills and identify EXACTLY what technical/soft skills are 'missing' for that next role step.
 - Suggest concrete recommended projects to build those exact skills.
     `;
@@ -89,7 +89,7 @@ Provide the structured career roadmap paths.
           missing_skills: z.array(z.string()).describe('List of specific skills needed formatted exactly as "Skill Name: Why it exactly matters for this role"'),
           recommended_projects: z.array(z.string()).describe('Concrete, highly actionable portfolio projects to build missing skills (e.g. "Build a production REST API with tracing... because XYZ")'),
           experience_needed: z.string().describe('Plaintext description of the type of experience they must gain first'),
-        })).min(2).max(3)
+        })),
       })
     });
 
