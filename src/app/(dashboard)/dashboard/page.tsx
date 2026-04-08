@@ -32,7 +32,7 @@ export default async function DashboardPage() {
 
       supabase
         .from("interview_sessions")
-        .select("*")
+        .select("*, job_analyses(job_title)")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(3),

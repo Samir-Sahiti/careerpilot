@@ -22,6 +22,7 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
   // Security State
   const [newEmail, setNewEmail] = useState(email);
   const [isSavingEmail, setIsSavingEmail] = useState(false);
+  const [emailChangePending, setEmailChangePending] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -72,6 +73,7 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
       if (error) throw error;
 
       toast.success("Confirmation links sent to both old and new email addresses!");
+      setEmailChangePending(true);
     } catch (error: any) {
       toast.error(error.message || "Failed to update email");
     } finally {
@@ -219,6 +221,12 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
             <p className="text-xs text-gray-500 mt-2">
               You will receive a confirmation link at both your old and new email addresses to verify the change.
             </p>
+            {emailChangePending && (
+              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs text-blue-400 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                Check your inbox to confirm the email change.
+              </div>
+            )}
           </form>
 
           <div className="border-t border-[#1E3A5F] pt-6"></div>

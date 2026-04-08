@@ -23,8 +23,8 @@ const navLinks = [
   { name: "Job Analyzer",    href: "/jobs",           icon: Briefcase       },
   { name: "Interview Coach", href: "/interview",      icon: MessageSquare   },
   { name: "Cover Letter",    href: "/cover-letter",   icon: FileEdit        },
-  { name: "Career Ladder",   href: "/career",         icon: TrendingUp      },
   { name: "Applications",    href: "/applications",   icon: ClipboardList   },
+  { name: "Career Ladder",   href: "/career",         icon: TrendingUp      },
 ];
 
 export function Sidebar({ userEmail, displayName }: { userEmail: string; displayName: string }) {

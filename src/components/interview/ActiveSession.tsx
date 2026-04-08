@@ -115,6 +115,41 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
   }, [completion]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
+  const onSkip = async () => {
+    if (isSaving || isQuestionAnswered) return;
+    setIsSaving(true);
+    const skipFeedback = "Question skipped.";
+    const skipAnswer = "Skipped";
+
+    const qsClone = [...questions];
+    qsClone[currentIndex] = {
+      ...qsClone[currentIndex],
+      user_answer: skipAnswer,
+      feedback: skipFeedback,
+      score: 0,
+    };
+    setQuestions(qsClone);
+
+    try {
+      const patchRes = await fetch(`/api/interview/${sessionId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionIndex: currentIndex,
+          answer: skipAnswer,
+          feedback: skipFeedback,
+          score: 0,
+        }),
+      });
+      if (!patchRes.ok) throw new Error("Failed to save skipped answer");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to sync skip to database.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const onNextQuestion = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
@@ -215,7 +250,15 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
           />
 
           {!isQuestionAnswered && !isLoading && (
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={onSkip}
+                disabled={isSaving}
+                className="flex items-center justify-center gap-2 px-6 py-2.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-gray-300 font-medium rounded-lg transition-colors text-sm border border-gray-700"
+              >
+                Skip
+              </button>
               <button
                 type="submit"
                 disabled={!input.trim() || isSaving}
