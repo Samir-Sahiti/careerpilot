@@ -40,7 +40,7 @@ export default async function CareerLadderPage() {
         </div>
 
         <Link
-          href="/profile"
+          href="/cv"
           className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-blue-900/20 inline-flex items-center gap-2"
         >
           <Target className="w-4 h-4" />

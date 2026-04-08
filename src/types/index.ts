@@ -79,6 +79,7 @@ export interface InterviewSession {
   job_analysis_id: string | null;
   questions: InterviewQuestion[];
   overall_score: number | null;
+  job_analyses?: { job_title: string } | null;
   created_at: string;
 }
 

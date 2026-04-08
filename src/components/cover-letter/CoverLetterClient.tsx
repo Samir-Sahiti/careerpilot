@@ -110,13 +110,11 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
   const handleDelete = async (letterId: string) => {
     if (!confirm("Delete this cover letter? This cannot be undone.")) return;
 
-    const { error } = await (await import("@/lib/supabase/client"))
-      .createClient()
-      .from("cover_letters")
-      .delete()
-      .eq("id", letterId);
+    const res = await fetch(`/api/cover-letter/${letterId}`, {
+      method: "DELETE",
+    });
 
-    if (error) {
+    if (!res.ok) {
       toast.error("Failed to delete");
       return;
     }

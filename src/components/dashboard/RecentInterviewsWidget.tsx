@@ -54,8 +54,8 @@ export function RecentInterviewsWidget({ sessions }: RecentInterviewsWidgetProps
           {sessions.map((session) => (
             <li key={session.id} className="flex items-center justify-between py-3 gap-3">
               <div className="min-w-0">
-                <p className="text-white text-sm font-medium">
-                  Practice session
+                <p className="text-white text-sm font-medium truncate">
+                  {session.job_analyses?.job_title || "Practice session"}
                 </p>
                 <p className="text-gray-500 text-xs mt-0.5">
                   {format(new Date(session.created_at), "MMM d, yyyy")} ·{" "}

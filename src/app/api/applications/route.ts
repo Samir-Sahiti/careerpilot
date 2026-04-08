@@ -16,6 +16,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "job_title is required" }, { status: 400 });
     }
 
+    if (job_analysis_id) {
+      const { data: existingApp } = await supabase
+        .from("applications")
+        .select("*")
+        .eq("job_analysis_id", job_analysis_id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (existingApp) {
+        return NextResponse.json(existingApp, { status: 200 });
+      }
+    }
+
     const { data: application, error: insertError } = await supabase
       .from("applications")
       .insert({
