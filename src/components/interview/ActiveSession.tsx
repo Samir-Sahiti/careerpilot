@@ -233,7 +233,7 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
 
         {/* The Question Text */}
         <p className="text-xl sm:text-2xl font-medium text-white leading-relaxed">
-          "{currentQ.question_text}"
+          &ldquo;{currentQ.question_text}&rdquo;
         </p>
 
         {/* User Answer Form */}

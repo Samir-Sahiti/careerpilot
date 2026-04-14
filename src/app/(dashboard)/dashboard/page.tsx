@@ -6,6 +6,7 @@ import { RecentJobsWidget } from "@/components/dashboard/RecentJobsWidget";
 import { RecentInterviewsWidget } from "@/components/dashboard/RecentInterviewsWidget";
 import { CareerRoadmapWidget } from "@/components/dashboard/CareerRoadmapWidget";
 import { ApplicationsWidget } from "@/components/dashboard/ApplicationsWidget";
+import { SkillsGapWidget } from "@/components/dashboard/SkillsGapWidget";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -85,6 +86,9 @@ export default async function DashboardPage() {
         <RecentJobsWidget jobs={jobs} />
         <RecentInterviewsWidget sessions={interviews} />
       </div>
+
+      {/* Skills Gap widget — full width below the 2×2 grid */}
+      <SkillsGapWidget jobs={jobs} roadmap={roadmap} />
 
       {/* Applications widget — full width below the 2×2 grid */}
       <ApplicationsWidget applications={applications} />

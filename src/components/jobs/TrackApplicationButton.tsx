@@ -34,8 +34,9 @@ export function TrackApplicationButton({ jobAnalysisId, jobTitle, company }: Pro
       }
       setTracked(true);
       toast.success("Added to Application Tracker!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add to tracker");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to add to tracker";
+      toast.error(message);
     } finally {
       setLoading(false);
     }

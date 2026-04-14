@@ -1,10 +1,11 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { logger } from "@/lib/logger";
 
 export const GLOBAL_AI_LIMIT_PER_HOUR = 10;
 
 export const ROUTE_LIMITS_PER_HOUR: Record<string, number> = {
-  "/api/cv/parse":                3,
-  "/api/cover-letter/generate":   5,
+  "/api/cv/parse": 3,
+  "/api/cover-letter/generate": 5,
 };
 
 export async function checkRateLimit(
@@ -22,8 +23,12 @@ export async function checkRateLimit(
       .gte("created_at", oneHourAgo);
 
     if (error) {
-      console.error("Rate limit check error:", error);
-      return { allowed: true }; // fail open on DB error
+      logger.error("Rate limit check error", { route, userId }, error);
+      // Fail closed: deny on DB error to prevent abuse during outages
+      return {
+        allowed: false,
+        message: "Rate limit check temporarily unavailable. Please try again in a moment.",
+      };
     }
 
     if (!events) return { allowed: true };
@@ -50,8 +55,12 @@ export async function checkRateLimit(
 
     return { allowed: true };
   } catch (err) {
-    console.error("Rate limit exception:", err);
-    return { allowed: true };
+    logger.error("Rate limit exception", { route, userId }, err);
+    // Fail closed: deny on unexpected errors
+    return {
+      allowed: false,
+      message: "Rate limit check temporarily unavailable. Please try again in a moment.",
+    };
   }
 }
 
@@ -64,5 +73,5 @@ export async function consumeRateLimit(
     .from("rate_limit_events")
     .insert({ user_id: userId, route });
 
-  if (error) console.error("Failed to insert rate limit event:", error);
+  if (error) logger.error("Failed to insert rate limit event", { route, userId }, error);
 }

@@ -112,8 +112,8 @@ export function ApplicationsClient({ initialApplications }: Props) {
       setShowAdd(false);
       setAddTitle(""); setAddCompany(""); setAddUrl(""); setAddStatus("saved"); setAddNotes("");
       toast.success("Application added!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to add application");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to add application");
     } finally {
       setAddLoading(false);
     }

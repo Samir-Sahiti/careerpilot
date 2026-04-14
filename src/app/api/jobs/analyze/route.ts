@@ -1,32 +1,39 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import { Cv, ParsedCvData } from "@/types";
+import { analyzeJobSchema } from "@/lib/validation/schemas";
+import { buildJobAnalysisPrompt } from "@/lib/ai/prompts";
+import { logger } from "@/lib/logger";
+import { errorResponse, successResponse, rateLimitResponse } from "@/lib/apiResponse";
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
-    const { cvId, jobTitle, company, jobRawText } = await req.json();
-
-    if (!cvId || !jobTitle || !jobRawText) {
-      return NextResponse.json(
-        { error: "Missing required fields: cvId, jobTitle, jobRawText" },
-        { status: 400 }
-      );
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return errorResponse("Invalid JSON body", 400);
     }
+
+    const parsed = analyzeJobSchema.safeParse(body);
+    if (!parsed.success) {
+      return errorResponse(parsed.error.errors[0]?.message ?? "Missing required fields", 400);
+    }
+
+    const { cvId, jobTitle, company, jobRawText } = parsed.data;
 
     const supabase = await createClient();
 
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse("Unauthorized", 401);
     }
 
-    // ── CV guard ──────────────────────────────────────────────────────────────
     const { data: cvData, error: cvError } = await supabase
       .from("cvs")
       .select("*")
@@ -36,55 +43,20 @@ export async function POST(req: Request) {
       .single();
 
     if (cvError || !cvData) {
-      return NextResponse.json({ error: "Active CV not found" }, { status: 404 });
+      return errorResponse("Active CV not found", 404);
     }
 
     const cv = cvData as Cv;
     if (!cv.parsed_data) {
-      return NextResponse.json({ error: "CV has not been parsed yet." }, { status: 400 });
+      return errorResponse("CV has not been parsed yet.", 400);
     }
 
     const parsedCv = cv.parsed_data as ParsedCvData;
 
     const rateLimit = await checkRateLimit(supabase, user.id, "/api/jobs/analyze");
     if (!rateLimit.allowed) {
-      return NextResponse.json({ error: rateLimit.message }, { status: 429, headers: { "Retry-After": "3600" } });
+      return rateLimitResponse(rateLimit.message!);
     }
-
-    // ── AI analysis ───────────────────────────────────────────────────────────
-    const prompt = `You are an expert technical recruiter and career coach.
-
-A candidate is applying for:
-JOB TITLE: ${jobTitle}
-${company ? `COMPANY: ${company}` : ""}
-
-JOB DESCRIPTION:
-${jobRawText}
-
----
-
-CANDIDATE PROFILE:
-Current Role: ${parsedCv.current_role}
-Seniority: ${parsedCv.seniority_level}
-Years of Experience: ${parsedCv.years_of_experience}
-Skills: ${parsedCv.skills.join(", ")}
-Experience:
-${parsedCv.experience.map((e) => `- ${e.title} at ${e.company} (${e.duration}): ${e.summary}`).join("\n")}
-
----
-
-Provide:
-1. fit_score (0–100 integer) — genuine match quality, do not inflate
-2. recommendation: 'apply' / 'maybe' / 'skip' — honest assessment
-3. recommendation_reason: 1–2 candid sentences
-4. matched_skills: candidate skills that directly match the role
-5. missing_skills: required skills the candidate lacks
-6. cv_suggestions: 3–5 specific, actionable improvements (e.g. "Add Docker to skills — the role lists it as required")
-7. salary_estimate: a realistic salary range for this role in the likely market. Be conservative and honest.
-   - Infer currency and location from the job listing (default to USD if unclear)
-   - low/mid/high should reflect real market rates for the seniority level inferred from the listing
-   - factors: list 3–5 key things influencing the range (e.g. "Remote-friendly", "Series B startup", "Requires 5+ years")
-   - negotiation_tip: 1–2 sentences on the candidate's best leverage points given their matched skills`;
 
     const { object: analysis } = await generateObject({
       model: anthropic("claude-haiku-4-5"),
@@ -95,19 +67,21 @@ Provide:
         matched_skills: z.array(z.string()),
         missing_skills: z.array(z.string()),
         cv_suggestions: z.array(z.string()),
-        salary_estimate: z.object({
-          currency: z.string(),
-          low: z.number(),
-          mid: z.number(),
-          high: z.number(),
-          factors: z.array(z.string()),
-          negotiation_tip: z.string(),
-        }).nullable().optional(),
+        salary_estimate: z
+          .object({
+            currency: z.string(),
+            low: z.number(),
+            mid: z.number(),
+            high: z.number(),
+            factors: z.array(z.string()),
+            negotiation_tip: z.string(),
+          })
+          .nullable()
+          .optional(),
       }),
-      prompt,
+      prompt: buildJobAnalysisPrompt(parsedCv, jobTitle, company, jobRawText),
     });
 
-    // ── Persist ───────────────────────────────────────────────────────────────
     const { data: newRow, error: insertError } = await supabase
       .from("job_analyses")
       .insert({
@@ -128,14 +102,16 @@ Provide:
       .single();
 
     if (insertError || !newRow) {
-      return NextResponse.json({ error: "Failed to save analysis" }, { status: 500 });
+      logger.error("Failed to save analysis", { route: "/api/jobs/analyze", cvId, jobTitle }, insertError);
+      return errorResponse("Failed to save analysis", 500);
     }
 
     await consumeRateLimit(supabase, user.id, "/api/jobs/analyze");
 
-    return NextResponse.json({ id: newRow.id });
+    return successResponse({ id: newRow.id });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    logger.error("Job analysis error", { route: "/api/jobs/analyze" }, error);
+    return errorResponse(message, 500);
   }
 }

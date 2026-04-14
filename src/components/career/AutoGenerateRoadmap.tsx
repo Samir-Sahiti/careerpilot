@@ -22,8 +22,8 @@ export function AutoGenerateRoadmap() {
           toast.success("Career roadmap generated successfully");
           router.refresh();
         }
-      } catch (err: any) {
-        if (mounted) toast.error(err.message);
+      } catch (err: unknown) {
+        if (mounted) toast.error(err instanceof Error ? err.message : "An error occurred");
       }
     }
 

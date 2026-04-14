@@ -8,10 +8,13 @@ An AI-powered career management platform that helps you land your next job and p
 - **Job Analyzer** — Paste any job listing and get an instant fit score, skill gap analysis, and tailored CV improvement suggestions
 - **Interview Coach** — AI-generated mock interviews tailored to the specific role and your background, with scored feedback on every answer
 - **Career Ladder** — See what roles you can progress to next, with exactly what skills, projects, and experience you need to get there
+- **Cover Letter Generator** — AI-crafted cover letters tailored to each job listing and your CV profile
+- **Application Tracker** — Track every application from saved through offered/rejected with notes and links
+- **Analytics** — Application funnel, job fit trends, skills gap, and interview score history
 
 ## Tech Stack
 
-- **Framework** — [Next.js 14](https://nextjs.org/) (App Router)
+- **Framework** — [Next.js 16](https://nextjs.org/) (App Router)
 - **AI** — [Vercel AI SDK](https://sdk.vercel.ai/) + [Anthropic Claude](https://www.anthropic.com/)
 - **Database & Auth** — [Supabase](https://supabase.com/) (PostgreSQL + Storage)
 - **Styling** — [Tailwind CSS](https://tailwindcss.com/)
@@ -88,16 +91,20 @@ careerpilot/
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key (server-side only) |
 | `ANTHROPIC_API_KEY` | Your Anthropic API key (server-side only) |
 
 ## Roadmap
 
 - [x] Project setup
-- [ ] CV Hub — upload and AI parsing
-- [ ] Job Analyzer — fit score and gap analysis
-- [ ] Interview Coach — question generation and feedback
-- [ ] Career Ladder — progression mapping
-- [ ] Dashboard — unified history and insights
+- [x] CV Hub — upload and AI parsing
+- [x] Job Analyzer — fit score and gap analysis
+- [x] Interview Coach — question generation and feedback
+- [x] Career Ladder — progression mapping
+- [x] Cover Letter Generator — AI-crafted tailored cover letters
+- [x] Application Tracker — status tracking with notes
+- [x] Dashboard — unified history and insights
+- [x] Analytics — application funnel, skills gap, interview score trends
 
 ## License
 
