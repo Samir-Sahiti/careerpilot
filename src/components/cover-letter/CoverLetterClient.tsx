@@ -10,6 +10,7 @@ import {
   Trash2, FileEdit
 } from "lucide-react";
 import { CoverLetter, JobAnalysis } from "@/types";
+import { ExportCoverLetterButton } from "./ExportCoverLetterButton";
 
 interface Props {
   initialLetters: CoverLetter[];
@@ -66,8 +67,8 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
       setActiveLetter(newLetter);
       setMode("view");
       toast.success("Cover letter generated!");
-    } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
       setMode("form");
     }
   };
@@ -101,8 +102,8 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
       setActiveLetter(newLetter);
       setMode("view");
       toast.success("New version generated!");
-    } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
       setMode("view");
     }
   };
@@ -339,6 +340,11 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                     <Download className="w-3.5 h-3.5" />
                     .txt
                   </button>
+                  <ExportCoverLetterButton
+                    jobTitle={activeLetter.job_title}
+                    company={activeLetter.company}
+                    content={activeLetter.content}
+                  />
                   <button
                     onClick={handleRegenerate}
                     className="flex items-center gap-1.5 px-3 py-2 bg-[#1E3A5F]/40 hover:bg-[#1E3A5F] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#1E3A5F]"

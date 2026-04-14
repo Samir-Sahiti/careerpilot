@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { FitScoreArc } from "@/components/jobs/FitScoreArc";
 import Link from "next/link";
 import { ArrowLeft, RefreshCw, Briefcase, FileText, Target, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { ExportInterviewButton } from "@/components/interview/ExportInterviewButton";
+import { InterviewSession, InterviewQuestion } from "@/types";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -28,7 +30,7 @@ export default async function InterviewResultsPage({ params }: PageProps) {
 
   if (error || !session) notFound();
 
-  const questions: any[] = Array.isArray(session.questions) ? session.questions : [];
+  const questions = (Array.isArray(session.questions) ? session.questions : []) as InterviewQuestion[];
   
   // Calculate weak areas based on average score < 60 grouped by 'type'
   const typeScores: Record<string, { sum: number; count: number }> = {};
@@ -73,13 +75,19 @@ export default async function InterviewResultsPage({ params }: PageProps) {
           </Link>
         )}
 
-        <Link
-          href={`/interview/new${jobInfo?.id ? `?job_id=${jobInfo.id}` : ""}`}
-          className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-900/20 text-sm"
-        >
-          <RefreshCw className="w-4 h-4" />
-          Practice Again
-        </Link>
+        <div className="flex items-center gap-3">
+          <ExportInterviewButton
+            session={session as unknown as InterviewSession}
+            jobTitle={jobInfo?.job_title}
+          />
+          <Link
+            href={`/interview/new${jobInfo?.id ? `?job_id=${jobInfo.id}` : ""}`}
+            className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-900/20 text-sm"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Practice Again
+          </Link>
+        </div>
       </div>
 
       {/* Hero Summary */}

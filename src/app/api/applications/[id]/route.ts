@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+import { errorResponse, successResponse } from "@/lib/apiResponse";
+import { patchApplicationSchema } from "@/lib/validation/schemas";
 
 export async function PATCH(
   req: Request,
@@ -9,21 +11,26 @@ export async function PATCH(
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse("Unauthorized", 401);
     }
 
     const { id } = await params;
-    const body = await req.json();
 
-    // Only allow patching a specific set of fields
-    const allowed = ["status", "notes", "applied_at", "job_url", "company", "cover_letter_id"];
-    const patch: Record<string, unknown> = {};
-    for (const key of allowed) {
-      if (key in body) patch[key] = body[key];
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return errorResponse("Invalid JSON body", 400);
     }
 
+    const parsed = patchApplicationSchema.safeParse(body);
+    if (!parsed.success) {
+      return errorResponse(parsed.error.errors[0]?.message ?? "Invalid request", 400);
+    }
+
+    const patch = parsed.data;
     if (Object.keys(patch).length === 0) {
-      return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
+      return errorResponse("No valid fields to update", 400);
     }
 
     const { data: updated, error: patchError } = await supabase
@@ -35,25 +42,26 @@ export async function PATCH(
       .single();
 
     if (patchError || !updated) {
-      return NextResponse.json({ error: "Application not found or update failed" }, { status: 404 });
+      return errorResponse("Application not found or update failed", 404);
     }
 
-    return NextResponse.json(updated);
+    return successResponse(updated);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    logger.error("Application PATCH error", { route: "/api/applications/[id]" }, error);
+    return errorResponse(message);
   }
 }
 
 export async function DELETE(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse("Unauthorized", 401);
     }
 
     const { id } = await params;
@@ -65,12 +73,14 @@ export async function DELETE(
       .eq("user_id", user.id);
 
     if (deleteError) {
-      return NextResponse.json({ error: "Failed to delete application" }, { status: 500 });
+      logger.error("Application DELETE error", { route: "/api/applications/[id]", userId: user.id }, deleteError);
+      return errorResponse("Failed to delete application");
     }
 
-    return NextResponse.json({ success: true });
+    return successResponse({ success: true });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    logger.error("Application DELETE error", { route: "/api/applications/[id]" }, error);
+    return errorResponse(message);
   }
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { InterviewQuestion } from "@/types";
 
 export async function PATCH(
   req: Request,
@@ -56,7 +57,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    const questions = [...(session.questions as any[])];
+    const questions = [...(session.questions as InterviewQuestion[])];
 
     // 2. Modify specific index
     if (questions[questionIndex]) {

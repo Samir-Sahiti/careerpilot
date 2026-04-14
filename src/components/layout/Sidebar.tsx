@@ -14,8 +14,10 @@ import {
   Settings,
   FileEdit,
   ClipboardList,
+  BarChart2,
 } from "lucide-react";
 import { SignOutButton } from "@/components/layout/SignOutButton";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 const navLinks = [
   { name: "Dashboard",       href: "/dashboard",     icon: LayoutDashboard },
@@ -25,6 +27,7 @@ const navLinks = [
   { name: "Cover Letter",    href: "/cover-letter",   icon: FileEdit        },
   { name: "Applications",    href: "/applications",   icon: ClipboardList   },
   { name: "Career Ladder",   href: "/career",         icon: TrendingUp      },
+  { name: "Analytics",       href: "/analytics",      icon: BarChart2       },
 ];
 
 export function Sidebar({ userEmail, displayName }: { userEmail: string; displayName: string }) {
@@ -82,6 +85,7 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
           <Settings className="h-5 w-5" />
           Settings
         </Link>
+        <ThemeToggle />
       </div>
 
       {/* User + Sign Out */}

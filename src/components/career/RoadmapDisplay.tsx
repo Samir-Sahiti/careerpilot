@@ -37,8 +37,8 @@ export function RoadmapDisplay({ roadmap }: { roadmap: CareerRoadmap }) {
       
       toast.success("Roadmap successfully updated!");
       router.refresh(); // Automatically re-fetches the Server Component and passes the new rows down
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsRefreshing(false);
     }

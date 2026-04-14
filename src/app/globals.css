@@ -10,6 +10,38 @@
   --card-bg:    #111827;
 }
 
+/* Light theme */
+.light {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --border-subtle: #cbd5e1;
+  --card-bg: #ffffff;
+}
+
+/* Theme-aware auth form overrides */
+.light .auth-input {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+.light .auth-input::placeholder {
+  color: #94a3b8;
+}
+.light .auth-input:focus {
+  border-color: #2563eb;
+}
+.light .auth-label {
+  color: #475569;
+}
+.light .nav-link {
+  color: #475569;
+}
+.light .nav-link:hover {
+  color: #0f172a;
+}
+
 /* ── Tailwind v4 theme extension ────────────────────────────────────────────── */
 @theme inline {
   --color-background:   var(--background);

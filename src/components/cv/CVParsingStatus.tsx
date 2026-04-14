@@ -78,8 +78,8 @@ export function CVParsingStatus({ cvId, initialStatus, initialError }: CVParsing
       }
 
       poll();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to retry parsing");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to retry parsing");
       setStatus("failed");
     } finally {
       setIsRetrying(false);

@@ -1,20 +1,30 @@
-import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+import { errorResponse, successResponse } from "@/lib/apiResponse";
+import { createApplicationSchema } from "@/lib/validation/schemas";
 
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse("Unauthorized", 401);
     }
 
-    const body = await req.json();
-    const { job_title, company, job_url, status, applied_at, notes, job_analysis_id, cover_letter_id } = body;
-
-    if (!job_title?.trim()) {
-      return NextResponse.json({ error: "job_title is required" }, { status: 400 });
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return errorResponse("Invalid JSON body", 400);
     }
+
+    const parsed = createApplicationSchema.safeParse(body);
+    if (!parsed.success) {
+      return errorResponse(parsed.error.errors[0]?.message ?? "Invalid request", 400);
+    }
+
+    const { job_title, company, job_url, status, applied_at, notes, job_analysis_id, cover_letter_id } =
+      parsed.data;
 
     if (job_analysis_id) {
       const { data: existingApp } = await supabase
@@ -25,7 +35,7 @@ export async function POST(req: Request) {
         .maybeSingle();
 
       if (existingApp) {
-        return NextResponse.json(existingApp, { status: 200 });
+        return successResponse(existingApp);
       }
     }
 
@@ -36,22 +46,24 @@ export async function POST(req: Request) {
         job_title: job_title.trim(),
         company: company?.trim() || null,
         job_url: job_url?.trim() || null,
-        status: status || "saved",
-        applied_at: applied_at || null,
+        status: status ?? "saved",
+        applied_at: applied_at ?? null,
         notes: notes?.trim() || null,
-        job_analysis_id: job_analysis_id || null,
-        cover_letter_id: cover_letter_id || null,
+        job_analysis_id: job_analysis_id ?? null,
+        cover_letter_id: cover_letter_id ?? null,
       })
       .select("*")
       .single();
 
     if (insertError || !application) {
-      return NextResponse.json({ error: "Failed to create application" }, { status: 500 });
+      logger.error("Failed to create application", { route: "/api/applications", userId: user.id }, insertError);
+      return errorResponse("Failed to create application");
     }
 
-    return NextResponse.json(application, { status: 201 });
+    return successResponse(application, 201);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    logger.error("Applications POST error", { route: "/api/applications" }, error);
+    return errorResponse(message);
   }
 }

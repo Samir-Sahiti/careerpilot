@@ -1,49 +1,32 @@
-import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
 import mammoth from "mammoth";
+import { applyPdfPolyfills } from "@/lib/pdf/polyfills";
+import { parseCvSchema } from "@/lib/validation/schemas";
+import { buildCvParsePrompt } from "@/lib/ai/prompts";
+import { logger } from "@/lib/logger";
+import { errorResponse, successResponse, rateLimitResponse } from "@/lib/apiResponse";
 
 export const maxDuration = 60;
 
 // ---------------------------------------------------------------------------
 // PDF text extraction using pdfjs-dist directly.
-// We use the legacy/build which is the CommonJS Node.js-compatible bundle.
 // The text extraction API (getTextContent) has zero DOM/canvas dependencies —
 // those are only needed for visual rendering, which we deliberately skip.
 // ---------------------------------------------------------------------------
 async function extractPdfText(buffer: Buffer): Promise<string> {
-  // Polyfill browser-only APIs if they don't exist (Node.js environment requirement for PDF.js)
-  if (typeof global !== "undefined") {
-    if (!(global as any).DOMMatrix) {
-      (global as any).DOMMatrix = class DOMMatrix {
-        constructor() {}
-        static fromFloat32Array() { return new DOMMatrix(); }
-        static fromFloat64Array() { return new DOMMatrix(); }
-      };
-    }
-    if (!(global as any).DOMPoint) {
-      (global as any).DOMPoint = class DOMPoint {
-        constructor() {}
-      };
-    }
-    if (!(global as any).DOMRect) {
-      (global as any).DOMRect = class DOMRect {
-        constructor() {}
-      };
-    }
-  }
+  applyPdfPolyfills();
 
   const [pdfjs, pdfWorker] = await Promise.all([
-    // @ts-ignore
+    // @ts-expect-error — pdfjs-dist legacy build lacks type declarations
     import("pdfjs-dist/legacy/build/pdf.mjs"),
-    // @ts-ignore
-    import("pdfjs-dist/legacy/build/pdf.worker.mjs")
+    // @ts-expect-error — pdfjs-dist legacy build lacks type declarations
+    import("pdfjs-dist/legacy/build/pdf.worker.mjs"),
   ]);
 
-  // Set the worker source to the imported worker module to satisfy the loader
   if (!pdfjs.GlobalWorkerOptions.workerSrc) {
     pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
   }
@@ -62,7 +45,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
     const page = await pdfDoc.getPage(pageNum);
     const content = await page.getTextContent();
     const pageText = content.items
-      .map((item: any) => ("str" in item ? item.str : ""))
+      .map((item: { str?: string }) => ("str" in item ? item.str : ""))
       .join(" ")
       .replace(/\s+/g, " ")
       .trim();
@@ -70,9 +53,11 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
   }
 
   const finalResult = pages.join("\n\n");
-  
+
   if (!finalResult.trim()) {
-    throw new Error("This PDF appears to be a scanned image or contains no selectable text. Please upload a standard PDF text document.");
+    throw new Error(
+      "This PDF appears to be a scanned image or contains no selectable text. Please upload a standard PDF text document."
+    );
   }
 
   return finalResult;
@@ -86,33 +71,33 @@ export async function POST(req: Request) {
   let adminClient: ReturnType<typeof createAdminClient> | null = null;
 
   try {
-    const { cvId } = await req.json();
-    innerCvId = cvId;
-
-    if (!cvId) {
-      return NextResponse.json({ error: "Missing cvId" }, { status: 400 });
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return errorResponse("Invalid JSON body", 400);
     }
+
+    const parsed = parseCvSchema.safeParse(body);
+    if (!parsed.success) {
+      return errorResponse(parsed.error.errors[0]?.message ?? "Missing cvId", 400);
+    }
+
+    const { cvId } = parsed.data;
+    innerCvId = cvId;
 
     const supabase = await createClient();
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return errorResponse("Unauthorized", 401);
     }
 
     const rateLimit = await checkRateLimit(supabase, user.id, "/api/cv/parse");
     if (!rateLimit.allowed) {
-      return NextResponse.json(
-        { error: rateLimit.message },
-        { status: 429, headers: { "Retry-After": "3600" } }
-      );
+      return rateLimitResponse(rateLimit.message!);
     }
 
-    // Verify cv_id belongs to the authenticated user
     const { data: cvData, error: cvError } = await supabase
       .from("cvs")
       .select("file_path, file_name")
@@ -121,80 +106,65 @@ export async function POST(req: Request) {
       .single();
 
     if (cvError || !cvData) {
-      return NextResponse.json(
-        { error: "CV not found or unauthorized" },
-        { status: 404 }
-      );
+      return errorResponse("CV not found or unauthorized", 404);
     }
 
     const { file_path, file_name } = cvData;
 
-    // Use admin client for storage operations (bypasses RLS)
     adminClient = createAdminClient();
 
-    // Mark as pending (useful for retries)
     await adminClient
       .from("cvs")
       .update({ parse_status: "pending", parse_error: null })
       .eq("id", cvId);
 
-    // Download file from storage
     const { data: fileBlob, error: downloadError } = await adminClient.storage
       .from("cvs")
       .download(file_path);
 
     if (downloadError || !fileBlob) {
       await markFailed(adminClient, cvId, "Failed to download CV from storage");
-      return NextResponse.json(
-        { error: "Failed to download CV file" },
-        { status: 500 }
-      );
+      return errorResponse("Failed to download CV file", 500);
     }
 
     const buffer = Buffer.from(await fileBlob.arrayBuffer());
     const fileExt = file_name.split(".").pop()?.toLowerCase();
     let extractedText = "";
 
-    // ── Text Extraction ───────────────────────────────────────────────────────
     if (fileExt === "pdf") {
       try {
         extractedText = await extractPdfText(buffer);
-      } catch (err: any) {
-        console.error("PDF Extraction Error:", err);
-        await markFailed(adminClient, cvId, `PDF Extraction failed: ${err.message || "Unknown error"}`);
-        return NextResponse.json({ error: "Could not read this PDF. It might be encrypted or corrupted." }, { status: 500 });
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Unknown error";
+        logger.error("PDF extraction error", { route: "/api/cv/parse", cvId }, error);
+        await markFailed(adminClient, cvId, `PDF Extraction failed: ${message}`);
+        return errorResponse(
+          "Could not read this PDF. It might be encrypted or corrupted.",
+          500
+        );
       }
     } else if (fileExt === "docx") {
       const result = await mammoth.extractRawText({ buffer });
       extractedText = result.value;
     } else if (fileExt === "doc") {
-      // Mammoth and most serverless-friendly parsers do not support legacy .doc
       await markFailed(adminClient, cvId, "Legacy .doc format is not supported for AI analysis.");
-      return NextResponse.json(
-        { error: "Legacy Word (.doc) files are not supported. Please save as .docx or .pdf and try again." },
-        { status: 400 }
+      return errorResponse(
+        "Legacy Word (.doc) files are not supported. Please save as .docx or .pdf and try again.",
+        400
       );
     } else {
       await markFailed(adminClient, cvId, `Unsupported file type: .${fileExt}`);
-      return NextResponse.json(
-        { error: `Unsupported file type (.${fileExt}). Only PDF and DOCX are currently supported for AI analysis.` },
-        { status: 400 }
+      return errorResponse(
+        `Unsupported file type (.${fileExt}). Only PDF and DOCX are currently supported for AI analysis.`,
+        400
       );
     }
 
     if (!extractedText.trim()) {
-      await markFailed(
-        adminClient,
-        cvId,
-        "No readable text could be extracted from this file"
-      );
-      return NextResponse.json(
-        { error: "No text could be extracted from the file" },
-        { status: 400 }
-      );
+      await markFailed(adminClient, cvId, "No readable text could be extracted from this file");
+      return errorResponse("No text could be extracted from the file", 400);
     }
 
-    // ── AI Parsing ────────────────────────────────────────────────────────────
     const { object } = await generateObject({
       model: anthropic("claude-haiku-4-5"),
       schema: z.object({
@@ -219,10 +189,9 @@ export async function POST(req: Request) {
         ),
         achievements: z.array(z.string()),
       }),
-      prompt: `Extract structured profile data from this CV / Resume:\n\n${extractedText}`,
+      prompt: buildCvParsePrompt(extractedText),
     });
 
-    // ── Persist Results ───────────────────────────────────────────────────────
     const { error: updateError } = await adminClient
       .from("cvs")
       .update({
@@ -235,34 +204,23 @@ export async function POST(req: Request) {
 
     if (updateError) {
       await markFailed(adminClient, cvId, "Failed to save parsed CV data");
-      return NextResponse.json(
-        { error: "Failed to update CV with parsed data" },
-        { status: 500 }
-      );
+      return errorResponse("Failed to update CV with parsed data", 500);
     }
 
     await consumeRateLimit(supabase, user.id, "/api/cv/parse");
 
-    return NextResponse.json({ success: true, cv_id: cvId });
-  } catch (error: any) {
-    console.error("CV parsing error:", error);
+    return successResponse({ success: true, cv_id: cvId });
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Internal server error during parsing";
+    logger.error("CV parsing error", { route: "/api/cv/parse", cvId: innerCvId }, error);
     if (innerCvId && adminClient) {
-      await markFailed(
-        adminClient,
-        innerCvId,
-        error?.message || "Internal server error"
-      );
+      await markFailed(adminClient, innerCvId, message);
     }
-    return NextResponse.json(
-      { error: error?.message || "Internal server error during parsing" },
-      { status: 500 }
-    );
+    return errorResponse(message, 500);
   }
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 async function markFailed(
   client: ReturnType<typeof createAdminClient>,
   cvId: string,
@@ -273,7 +231,7 @@ async function markFailed(
       .from("cvs")
       .update({ parse_status: "failed", parse_error: message })
       .eq("id", cvId);
-  } catch (err) {
-    console.error("Failed to write error state to DB:", err);
+  } catch (err: unknown) {
+    logger.error("Failed to write error state to DB", { cvId }, err);
   }
 }

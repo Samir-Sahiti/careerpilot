@@ -75,8 +75,8 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
       dispatchParse(cvId);
       pollStatus(cvId, Date.now());
 
-    } catch (error: any) {
-      toast.error(error.message || "An unexpected error occurred");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "An unexpected error occurred");
       setUploadState("idle");
     }
   };

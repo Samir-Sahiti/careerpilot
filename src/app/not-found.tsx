@@ -17,7 +17,7 @@ export default function GlobalNotFound() {
         </h1>
         
         <p className="text-gray-400 text-lg max-w-md mx-auto">
-          We couldn't find the page you're looking for. It might have been moved, deleted, or never existed.
+          We couldn&apos;t find the page you&apos;re looking for. It might have been moved, deleted, or never existed.
         </p>
         
         <Link 

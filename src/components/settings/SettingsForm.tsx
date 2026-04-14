@@ -56,8 +56,8 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
 
       toast.success("Profile updated successfully!");
       router.refresh();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to update profile");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to update profile");
     } finally {
       setIsSavingProfile(false);
     }
@@ -74,8 +74,8 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
 
       toast.success("Confirmation links sent to both old and new email addresses!");
       setEmailChangePending(true);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to update email");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to update email");
     } finally {
       setIsSavingEmail(false);
     }
@@ -101,8 +101,8 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
       toast.success("Password updated successfully!");
       setNewPassword("");
       setConfirmPassword("");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to update password");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "Failed to update password");
     } finally {
       setIsSavingPassword(false);
     }
@@ -132,8 +132,8 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
       await supabase.auth.signOut();
       
       router.push("/");
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred deleting the account");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "An error occurred deleting the account");
       setIsDeleting(false);
     }
   };
