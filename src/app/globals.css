@@ -157,3 +157,86 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
+/* =============================================================================
+   LIGHT MODE — Content Area Overrides
+   Scoped to .cp-main-content so the dark sidebar is never affected.
+
+   Tailwind v4 uses Lightning CSS which rejects \[...\] escape syntax in
+   selectors. We use CSS attribute selectors instead:
+     [class~="bg-[#111827]"]  — exact class word match (no escaping needed
+                                 inside quoted attribute values)
+     [class*="divide-[#1E3A5F]"] — substring match for modifier variants
+   ============================================================================= */
+
+/* ── Card / panel backgrounds ─────────────────────────────────────────────── */
+.light .cp-main-content [class~="bg-[#111827]"] { background-color: #ffffff; }
+.light .cp-main-content [class~="bg-[#0A0F1C]"],
+.light .cp-main-content [class~="bg-[#0a0f1c]"] { background-color: #f1f5f9; }
+.light .cp-main-content [class~="bg-[#0D1117]"],
+.light .cp-main-content [class~="bg-[#0d1117]"] { background-color: #f8fafc; }
+.light .cp-main-content [class~="bg-[#1A263A]"],
+.light .cp-main-content [class~="bg-[#1a263a]"] { background-color: #f1f5f9; }
+
+/* ── Opacity-variant dark backgrounds ─────────────────────────────────────── */
+.light .cp-main-content [class~="bg-[#0A0F1C]/50"],
+.light .cp-main-content [class~="bg-[#0a0f1c]/50"]  { background-color: rgb(241 245 249 / 0.8); }
+.light .cp-main-content [class~="bg-[#1E3A5F]/30"]  { background-color: rgb(100 116 139 / 0.1); }
+.light .cp-main-content [class~="bg-[#1E3A5F]/50"]  { background-color: rgb(100 116 139 / 0.15); }
+.light .cp-main-content [class~="bg-[#1E3A5F]/60"]  { background-color: #e2e8f0; }
+
+/* ── Transparent-white fills (progress tracks, skeleton loaders) ───────────── */
+.light .cp-main-content [class~="bg-white/5"]  { background-color: rgb(0 0 0 / 0.06); }
+.light .cp-main-content [class~="bg-white/10"] { background-color: rgb(0 0 0 / 0.09); }
+
+/* ── Hover backgrounds ────────────────────────────────────────────────────── */
+.light .cp-main-content [class*="hover:bg-[#1E3A5F]"]:hover { background-color: rgb(37 99 235 / 0.06); }
+.light .cp-main-content [class~="hover:bg-white/5"]:hover   { background-color: rgb(0 0 0 / 0.04); }
+.light .cp-main-content [class~="hover:bg-white/10"]:hover  { background-color: rgb(0 0 0 / 0.07); }
+.light .cp-main-content [class~="hover:bg-[#2A4B75]"]:hover { background-color: #e2e8f0; }
+
+/* ── Borders ──────────────────────────────────────────────────────────────── */
+.light .cp-main-content [class~="border-[#1E3A5F]"]     { border-color: #e2e8f0; }
+.light .cp-main-content [class~="border-[#1E3A5F]/60"]  { border-color: rgb(226 232 240 / 0.7); }
+.light .cp-main-content [class~="border-[#1E3A5F]/50"]  { border-color: rgb(226 232 240 / 0.6); }
+.light .cp-main-content [class~="border-[#1E3A5F]/40"]  { border-color: rgb(226 232 240 / 0.5); }
+.light .cp-main-content [class~="border-[#2A4B75]"]     { border-color: #cbd5e1; }
+.light .cp-main-content [class~="border-[#0A0F1C]"],
+.light .cp-main-content [class~="border-[#0a0f1c]"]     { border-color: #ffffff; }
+.light .cp-main-content [class~="border-white/5"]  { border-color: rgb(0 0 0 / 0.07); }
+.light .cp-main-content [class~="border-white/10"] { border-color: rgb(0 0 0 / 0.1); }
+
+/* ── Dividers ─────────────────────────────────────────────────────────────── */
+.light .cp-main-content [class*="divide-[#1E3A5F]"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0;
+}
+
+/* ── SVG strokes ──────────────────────────────────────────────────────────── */
+.light .cp-main-content [class~="stroke-[#1E3A5F]/50"] { stroke: #e2e8f0; }
+
+/* ── Text: white → dark inside card containers ────────────────────────────── */
+.light .cp-main-content [class~="bg-[#111827]"] .text-white,
+.light .cp-main-content [class~="bg-[#0A0F1C]"] .text-white,
+.light .cp-main-content [class~="bg-[#0a0f1c]"] .text-white,
+.light .cp-main-content [class~="bg-[#0D1117]"] .text-white,
+.light .cp-main-content [class~="bg-[#0d1117]"] .text-white { color: #0f172a; }
+
+/* Exception: keep white text on blue action buttons / CTAs */
+.light .cp-main-content .bg-blue-600          { color: #ffffff; }
+.light .cp-main-content .bg-blue-600 .text-white { color: #ffffff; }
+
+/* Page-level headings (outside any card) */
+.light .cp-main-content h1,
+.light .cp-main-content h2,
+.light .cp-main-content h3 { color: #0f172a; }
+
+/* ── text-gray-300 is near-white — too light on a white card ─────────────── */
+.light .cp-main-content [class~="bg-[#111827]"] .text-gray-300,
+.light .cp-main-content [class~="bg-[#0A0F1C]"] .text-gray-300,
+.light .cp-main-content [class~="bg-[#0a0f1c]"] .text-gray-300 { color: #475569; }
+
+/* ── Box shadow glow ─────────────────────────────────────────────────────── */
+.light .cp-main-content [class~="shadow-blue-900/20"] {
+  --tw-shadow-color: rgb(37 99 235 / 0.1);
+}
+
+

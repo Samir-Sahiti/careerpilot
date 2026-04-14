@@ -32,7 +32,7 @@ export default async function DashboardLayout({
       <Sidebar userEmail={user.email ?? "unknown@user.com"} displayName={displayName} />
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto cp-main-content">
         {/* We add a div with max-w to constrain the content nicely, same as landing page */}
         <div className="mx-auto max-w-7xl p-6 lg:p-8">
           {children}
