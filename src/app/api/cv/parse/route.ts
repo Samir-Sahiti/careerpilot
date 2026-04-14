@@ -20,15 +20,16 @@ export const maxDuration = 60;
 async function extractPdfText(buffer: Buffer): Promise<string> {
   applyPdfPolyfills();
 
-  const [pdfjs, pdfWorker] = await Promise.all([
-    // @ts-expect-error — pdfjs-dist legacy build lacks type declarations
+  // pdf.mjs has types; pdf.worker.mjs does not — suppress only the worker import
+  const [pdfjs] = await Promise.all([
     import("pdfjs-dist/legacy/build/pdf.mjs"),
-    // @ts-expect-error — pdfjs-dist legacy build lacks type declarations
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore — pdfjs-dist worker build has no type declarations
     import("pdfjs-dist/legacy/build/pdf.worker.mjs"),
   ]);
 
   if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-    pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
+    pdfjs.GlobalWorkerOptions.workerSrc = "pdfjs-dist/legacy/build/pdf.worker.mjs";
   }
 
   const loadingTask = pdfjs.getDocument({
@@ -44,8 +45,9 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
   for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
     const page = await pdfDoc.getPage(pageNum);
     const content = await page.getTextContent();
+    // TextItem has `str`; TextMarkedContent does not — check before accessing
     const pageText = content.items
-      .map((item: { str?: string }) => ("str" in item ? item.str : ""))
+      .map((item) => ("str" in item ? (item as { str: string }).str : ""))
       .join(" ")
       .replace(/\s+/g, " ")
       .trim();
