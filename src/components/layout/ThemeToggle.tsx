@@ -18,13 +18,45 @@ export function ThemeToggle() {
   const isDark = theme === "dark";
 
   return (
-    <button
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
-      aria-label="Toggle theme"
-    >
-      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-      {isDark ? "Light mode" : "Dark mode"}
-    </button>
+    <div className="flex items-center px-3 py-2">
+      <button
+        onClick={() => setTheme(isDark ? "light" : "dark")}
+        aria-label="Toggle theme"
+        className="relative flex items-center rounded-full p-0.5 transition-colors duration-300"
+        style={{
+          background: isDark ? "#1E3A5F" : "#CBD5E1",
+          width: "56px",
+          height: "28px",
+        }}
+      >
+        {/* Sliding pill */}
+        <span
+          className="absolute flex items-center justify-center rounded-full shadow-sm transition-all duration-300"
+          style={{
+            width: "22px",
+            height: "22px",
+            background: isDark ? "#2563EB" : "#ffffff",
+            left: isDark ? "3px" : "31px",
+          }}
+        >
+          {isDark ? (
+            <Moon className="h-3 w-3 text-white" />
+          ) : (
+            <Sun className="h-3 w-3 text-yellow-500" />
+          )}
+        </span>
+        {/* Background icons */}
+        <span className="flex w-full items-center justify-between px-1.5">
+          <Moon
+            className="h-3 w-3 transition-opacity duration-300"
+            style={{ color: isDark ? "transparent" : "#94A3B8", opacity: isDark ? 0 : 1 }}
+          />
+          <Sun
+            className="h-3 w-3 transition-opacity duration-300"
+            style={{ color: isDark ? "#94A3B8" : "transparent", opacity: isDark ? 1 : 0 }}
+          />
+        </span>
+      </button>
+    </div>
   );
 }
