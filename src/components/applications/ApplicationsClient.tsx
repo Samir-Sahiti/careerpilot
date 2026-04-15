@@ -36,7 +36,10 @@ export function ApplicationsClient({ initialApplications }: Props) {
   const [activeTab, setActiveTab] = useState<ApplicationStatus | "all">("all");
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [showAdd, setShowAdd] = useState(false);
-  const [savingNotes, setSavingNotes] = useState<string | null>(null);
+  const [notesSaveState, setNotesSaveState] = useState<{
+    id: string;
+    status: "saving" | "saved" | "error";
+  } | null>(null);
 
   // Add form state
   const [addTitle, setAddTitle] = useState("");
@@ -75,14 +78,34 @@ export function ApplicationsClient({ initialApplications }: Props) {
 
     if (noteTimers.current[app.id]) clearTimeout(noteTimers.current[app.id]);
     noteTimers.current[app.id] = setTimeout(async () => {
-      setSavingNotes(app.id);
-      await patchApp(app.id, { notes }).catch(() => toast.error("Failed to save notes"));
-      setSavingNotes(null);
+      setNotesSaveState({ id: app.id, status: "saving" });
+      try {
+        await patchApp(app.id, { notes });
+        setNotesSaveState({ id: app.id, status: "saved" });
+        // Auto-clear the "Saved" confirmation after 2 seconds
+        setTimeout(() => {
+          setNotesSaveState((prev) =>
+            prev?.id === app.id && prev.status === "saved" ? null : prev
+          );
+        }, 2000);
+      } catch {
+        setNotesSaveState({ id: app.id, status: "error" });
+        toast.error("Failed to save notes");
+      }
     }, 1000);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this application? This cannot be undone.")) return;
+
+    // Cancel any pending notes auto-save for this record to prevent a
+    // spurious "Failed to save notes" toast after a successful delete.
+    if (noteTimers.current[id]) {
+      clearTimeout(noteTimers.current[id]);
+      delete noteTimers.current[id];
+    }
+    setNotesSaveState((prev) => (prev?.id === id ? null : prev));
+
     const res = await fetch(`/api/applications/${id}`, { method: "DELETE" });
     if (!res.ok) { toast.error("Failed to delete"); return; }
     setApps((prev) => prev.filter((a) => a.id !== id));
@@ -326,11 +349,23 @@ export function ApplicationsClient({ initialApplications }: Props) {
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</label>
-                    {savingNotes === selectedApp.id && (
-                      <span className="text-xs text-gray-600 flex items-center gap-1">
-                        <Loader2 className="w-3 h-3 animate-spin" /> Saving…
-                      </span>
-                    )}
+                    {notesSaveState?.id === selectedApp.id && (
+                    <>
+                      {notesSaveState.status === "saving" && (
+                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                          <Loader2 className="w-3 h-3 animate-spin" /> Saving…
+                        </span>
+                      )}
+                      {notesSaveState.status === "saved" && (
+                        <span className="text-xs text-green-500 flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Saved
+                        </span>
+                      )}
+                      {notesSaveState.status === "error" && (
+                        <span className="text-xs text-red-400">Not saved</span>
+                      )}
+                    </>
+                  )}
                   </div>
                   <textarea
                     rows={4}

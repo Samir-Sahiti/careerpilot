@@ -45,6 +45,7 @@ An AI-powered career management platform that helps you land your next job and p
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
    ANTHROPIC_API_KEY=your_anthropic_api_key
    ```
 
@@ -55,10 +56,21 @@ An AI-powered career management platform that helps you land your next job and p
 
 5. Open [http://localhost:3000](http://localhost:3000)
 
+## Database Setup
+
+The project requires a PostgreSQL database provisioned through Supabase.
+
+1. In your [Supabase dashboard](https://supabase.com/), open the project created during installation.
+2. Navigate to **SQL Editor** and click **New query**.
+3. Open `schema.sql` from the root of this repository, paste the entire contents into the editor, and click **Run**.
+
+The schema is safe to run on a fresh database or re-run on an existing one — all statements use `CREATE TABLE IF NOT EXISTS` and `DROP POLICY IF EXISTS` guards.
+
 ## Project Structure
 
 ```
 careerpilot/
+├── schema.sql              # Run once in Supabase SQL Editor to set up all tables
 ├── src/
 │   ├── app/
 │   │   ├── (auth)/
@@ -68,18 +80,30 @@ careerpilot/
 │   │   │   ├── dashboard/
 │   │   │   ├── cv/
 │   │   │   ├── jobs/
+│   │   │   │   └── [id]/
 │   │   │   ├── interview/
-│   │   │   └── career/
+│   │   │   │   ├── new/
+│   │   │   │   └── [id]/
+│   │   │   ├── career/
+│   │   │   ├── cover-letter/
+│   │   │   ├── applications/
+│   │   │   ├── analytics/
+│   │   │   └── settings/
 │   │   ├── api/
 │   │   │   ├── cv/
 │   │   │   ├── jobs/
 │   │   │   ├── interview/
-│   │   │   └── career/
+│   │   │   ├── career/
+│   │   │   ├── cover-letter/
+│   │   │   └── applications/
 │   │   └── page.tsx        # Landing page
 │   ├── components/
+│   ├── hooks/
+│   │   └── useStepCycle.ts # Shared step-cycling hook for AI loading overlays
 │   ├── lib/
 │   │   ├── supabase/
-│   │   └── ai/
+│   │   ├── ai/
+│   │   └── validation/
 │   └── types/
 ├── public/
 └── ...config files

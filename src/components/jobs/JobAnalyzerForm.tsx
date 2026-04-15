@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Briefcase, Building2, FileText, Sparkles, Loader2 } from "lucide-react";
+import { useStepCycle } from "@/hooks/useStepCycle";
 
 interface JobAnalyzerFormProps {
   cvId: string;
@@ -25,22 +26,7 @@ export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
   const [company, setCompany] = useState("");
   const [jobRawText, setJobRawText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [stepIndex, setStepIndex] = useState(0);
-  const stepTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const startStepCycle = () => {
-    setStepIndex(0);
-    stepTimerRef.current = setInterval(() => {
-      setStepIndex((prev) => Math.min(prev + 1, ANALYSIS_STEPS.length - 1));
-    }, 3500);
-  };
-
-  const stopStepCycle = () => {
-    if (stepTimerRef.current) {
-      clearInterval(stepTimerRef.current);
-      stepTimerRef.current = null;
-    }
-  };
+  const { stepIndex, start: startStepCycle, stop: stopStepCycle } = useStepCycle(ANALYSIS_STEPS.length, 3500);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

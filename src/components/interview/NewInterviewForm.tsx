@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Briefcase, Building2, PlayCircle, Loader2 } from "lucide-react";
+import { useStepCycle } from "@/hooks/useStepCycle";
 
 interface NewInterviewFormProps {
   initialJobTitle?: string;
@@ -28,22 +29,7 @@ export function NewInterviewForm({
   const [targetRole, setTargetRole] = useState(initialJobTitle);
   const [targetCompany, setTargetCompany] = useState(initialCompany);
   const [loading, setLoading] = useState(false);
-  const [stepIndex, setStepIndex] = useState(0);
-  const stepTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const startStepCycle = () => {
-    setStepIndex(0);
-    stepTimerRef.current = setInterval(() => {
-      setStepIndex((prev) => Math.min(prev + 1, GENERATION_STEPS.length - 1));
-    }, 4000); // cycle through steps slowly
-  };
-
-  const stopStepCycle = () => {
-    if (stepTimerRef.current) {
-      clearInterval(stepTimerRef.current);
-      stepTimerRef.current = null;
-    }
-  };
+  const { stepIndex, start: startStepCycle, stop: stopStepCycle } = useStepCycle(GENERATION_STEPS.length, 4000);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
