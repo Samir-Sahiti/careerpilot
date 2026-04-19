@@ -1,104 +1,71 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { LandingDemo } from "@/components/landing/LandingDemo";
 
-// ── Feature card data ─────────────────────────────────────────────────────────
-const features = [
+// ── Scenario cards ─────────────────────────────────────────────────────────────
+const scenarios = [
   {
-    emoji: "📄",
-    title: "Smart CV Parsing",
-    description:
-      "Upload your CV once. Our AI reads your PDF and extracts your entire profile to power deeply personalised insights across every tool.",
+    trigger: "I saw a listing at 10pm",
+    question: "Should I even apply?",
+    answer: "Paste the listing. Get a fit score, missing skills, and an honest recommendation in 30 seconds.",
+    href: "/signup",
+    cta: "Try it free",
+    color: "border-blue-500/30 hover:border-blue-500/60",
+    badge: "Job Analyzer",
+    badgeColor: "bg-blue-500/10 text-blue-300 border-blue-500/20",
   },
   {
-    emoji: "🎯",
-    title: "Job Analyser",
-    description:
-      "Paste any job listing and get an instant fit score, matched skills, and a personalised skill gap analysis.",
+    trigger: "I got rejected yesterday",
+    question: "What went wrong?",
+    answer: "CareerPilot captures your outcomes and runs a post-mortem: likely gap, what similar candidates did next, what to add to your roadmap.",
+    href: "/signup",
+    cta: "Start tracking",
+    color: "border-orange-500/30 hover:border-orange-500/60",
+    badge: "Rejection Post-Mortem",
+    badgeColor: "bg-orange-500/10 text-orange-300 border-orange-500/20",
   },
   {
-    emoji: "📝",
-    title: "Cover Letters",
-    description:
-      "Generate tailored, highly personalised cover letters instantly based on your CV and the specific job requirements.",
-  },
-  {
-    emoji: "📋",
-    title: "Application Tracker",
-    description:
-      "Keep all your applications organised in one place. Save notes, track statuses, and never lose a job link again.",
-  },
-  {
-    emoji: "🎤",
-    title: "Interview Coach",
-    description:
-      "Practice with AI-generated questions tailored to the exact role and your background. Get scored, actionable feedback.",
-  },
-  {
-    emoji: "📈",
-    title: "Career Ladder",
-    description:
-      "See exactly what skills to build, what projects to ship, and how long it realistically takes to reach the next level.",
+    trigger: "I have an interview Tuesday",
+    question: "Am I actually ready?",
+    answer: "Practice with an AI interviewer that knows your CV and the exact role. Follow-up questions included — just like a real interview.",
+    href: "/signup",
+    cta: "Start practising",
+    color: "border-green-500/30 hover:border-green-500/60",
+    badge: "Interview Coach",
+    badgeColor: "bg-green-500/10 text-green-300 border-green-500/20",
   },
 ];
 
-// ── SVG dot-grid background (20×20 tile) ──────────────────────────────────────
-const DOT_GRID = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='1' fill='%231E3A5F'/%3E%3C/svg%3E")`;
+// ── Feature grid (secondary — demoted below scenarios) ────────────────────────
+const features = [
+  { emoji: "📄", title: "Smart CV Parsing", description: "Upload once. Your profile powers every tool — fit scores, interview questions, cover letters, career paths." },
+  { emoji: "🎯", title: "Job Analyser", description: "Fit score with a rubric, matched and missing skills, salary context, and a tailored CV — all from one paste." },
+  { emoji: "📋", title: "Application Tracker", description: "Track status, capture outcomes, and get rejection post-mortems. Your history teaches the AI to predict better." },
+  { emoji: "🎤", title: "Interview Coach", description: "Adaptive mock interviews that follow up on vague answers. Score trends by question type across all sessions." },
+  { emoji: "📈", title: "Career Ladder", description: "A living roadmap — track skills, mark them done, and watch your CV auto-complete items on the next upload." },
+  { emoji: "📊", title: "Analytics", description: "Prescriptive, not descriptive. Calibration drift, rejection patterns, and cohort benchmarks against peers." },
+];
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 export default async function LandingPage() {
-  // Server-side auth check — authenticated users go straight to dashboard
   const supabase = await createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (session) {
-    redirect("/dashboard");
-  }
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) redirect("/dashboard");
 
   return (
-    <div
-      style={{
-        backgroundColor: "#0A0F1C",
-        color: "#F1F5F9",
-        minHeight: "100vh",
-        fontFamily: "var(--font-body)",
-      }}
-    >
-      {/* ── Navbar ───────────────────────────────────────────────────────────── */}
-      <nav
-        style={{ borderBottom: "1px solid #1E3A5F" }}
-        className="sticky top-0 z-50 backdrop-blur-sm"
-      >
-        <div
-          style={{ backgroundColor: "rgba(10,15,28,0.85)" }}
-          className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"
-        >
-          {/* Logo */}
-          <span
-            className="text-xl font-extrabold tracking-tight"
-            style={{ fontFamily: "var(--font-heading)", color: "#F1F5F9" }}
-          >
-            Career<span style={{ color: "#2563EB" }}>Pilot</span>
-          </span>
+    <div className="bg-[var(--background)] text-[var(--foreground)] min-h-screen font-[var(--font-body)]">
 
-          {/* Nav actions */}
+      {/* ── Navbar ───────────────────────────────────────────────────────────── */}
+      <nav className="sticky top-0 z-50 backdrop-blur-sm border-b border-[var(--border-subtle)] bg-[var(--background)]/85">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <span className="text-xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
+            Career<span className="text-blue-500">Pilot</span>
+          </span>
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="nav-link text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-            >
+            <Link href="/login" className="nav-link text-sm font-medium px-4 py-2 rounded-lg transition-colors">
               Log In
             </Link>
-            <Link
-              href="/signup"
-              className="text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
-              style={{
-                backgroundColor: "#2563EB",
-                color: "#FFFFFF",
-              }}
-            >
+            <Link href="/signup" className="text-sm font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors">
               Get Started
             </Link>
           </div>
@@ -106,158 +73,123 @@ export default async function LandingPage() {
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section
-        className="relative flex items-center justify-center overflow-hidden"
-        style={{
-          minHeight: "calc(100vh - 65px)",
-          backgroundImage: DOT_GRID,
-        }}
-      >
-        {/* Radial glow behind the headline */}
+      <section className="relative flex flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-16 text-center">
+        {/* Background glow */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="h-[500px] w-full max-w-2xl rounded-full bg-blue-600/10 blur-3xl" />
+        </div>
+
+        {/* Dot grid */}
         <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "100%",
-            height: "600px",
-            background:
-              "radial-gradient(ellipse at center, rgba(37,99,235,0.15) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }}
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='1' fill='%231E3A5F'/%3E%3C/svg%3E\")" }}
         />
 
-        {/* Content */}
-        <div className="relative z-10 text-center px-6 max-w-3xl mx-auto flex flex-col items-center gap-8">
-          {/* Badge */}
-          <div
-            className="animate-fade-in-up inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full"
-            style={{
-              border: "1px solid #1E3A5F",
-              color: "#60A5FA",
-              backgroundColor: "rgba(37,99,235,0.08)",
-            }}
-          >
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: "#2563EB" }}
-            />
+        <div className="relative z-10 flex flex-col items-center gap-6 max-w-3xl mx-auto">
+          <div className="animate-fade-in-up inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-subtle)] text-blue-400 bg-blue-600/8">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
             AI-Powered · Built for Ambitious Professionals
           </div>
 
-          {/* Headline */}
-          <h1
-            className="animate-fade-in-up delay-100 text-5xl md:text-6xl font-extrabold leading-tight tracking-tight"
-            style={{ fontFamily: "var(--font-heading)", color: "#F1F5F9" }}
-          >
-            Your AI{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #2563EB 0%, #60A5FA 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Career Co-Pilot
-            </span>
+          <h1 className="animate-fade-in-up delay-100 text-5xl md:text-6xl font-extrabold leading-tight tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
+            Paste a job listing.{" "}
+            <span className="bg-gradient-to-r from-blue-500 to-blue-300 bg-clip-text text-transparent">
+              Know in 30 seconds
+            </span>{" "}
+            if it&apos;s worth your time.
           </h1>
 
-          {/* Subheadline */}
-          <p
-            className="animate-fade-in-up delay-200 text-xl leading-relaxed max-w-xl"
-            style={{ color: "#94A3B8" }}
-          >
-            Analyse job fits, practise interviews, and map your path to the next
-            level — all in one place.
+          <p className="animate-fade-in-up delay-200 text-lg text-gray-400 max-w-xl leading-relaxed">
+            CareerPilot scores your fit, identifies gaps, preps your interview, and learns from every outcome — all from your CV.
           </p>
 
-          {/* CTA buttons */}
-          <div className="animate-fade-in-up delay-300 flex flex-col sm:flex-row items-center gap-4">
-            <Link
-              id="cta-get-started"
-              href="/signup"
-              className="w-full sm:w-auto text-sm font-semibold px-8 py-3 rounded-xl transition-all"
-              style={{
-                backgroundColor: "#2563EB",
-                color: "#FFFFFF",
-                boxShadow: "0 0 20px rgba(37,99,235,0.35)",
-              }}
-            >
-              Get Started — it&apos;s free
-            </Link>
-            <Link
-              id="cta-log-in"
-              href="/login"
-              className="w-full sm:w-auto text-sm font-semibold px-8 py-3 rounded-xl transition-all"
-              style={{
-                border: "1px solid #2563EB",
-                color: "#60A5FA",
-              }}
-            >
-              Log In
-            </Link>
+          {/* Inline demo */}
+          <div className="animate-fade-in-up delay-300 w-full max-w-2xl">
+            <LandingDemo />
           </div>
+
+          <p className="animate-fade-in-up delay-300 text-xs text-gray-600">
+            No account needed for the demo. &nbsp;
+            <Link href="/signup" className="text-blue-400 hover:underline">Sign up free</Link>
+            {" "}to analyse against your CV.
+          </p>
         </div>
       </section>
 
-      {/* ── Features ─────────────────────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
-        <div className="text-center mb-16">
-          <h2
-            className="text-3xl md:text-4xl font-extrabold mb-4"
-            style={{ fontFamily: "var(--font-heading)", color: "#F1F5F9" }}
-          >
-            Everything your career needs
-          </h2>
-          <p style={{ color: "#64748B" }} className="text-lg max-w-xl mx-auto">
-            A comprehensive suite of tools, one seamless workflow.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, i) => (
+      {/* ── Scenario cards ────────────────────────────────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-6 py-16">
+        <h2 className="text-center text-sm font-bold uppercase tracking-widest text-gray-500 mb-10">
+          Common triggers
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {scenarios.map((s) => (
             <div
-              key={feature.title}
-              className={`animate-fade-in-up delay-${(i + 2) * 100} flex flex-col gap-4`}
-              style={{
-                background: "#111827",
-                border: "1px solid #1E3A5F",
-                borderRadius: "12px",
-                padding: "24px",
-              }}
+              key={s.trigger}
+              className={`flex flex-col gap-4 rounded-2xl border bg-[var(--card-bg)] p-6 transition-colors ${s.color}`}
             >
-              <span className="text-4xl" role="img" aria-label={feature.title}>
-                {feature.emoji}
-              </span>
-              <h3
-                className="text-lg font-bold"
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  color: "#F1F5F9",
-                }}
+              <div>
+                <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full border mb-3 ${s.badgeColor}`}>
+                  {s.badge}
+                </span>
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{s.trigger}</p>
+                <h3 className="text-lg font-bold text-white mt-1" style={{ fontFamily: "var(--font-heading)" }}>
+                  {s.question}
+                </h3>
+              </div>
+              <p className="text-sm text-gray-400 leading-relaxed flex-1">{s.answer}</p>
+              <Link
+                href={s.href}
+                className="inline-flex items-center gap-1 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
               >
-                {feature.title}
-              </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                {feature.description}
-              </p>
+                {s.cta} →
+              </Link>
             </div>
           ))}
         </div>
       </section>
 
+      {/* ── Feature grid ──────────────────────────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 py-16 border-t border-[var(--border-subtle)]">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-3" style={{ fontFamily: "var(--font-heading)" }}>
+            Everything in one place
+          </h2>
+          <p className="text-gray-500 text-lg max-w-xl mx-auto">
+            Seven tools. One CV. One workflow.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {features.map((f, i) => (
+            <div
+              key={f.title}
+              className={`animate-fade-in-up delay-${(i + 1) * 100} flex flex-col gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-6`}
+            >
+              <span className="text-3xl" role="img" aria-label={f.title}>{f.emoji}</span>
+              <h3 className="text-base font-bold text-white" style={{ fontFamily: "var(--font-heading)" }}>{f.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{f.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CTA strip ─────────────────────────────────────────────────────────── */}
+      <section className="border-t border-[var(--border-subtle)] py-16 text-center px-6">
+        <h2 className="text-2xl font-extrabold text-white mb-4" style={{ fontFamily: "var(--font-heading)" }}>
+          Ready to stop guessing?
+        </h2>
+        <Link
+          href="/signup"
+          className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors shadow-lg shadow-blue-900/30 text-sm"
+        >
+          Get started — it&apos;s free
+        </Link>
+      </section>
+
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
-      <footer
-        className="text-center py-8 text-sm"
-        style={{
-          borderTop: "1px solid #1E3A5F",
-          color: "#334155",
-        }}
-      >
-        CareerPilot &copy; 2025
+      <footer className="text-center py-8 text-sm text-gray-700 border-t border-[var(--border-subtle)]">
+        CareerPilot &copy; {new Date().getFullYear()}
       </footer>
     </div>
   );

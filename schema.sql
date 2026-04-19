@@ -215,6 +215,20 @@ CREATE INDEX IF NOT EXISTS idx_cohort_stats_lookup
   ON cohort_stats(seniority_level, role_family, experience_bracket, computed_at DESC);
 
 -- -----------------------------------------------------------------------------
+-- demo_rate_limits
+-- Throttles unauthenticated job-listing demo to 1 request per IP per day.
+-- ip_hash is SHA-256 of the IP address (never store raw IPs).
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS demo_rate_limits (
+  id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  ip_hash    TEXT        NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_demo_rate_limits_ip_time
+  ON demo_rate_limits(ip_hash, created_at DESC);
+
+-- -----------------------------------------------------------------------------
 -- rate_limit_events
 -- Tracks AI request events for per-user rate limiting.
 -- -----------------------------------------------------------------------------
