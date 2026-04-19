@@ -33,6 +33,28 @@ export async function PATCH(
       return errorResponse("No valid fields to update", 400);
     }
 
+    // When transitioning to 'applied' for the first time, snapshot the linked fit_score
+    if (patch.status === "applied" && patch.applied_at) {
+      const { data: existing } = await supabase
+        .from("applications")
+        .select("job_analysis_id, applied_at, outcome_fit_score_at_apply")
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .single();
+
+      if (existing && !existing.applied_at && !existing.outcome_fit_score_at_apply && existing.job_analysis_id) {
+        const { data: analysis } = await supabase
+          .from("job_analyses")
+          .select("fit_score")
+          .eq("id", existing.job_analysis_id)
+          .single();
+
+        if (analysis?.fit_score != null) {
+          (patch as Record<string, unknown>).outcome_fit_score_at_apply = analysis.fit_score;
+        }
+      }
+    }
+
     const { data: updated, error: patchError } = await supabase
       .from("applications")
       .update(patch)

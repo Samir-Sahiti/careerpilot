@@ -6,9 +6,10 @@ import { format } from "date-fns";
 import Link from "next/link";
 import {
   ClipboardList, Plus, X, ExternalLink, Briefcase,
-  Building2, Calendar, FileEdit, Check, Loader2, Trash2, Link2
+  Building2, Calendar, FileEdit, Check, Loader2, Trash2
 } from "lucide-react";
-import { Application, ApplicationStatus } from "@/types";
+import { Application, ApplicationStatus, OutcomeStage } from "@/types";
+import { OutcomeModal } from "./OutcomeModal";
 
 const STATUSES: { value: ApplicationStatus; label: string; color: string; bg: string; border: string }[] = [
   { value: "saved",        label: "Saved",        color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20" },
@@ -41,6 +42,12 @@ export function ApplicationsClient({ initialApplications }: Props) {
     status: "saving" | "saved" | "error";
   } | null>(null);
 
+  // Outcome modal: holds the app + target status awaiting modal confirmation
+  const [pendingOutcome, setPendingOutcome] = useState<{
+    app: Application;
+    status: ApplicationStatus;
+  } | null>(null);
+
   // Add form state
   const [addTitle, setAddTitle] = useState("");
   const [addCompany, setAddCompany] = useState("");
@@ -65,11 +72,63 @@ export function ApplicationsClient({ initialApplications }: Props) {
     return res.json() as Promise<Application>;
   }, []);
 
-  const handleStatusChange = async (app: Application, status: ApplicationStatus) => {
-    const updated = await patchApp(app.id, { status }).catch(() => null);
-    if (!updated) { toast.error("Failed to update status"); return; }
-    setApps((prev) => prev.map((a) => (a.id === app.id ? { ...a, status } : a)));
-    if (selectedApp?.id === app.id) setSelectedApp((p) => p && { ...p, status });
+  const OUTCOME_STATUSES: ApplicationStatus[] = ["interviewing", "offered", "rejected"];
+
+  const applyStatusPatch = useCallback(
+    async (
+      app: Application,
+      status: ApplicationStatus,
+      outcomeFields?: {
+        outcome_stage_reached?: OutcomeStage | null;
+        outcome_reason?: string | null;
+        outcome_captured_at?: string | null;
+      }
+    ) => {
+      const patch: Record<string, unknown> = { status };
+      // Auto-set applied_at when transitioning to 'applied' for the first time
+      if (status === "applied" && !app.applied_at) {
+        patch.applied_at = new Date().toISOString();
+      }
+      if (outcomeFields) Object.assign(patch, outcomeFields);
+
+      const updated = await patchApp(app.id, patch).catch(() => null);
+      if (!updated) { toast.error("Failed to update status"); return; }
+      setApps((prev) => prev.map((a) => (a.id === app.id ? { ...a, ...updated } : a)));
+      if (selectedApp?.id === app.id) setSelectedApp((p) => p && { ...p, ...updated });
+    },
+    [patchApp, selectedApp]
+  );
+
+  const handleStatusChange = (app: Application, status: ApplicationStatus) => {
+    if (OUTCOME_STATUSES.includes(status)) {
+      setPendingOutcome({ app, status });
+    } else {
+      applyStatusPatch(app, status);
+    }
+  };
+
+  const handleOutcomeSubmit = async ({
+    stage,
+    reason,
+  }: {
+    stage: OutcomeStage | null;
+    reason: string;
+  }) => {
+    if (!pendingOutcome) return;
+    const { app, status } = pendingOutcome;
+    setPendingOutcome(null);
+    await applyStatusPatch(app, status, {
+      outcome_stage_reached: stage,
+      outcome_reason: reason || null,
+      outcome_captured_at: new Date().toISOString(),
+    });
+  };
+
+  const handleOutcomeSkip = () => {
+    if (!pendingOutcome) return;
+    const { app, status } = pendingOutcome;
+    setPendingOutcome(null);
+    applyStatusPatch(app, status);
   };
 
   const handleNotesChange = (app: Application, notes: string) => {
@@ -145,6 +204,13 @@ export function ApplicationsClient({ initialApplications }: Props) {
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-24 animate-fade-in-up">
+      {pendingOutcome && (
+        <OutcomeModal
+          status={pendingOutcome.status}
+          onSubmit={handleOutcomeSubmit}
+          onSkip={handleOutcomeSkip}
+        />
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
