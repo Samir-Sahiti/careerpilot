@@ -28,6 +28,21 @@ export const interviewFeedbackSchema = z.object({
   company: z.string().optional(),
 });
 
+export const InterviewFeedbackOutputSchema = z.object({
+  feedback: z.string().min(20),
+  strengths: z.array(z.string()).min(1).max(5),
+  improvements: z.array(z.string()).min(1).max(5),
+  score: z.number().int().min(0).max(100),
+  star_coverage: z
+    .object({
+      situation: z.boolean(),
+      task: z.boolean(),
+      action: z.boolean(),
+      result: z.boolean(),
+    })
+    .optional(),
+});
+
 // ── Cover Letter ──────────────────────────────────────────────────────────────
 export const generateCoverLetterSchema = z.object({
   jobTitle: z.string().min(1, "jobTitle is required").max(200),
@@ -61,6 +76,15 @@ export const createApplicationSchema = z.object({
   cover_letter_id: z.string().uuid().optional().nullable(),
 });
 
+export const OUTCOME_STAGES = [
+  "no_response",
+  "recruiter_screen",
+  "phone_screen",
+  "technical",
+  "onsite",
+  "offer",
+] as const;
+
 export const patchApplicationSchema = z.object({
   status: z.enum(APPLICATION_STATUSES).optional(),
   notes: z.string().max(5000).optional().nullable(),
@@ -68,4 +92,8 @@ export const patchApplicationSchema = z.object({
   job_url: z.string().url().optional().nullable().or(z.literal("")),
   company: z.string().max(200).optional().nullable(),
   cover_letter_id: z.string().uuid().optional().nullable(),
+  outcome_stage_reached: z.enum(OUTCOME_STAGES).optional().nullable(),
+  outcome_reason: z.string().max(2000).optional().nullable(),
+  outcome_fit_score_at_apply: z.number().int().min(0).max(100).optional().nullable(),
+  outcome_captured_at: z.string().datetime().optional().nullable(),
 });

@@ -94,6 +94,17 @@ Schema file at project root: `schema.sql` (consolidated — safe to run on fresh
 - All AI calls use `anthropic("claude-haiku-4-5")`
 - All prompts are defined as exported functions in `src/lib/ai/prompts.ts`
 
+### Fit-Score Rubric (do not change without updating this doc)
+`buildJobAnalysisPrompt` uses a fixed banded rubric so scores are comparable across users and over time:
+- **90–100** — meets every requirement + most preferred, seniority match, direct domain experience
+- **75–89** — all hard reqs met, missing 1–2 preferred, seniority ±1
+- **60–74** — most hard reqs met, missing 1 critical OR seniority off by one level
+- **40–59** — plausible stretch, 2+ hard reqs missing or seniority off by 2 levels
+- **20–39** — significant gaps, likely fails resume screen
+- **0–19** — wrong role family or seniority tier entirely
+
+Within the chosen band, adjust ±5 for nuance. Do not inflate.
+
 ### Rate Limiting
 Two-tier system tracked via `rate_limit_events` table:
 - **Global:** 10 AI requests per hour per user

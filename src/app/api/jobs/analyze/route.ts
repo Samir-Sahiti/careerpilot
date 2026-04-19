@@ -62,20 +62,29 @@ export async function POST(req: Request) {
       model: anthropic("claude-haiku-4-5"),
       schema: z.object({
         fit_score: z.number().int(),
+        fit_score_basis: z.enum(["explicit", "inferred", "speculative"]),
+        fit_score_rationale: z.string(),
         recommendation: z.enum(["apply", "maybe", "skip"]),
         recommendation_reason: z.string(),
         matched_skills: z.array(z.string()),
         missing_skills: z.array(z.string()),
         cv_suggestions: z.array(z.string()),
         salary_estimate: z
-          .object({
-            currency: z.string(),
-            low: z.number(),
-            mid: z.number(),
-            high: z.number(),
-            factors: z.array(z.string()),
-            negotiation_tip: z.string(),
-          })
+          .discriminatedUnion("shown_in_listing", [
+            z.object({
+              shown_in_listing: z.literal(true),
+              currency: z.string(),
+              low: z.number(),
+              mid: z.number(),
+              high: z.number(),
+              negotiation_tip: z.string(),
+            }),
+            z.object({
+              shown_in_listing: z.literal(false),
+              guidance: z.string(),
+              negotiation_tip: z.string(),
+            }),
+          ])
           .nullable()
           .optional(),
       }),
@@ -91,6 +100,8 @@ export async function POST(req: Request) {
         company: company ?? null,
         job_raw_text: jobRawText,
         fit_score: analysis.fit_score,
+        fit_score_basis: analysis.fit_score_basis,
+        fit_score_rationale: analysis.fit_score_rationale,
         recommendation: analysis.recommendation,
         recommendation_reason: analysis.recommendation_reason,
         matched_skills: analysis.matched_skills,

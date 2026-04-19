@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { JobAnalysis, SalaryEstimate } from "@/types";
 import { FitScoreArc } from "@/components/jobs/FitScoreArc";
 import { TrackApplicationButton } from "@/components/jobs/TrackApplicationButton";
+import { ConfidenceBadge } from "@/components/ui/ConfidenceBadge";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -15,14 +16,15 @@ import {
   FileEdit,
   DollarSign,
   TrendingUp,
+  Info,
 } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// ── Salary range bar ──────────────────────────────────────────────────────────
-function SalaryRangeBar({ salary }: { salary: SalaryEstimate }) {
+// ── Salary section helpers ────────────────────────────────────────────────────
+function SalaryRangeBar({ salary }: { salary: Extract<SalaryEstimate, { shown_in_listing: true }> }) {
   const range = salary.high - salary.low;
   const midPct = range > 0 ? ((salary.mid - salary.low) / range) * 100 : 50;
 
@@ -34,18 +36,15 @@ function SalaryRangeBar({ salary }: { salary: SalaryEstimate }) {
 
   return (
     <div className="space-y-4">
-      {/* Range row */}
       <div className="flex items-center gap-3">
         <span className="text-sm font-semibold text-gray-400 w-16 text-right shrink-0">
           {salary.currency} {fmt(salary.low)}
         </span>
         <div className="relative flex-1 h-3 bg-[#1E3A5F]/60 rounded-full">
-          {/* Fill to mid */}
           <div
             className="absolute left-0 top-0 h-full bg-blue-600/60 rounded-full"
             style={{ width: `${midPct}%` }}
           />
-          {/* Mid marker */}
           <div
             className="absolute top-1/2 w-4 h-4 bg-blue-400 rounded-full border-2 border-[#0A0F1C] shadow"
             style={{ left: `${midPct}%`, transform: "translate(-50%, -50%)" }}
@@ -55,13 +54,35 @@ function SalaryRangeBar({ salary }: { salary: SalaryEstimate }) {
           {salary.currency} {fmt(salary.high)}
         </span>
       </div>
-      {/* Mid label */}
       <p className="text-center text-xs text-gray-500">
-        Mid-range estimate:{" "}
+        Mid-range (from listing):{" "}
         <span className="text-white font-semibold">
           {salary.currency} {fmt(salary.mid)}
         </span>
       </p>
+    </div>
+  );
+}
+
+function SalarySection({ salary }: { salary: SalaryEstimate }) {
+  return (
+    <div className="space-y-6">
+      {salary.shown_in_listing ? (
+        <SalaryRangeBar salary={salary} />
+      ) : (
+        <div className="flex items-start gap-3 bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg p-4">
+          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+          <p className="text-sm text-gray-300 leading-relaxed">{salary.guidance}</p>
+        </div>
+      )}
+
+      <div className="flex items-start gap-3 bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg p-4">
+        <TrendingUp className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+        <p className="text-sm text-gray-300 leading-relaxed">
+          <span className="text-emerald-400 font-semibold">Negotiation tip: </span>
+          {salary.negotiation_tip}
+        </p>
+      </div>
     </div>
   );
 }
@@ -102,7 +123,12 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
       {/* Header card */}
       <div className="bg-[#111827] border border-[#1E3A5F] rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row gap-8 items-start sm:items-center relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/2 -translate-y-1/2" />
-        <FitScoreArc score={analysis.fit_score ?? 0} />
+        <div className="flex flex-col items-center gap-2">
+          <FitScoreArc score={analysis.fit_score ?? 0} />
+          {analysis.fit_score_basis && (
+            <ConfidenceBadge basis={analysis.fit_score_basis} rationale={analysis.fit_score_rationale} />
+          )}
+        </div>
         <div className="flex-1 space-y-4 relative z-10 w-full">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white" style={{ fontFamily: "var(--font-heading)" }}>
@@ -184,40 +210,16 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
         )}
       </div>
 
-      {/* Salary Estimate */}
+      {/* Salary */}
       {analysis.salary_estimate && (
         <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-6">
           <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
             <DollarSign className="w-5 h-5 text-emerald-500" />
-            <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Salary Estimate</h3>
-            <span className="ml-auto text-xs text-gray-600 font-normal">
-              Verify with Glassdoor or Levels.fyi
-            </span>
+            <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>
+              {analysis.salary_estimate.shown_in_listing ? "Salary (from listing)" : "Salary"}
+            </h3>
           </div>
-
-          <SalaryRangeBar salary={analysis.salary_estimate} />
-
-          {/* Factors */}
-          {analysis.salary_estimate.factors?.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {analysis.salary_estimate.factors.map((f, i) => (
-                <span key={i} className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-md border border-emerald-500/20">
-                  {f}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Negotiation tip */}
-          {analysis.salary_estimate.negotiation_tip && (
-            <div className="flex items-start gap-3 bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg p-4">
-              <TrendingUp className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-300 leading-relaxed">
-                <span className="text-emerald-400 font-semibold">Negotiation tip: </span>
-                {analysis.salary_estimate.negotiation_tip}
-              </p>
-            </div>
-          )}
+          <SalarySection salary={analysis.salary_estimate} />
         </div>
       )}
 

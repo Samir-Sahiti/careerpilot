@@ -67,15 +67,21 @@ CREATE TABLE IF NOT EXISTS job_analyses (
   company               TEXT,
   job_raw_text          TEXT        NOT NULL,
   fit_score             INTEGER     CHECK (fit_score >= 0 AND fit_score <= 100),
+  fit_score_basis       TEXT        CHECK (fit_score_basis IN ('explicit', 'inferred', 'speculative')),
+  fit_score_rationale   TEXT,
   recommendation        TEXT        CHECK (recommendation IN ('apply', 'maybe', 'skip')),
   recommendation_reason TEXT,
   matched_skills        TEXT[]      NOT NULL DEFAULT '{}',
   missing_skills        TEXT[]      NOT NULL DEFAULT '{}',
   cv_suggestions        TEXT[]      NOT NULL DEFAULT '{}',
   salary_estimate       JSONB,
-  -- JSONB shape: { currency, low, mid, high, factors[], negotiation_tip }
+  -- JSONB shape: { shown_in_listing, currency?, low?, mid?, high?, guidance?, negotiation_tip }
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Idempotent migrations for existing databases
+ALTER TABLE job_analyses ADD COLUMN IF NOT EXISTS fit_score_basis     TEXT CHECK (fit_score_basis IN ('explicit', 'inferred', 'speculative'));
+ALTER TABLE job_analyses ADD COLUMN IF NOT EXISTS fit_score_rationale TEXT;
 
 -- -----------------------------------------------------------------------------
 -- interview_sessions
@@ -135,9 +141,20 @@ CREATE TABLE IF NOT EXISTS applications (
   status           application_status NOT NULL DEFAULT 'saved',
   applied_at       TIMESTAMPTZ,
   notes            TEXT,
+  -- Outcome tracking (populated via modal when status transitions to interviewing/offered/rejected)
+  outcome_stage_reached        TEXT,       -- 'no_response'|'recruiter_screen'|'phone_screen'|'technical'|'onsite'|'offer'
+  outcome_reason               TEXT,       -- free-text, user-provided
+  outcome_fit_score_at_apply   INTEGER,    -- snapshot of job_analyses.fit_score when applied_at was first set
+  outcome_captured_at          TIMESTAMPTZ,
   created_at       TIMESTAMPTZ        NOT NULL DEFAULT NOW(),
   updated_at       TIMESTAMPTZ        NOT NULL DEFAULT NOW()
 );
+
+-- Idempotent migrations for existing databases
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS outcome_stage_reached      TEXT;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS outcome_reason              TEXT;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS outcome_fit_score_at_apply  INTEGER;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS outcome_captured_at         TIMESTAMPTZ;
 
 -- -----------------------------------------------------------------------------
 -- rate_limit_events

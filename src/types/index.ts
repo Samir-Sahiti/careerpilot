@@ -36,14 +36,22 @@ export interface ParsedCvData {
 }
 
 // ── Job Analysis ──────────────────────────────────────────────────────────────
-export interface SalaryEstimate {
-  currency: string;        // e.g. "GBP", "USD"
-  low: number;             // e.g. 45000
-  mid: number;             // e.g. 60000
-  high: number;            // e.g. 75000
-  factors: string[];       // e.g. ["Remote role", "4 years experience"]
-  negotiation_tip: string;
-}
+export type SalaryEstimate =
+  | {
+      shown_in_listing: true;
+      currency: string;
+      low: number;
+      mid: number;
+      high: number;
+      negotiation_tip: string;
+    }
+  | {
+      shown_in_listing: false;
+      guidance: string;
+      negotiation_tip: string;
+    };
+
+export type FitScoreBasis = 'explicit' | 'inferred' | 'speculative';
 
 export interface JobAnalysis {
   id: string;
@@ -53,6 +61,8 @@ export interface JobAnalysis {
   company: string | null;
   job_raw_text: string;
   fit_score: number | null;
+  fit_score_basis: FitScoreBasis | null;
+  fit_score_rationale: string | null;
   recommendation: 'apply' | 'maybe' | 'skip' | null;
   recommendation_reason: string | null;
   matched_skills: string[];
@@ -115,6 +125,14 @@ export interface CoverLetter {
 // ── Application Tracker ───────────────────────────────────────────────────────
 export type ApplicationStatus = 'saved' | 'applied' | 'interviewing' | 'offered' | 'rejected';
 
+export type OutcomeStage =
+  | "no_response"
+  | "recruiter_screen"
+  | "phone_screen"
+  | "technical"
+  | "onsite"
+  | "offer";
+
 export interface Application {
   id: string;
   user_id: string;
@@ -126,6 +144,10 @@ export interface Application {
   status: ApplicationStatus;
   applied_at: string | null;
   notes: string | null;
+  outcome_stage_reached: OutcomeStage | null;
+  outcome_reason: string | null;
+  outcome_fit_score_at_apply: number | null;
+  outcome_captured_at: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -33,18 +33,34 @@ ${cv.experience.map((e) => `- ${e.title} at ${e.company} (${e.duration}): ${e.su
 
 ---
 
+Use this fit_score rubric strictly. Pick the band the candidate fits, then adjust ±5 within it.
+
+  90–100  Meets every stated requirement + most preferred. Seniority match. Direct domain experience.
+  75–89   Meets all hard requirements. Missing 1–2 preferred. Seniority match or one level off.
+  60–74   Meets most hard requirements. Missing 1 critical hard requirement OR seniority off by one level.
+  40–59   Plausible stretch. Missing 2+ hard requirements or mismatched seniority by 2 levels.
+  20–39   Significant gaps. Would likely fail a resume screen.
+  0–19    Wrong role family or wrong seniority tier entirely.
+
+Before picking a band, list the hard requirements in the listing (as you understand them) and check them off against the candidate's skills and experience. Include this checklist in your internal reasoning but do NOT include it in the output.
+
 Provide:
-1. fit_score (0–100 integer) — genuine match quality, do not inflate
-2. recommendation: 'apply' / 'maybe' / 'skip' — honest assessment
+1. fit_score (0–100 integer) — use the rubric above, do not inflate
+2. fit_score_basis: one of 'explicit' | 'inferred' | 'speculative'
+   - 'explicit': the listing clearly states requirements and the candidate explicitly matches/misses them
+   - 'inferred': seniority, scope, or key requirements had to be inferred from context (titles, company stage, etc.)
+   - 'speculative': significant ambiguity in the listing or the candidate profile — score has lower confidence
+3. fit_score_rationale: 1–2 sentences explaining what the score is based on (e.g. "Matched 7/9 listed skills. Seniority inferred from years of experience — listing doesn't state level.")
+4. recommendation: 'apply' / 'maybe' / 'skip' — honest assessment
 3. recommendation_reason: 1–2 candid sentences
 4. matched_skills: candidate skills that directly match the role
 5. missing_skills: required skills the candidate lacks
 6. cv_suggestions: 3–5 specific, actionable improvements (e.g. "Add Docker to skills — the role lists it as required")
-7. salary_estimate: a realistic salary range for this role in the likely market. Be conservative and honest.
-   - Infer currency and location from the job listing (default to USD if unclear)
-   - low/mid/high should reflect real market rates for the seniority level inferred from the listing
-   - factors: list 3–5 key things influencing the range (e.g. "Remote-friendly", "Series B startup", "Requires 5+ years")
-   - negotiation_tip: 1–2 sentences on the candidate's best leverage points given their matched skills`;
+7. salary_estimate: an object with these exact fields:
+   - shown_in_listing: true if the listing explicitly states a salary range or number, false otherwise
+   - If shown_in_listing is true: extract currency, low, mid (midpoint), and high verbatim from the listing. Do not adjust or estimate — pass through what the listing says.
+   - If shown_in_listing is false: set guidance to a 1–2 sentence message telling the candidate where to research comp for this role (e.g. Levels.fyi for tech, Glassdoor for broader; mention any salary-transparency laws that may apply based on location signals in the listing). Do NOT invent numbers.
+   - negotiation_tip: 1–2 sentences on the candidate's best leverage points given their matched skills (always include regardless of shown_in_listing)`;
 }
 
 // ── Interview Generation ──────────────────────────────────────────────────────
@@ -84,40 +100,23 @@ export function buildInterviewFeedbackSystem(
   jobTitle: string,
   company: string | undefined
 ): string {
-  let evaluationCriteria = `
-You are evaluating the answer based on:
-1. Relevance to the role of ${jobTitle} ${company ? `at ${company}` : ""}
-2. The candidate's background (${cv.current_role}, ${cv.years_of_experience} years exp)`;
-
-  if (type === "behavioral") {
-    evaluationCriteria += `
-3. **STAR Method Framework**: The answer MUST follow the STAR format (Situation, Task, Action, Result).
-Explicitly call out whether they successfully hit all 4 points, or what they missed.`;
-  }
+  const starInstruction =
+    type === "behavioral"
+      ? `\nSTAR COVERAGE: Also return star_coverage with four booleans (situation, task, action, result) indicating whether the candidate's answer addressed each STAR component.`
+      : "";
 
   return `You are a senior hiring manager conducting a mock interview.
-The candidate is answering a **${type}** interview question.
+The candidate is answering a ${type} interview question for the role of ${jobTitle}${company ? ` at ${company}` : ""}.
+
+CANDIDATE BACKGROUND: ${cv.current_role}, ${cv.years_of_experience} years experience.
 
 QUESTION: "${question}"
 
-${evaluationCriteria}
-
-Provide constructive, directly actionable feedback. Be professional but honest. A score of 60 means they need serious improvement; a score of 85+ means an excellent answer.
-
-You MUST format your output EXACTLY like this using Markdown:
-**Feedback:**
-(2-4 sentences evaluating their answer overall)
-
-**Strengths:**
-- (Bullet point 1)
-- (Bullet point 2)
-
-**Improvements:**
-- (Bullet point 1)
-- (Bullet point 2)
-
-[SCORE: XX]
-(Where XX is an integer between 0 and 100 representing their score. EXACTLY this format at the very end).`;
+Evaluate the candidate's answer and return a structured assessment:
+- feedback: 2–4 sentences of direct, constructive overall evaluation. Be honest — a score of 60 means serious improvement needed; 85+ means excellent.
+- strengths: 1–3 specific things the candidate did well.
+- improvements: 1–3 specific, actionable things to improve.
+- score: integer 0–100.${starInstruction}`;
 }
 
 // ── Cover Letter ──────────────────────────────────────────────────────────────

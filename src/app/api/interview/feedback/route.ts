@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
-import { streamText } from "ai";
+import { streamObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { ParsedCvData } from "@/types";
-import { interviewFeedbackSchema } from "@/lib/validation/schemas";
+import { interviewFeedbackSchema, InterviewFeedbackOutputSchema } from "@/lib/validation/schemas";
 import { buildInterviewFeedbackSystem } from "@/lib/ai/prompts";
 import { logger } from "@/lib/logger";
 import { errorResponse, rateLimitResponse } from "@/lib/apiResponse";
@@ -56,8 +56,9 @@ export async function POST(req: Request) {
 
     const systemMessage = buildInterviewFeedbackSystem(parsedCv, question, type, jobTitle, company);
 
-    const result = streamText({
+    const result = streamObject({
       model: anthropic("claude-haiku-4-5"),
+      schema: InterviewFeedbackOutputSchema,
       messages: [
         { role: "system", content: systemMessage },
         { role: "user", content: prompt },
