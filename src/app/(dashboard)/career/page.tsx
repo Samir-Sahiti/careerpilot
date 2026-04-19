@@ -50,7 +50,7 @@ export default async function CareerLadderPage() {
     );
   }
 
-  // 2. Fetch Latest Roadmap
+  // 2. Fetch Latest Roadmap + its items
   const { data: roadmap } = await supabase
     .from("career_roadmaps")
     .select("*")
@@ -66,5 +66,11 @@ export default async function CareerLadderPage() {
     return <AutoGenerateRoadmap />;
   }
 
-  return <RoadmapDisplay roadmap={roadmap} />;
+  const { data: roadmapItems } = await supabase
+    .from("roadmap_items")
+    .select("*")
+    .eq("roadmap_id", roadmap.id)
+    .order("created_at", { ascending: true });
+
+  return <RoadmapDisplay roadmap={roadmap} initialItems={roadmapItems ?? []} />;
 }

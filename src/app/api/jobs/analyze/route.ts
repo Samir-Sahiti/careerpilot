@@ -3,7 +3,7 @@ import { checkRateLimit, consumeRateLimit } from "@/lib/rateLimit";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
-import { Cv, ParsedCvData } from "@/types";
+import { Cv, OutcomeHistoryItem, ParsedCvData } from "@/types";
 import { analyzeJobSchema } from "@/lib/validation/schemas";
 import { buildJobAnalysisPrompt } from "@/lib/ai/prompts";
 import { logger } from "@/lib/logger";
@@ -58,6 +58,35 @@ export async function POST(req: Request) {
       return rateLimitResponse(rateLimit.message!);
     }
 
+    // T2-1: Build outcome history for few-shot calibration
+    let userHistory: OutcomeHistoryItem[] | undefined;
+    try {
+      const { data: historyRows } = await supabase
+        .from("applications")
+        .select("outcome_fit_score_at_apply, outcome_stage_reached, outcome_reason, job_title, company")
+        .eq("user_id", user.id)
+        .not("outcome_stage_reached", "is", null)
+        .not("outcome_fit_score_at_apply", "is", null)
+        .order("outcome_captured_at", { ascending: false })
+        .limit(10);
+
+      if (historyRows && historyRows.length >= 3) {
+        // Keep last 5 rejections + last 5 positive outcomes for prompt balance
+        const rejections = historyRows.filter((r) => r.outcome_stage_reached === "no_response").slice(0, 5);
+        const positives = historyRows.filter((r) => r.outcome_stage_reached !== "no_response").slice(0, 5);
+        const combined = [...positives, ...rejections].slice(0, 10);
+        userHistory = combined.map((r) => ({
+          fit_score_at_application: r.outcome_fit_score_at_apply as number,
+          outcome_stage_reached: r.outcome_stage_reached,
+          outcome_reason: r.outcome_reason ?? null,
+          job_title: r.job_title,
+          company: r.company ?? null,
+        }));
+      }
+    } catch {
+      // non-critical — proceed without history
+    }
+
     const { object: analysis } = await generateObject({
       model: anthropic("claude-haiku-4-5"),
       schema: z.object({
@@ -88,7 +117,7 @@ export async function POST(req: Request) {
           .nullable()
           .optional(),
       }),
-      prompt: buildJobAnalysisPrompt(parsedCv, jobTitle, company, jobRawText),
+      prompt: buildJobAnalysisPrompt(parsedCv, jobTitle, company, jobRawText, userHistory),
     });
 
     const { data: newRow, error: insertError } = await supabase

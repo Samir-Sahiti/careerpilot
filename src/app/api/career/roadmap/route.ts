@@ -100,6 +100,31 @@ export async function POST(req: Request) {
 
     if (insertError) throw insertError;
 
+    // T2-4: Create roadmap_items from paths' missing_skills and recommended_projects
+    const itemsToInsert: {
+      user_id: string;
+      roadmap_id: string;
+      item_type: string;
+      title: string;
+      description: string | null;
+    }[] = [];
+
+    for (const path of object.paths) {
+      for (const skill of path.missing_skills ?? []) {
+        const colonIdx = skill.indexOf(":");
+        const title = colonIdx > 0 ? skill.substring(0, colonIdx).trim() : skill;
+        const description = colonIdx > 0 ? skill.substring(colonIdx + 1).trim() : null;
+        itemsToInsert.push({ user_id: user.id, roadmap_id: insertedRoadmap.id, item_type: "skill", title, description });
+      }
+      for (const proj of path.recommended_projects ?? []) {
+        itemsToInsert.push({ user_id: user.id, roadmap_id: insertedRoadmap.id, item_type: "project", title: proj, description: null });
+      }
+    }
+
+    if (itemsToInsert.length > 0) {
+      await supabase.from("roadmap_items").insert(itemsToInsert);
+    }
+
     await consumeRateLimit(supabase, user.id, "/api/career/roadmap");
 
     return successResponse({ roadmap: insertedRoadmap, cached: false });

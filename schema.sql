@@ -178,6 +178,43 @@ CREATE TABLE IF NOT EXISTS tailored_cvs (
 );
 
 -- -----------------------------------------------------------------------------
+-- roadmap_items
+-- Individual tracked items within a career roadmap (T2-4).
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS roadmap_items (
+  id                    UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id               UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  roadmap_id            UUID        NOT NULL REFERENCES career_roadmaps(id) ON DELETE CASCADE,
+  item_type             TEXT        NOT NULL,  -- 'skill' | 'project' | 'experience'
+  title                 TEXT        NOT NULL,
+  description           TEXT,
+  resources             JSONB       NOT NULL DEFAULT '[]',  -- [{ title, url, type }]
+  status                TEXT        NOT NULL DEFAULT 'not_started',  -- 'not_started' | 'in_progress' | 'done'
+  completed_at          TIMESTAMPTZ,
+  auto_completed_by_cv_id UUID      REFERENCES cvs(id) ON DELETE SET NULL,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- -----------------------------------------------------------------------------
+-- cohort_stats
+-- Weekly aggregate stats per (seniority, role_family, experience_bracket) cohort (T2-5).
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS cohort_stats (
+  id                    UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  seniority_level       TEXT        NOT NULL,  -- 'Junior' | 'Mid' | 'Senior' | 'Lead' | 'Principal'
+  role_family           TEXT        NOT NULL,  -- e.g. 'engineering', 'design', 'product', 'data', 'other'
+  experience_bracket    TEXT        NOT NULL,  -- '0-2' | '3-5' | '6-9' | '10+'
+  member_count          INTEGER     NOT NULL DEFAULT 0,
+  avg_fit_score         NUMERIC(5,2),
+  response_rate_pct     NUMERIC(5,2),  -- % of 'applied' apps that reached ≥ recruiter_screen
+  offer_rate_pct        NUMERIC(5,2),  -- % of tracked apps that reached 'offered'
+  computed_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_cohort_stats_lookup
+  ON cohort_stats(seniority_level, role_family, experience_bracket, computed_at DESC);
+
+-- -----------------------------------------------------------------------------
 -- rate_limit_events
 -- Tracks AI request events for per-user rate limiting.
 -- -----------------------------------------------------------------------------
@@ -248,6 +285,8 @@ ALTER TABLE career_roadmaps    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cover_letters      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE applications       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rate_limit_events  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE roadmap_items      ENABLE ROW LEVEL SECURITY;
+-- cohort_stats is read-only aggregate data — no RLS needed (no user_id column)
 
 -- tailored_cvs
 DROP POLICY IF EXISTS "Users can only access their own data" ON tailored_cvs;
@@ -304,6 +343,13 @@ CREATE POLICY "Users can manage their own applications"
 DROP POLICY IF EXISTS "Users can manage their own rate limit events" ON rate_limit_events;
 CREATE POLICY "Users can manage their own rate limit events"
   ON rate_limit_events FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- roadmap_items
+DROP POLICY IF EXISTS "Users can only access their own data" ON roadmap_items;
+CREATE POLICY "Users can only access their own data"
+  ON roadmap_items FOR ALL
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 

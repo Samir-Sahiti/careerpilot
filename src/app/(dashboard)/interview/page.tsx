@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Mic, ArrowRight, Briefcase, Building2, Calendar, HelpCircle, Target } from "lucide-react";
+import { Mic, ArrowRight, Briefcase, Building2, Calendar, HelpCircle, Target, BarChart2 } from "lucide-react";
 
 export default async function InterviewHistoryPage() {
   const supabase = await createClient();
@@ -80,13 +80,22 @@ export default async function InterviewHistoryPage() {
             Prepare for your upcoming interviews with AI-powered practice sessions.
           </p>
         </div>
-        <Link
-          href="/interview/new"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#111827] border border-[#1E3A5F] hover:border-blue-500/50 text-white font-medium rounded-lg transition-colors text-sm shrink-0"
-        >
-          <Mic className="w-4 h-4" />
-          Custom Practice
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link
+            href="/interview/progress"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#111827] border border-[#1E3A5F] hover:border-blue-500/50 text-gray-300 hover:text-white font-medium rounded-lg transition-colors text-sm"
+          >
+            <BarChart2 className="w-4 h-4" />
+            Progress
+          </Link>
+          <Link
+            href="/interview/new"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#111827] border border-[#1E3A5F] hover:border-blue-500/50 text-white font-medium rounded-lg transition-colors text-sm"
+          >
+            <Mic className="w-4 h-4" />
+            Custom Practice
+          </Link>
+        </div>
       </div>
 
       {/* ── Ready for Practice (Recent Analyses) ─────────────────────────────────── */}

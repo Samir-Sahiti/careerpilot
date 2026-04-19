@@ -167,6 +167,58 @@ export interface TailoredCv {
   updated_at: string;
 }
 
+// ── Roadmap Item (T2-4) ───────────────────────────────────────────────────────
+export type RoadmapItemStatus = 'not_started' | 'in_progress' | 'done';
+export type RoadmapItemType = 'skill' | 'project' | 'experience';
+
+export interface RoadmapResource {
+  title: string;
+  url: string;
+  type: 'course' | 'book' | 'tutorial' | 'article' | 'other';
+}
+
+export interface RoadmapItem {
+  id: string;
+  user_id: string;
+  roadmap_id: string;
+  item_type: RoadmapItemType;
+  title: string;
+  description: string | null;
+  resources: RoadmapResource[];
+  status: RoadmapItemStatus;
+  completed_at: string | null;
+  auto_completed_by_cv_id: string | null;
+  created_at: string;
+}
+
+// ── Rejection Post-Mortem (T2-3) ──────────────────────────────────────────────
+export interface RejectionPostMortem {
+  likely_gap: string;
+  similar_profiles_action: string;
+  roadmap_update_suggestion: string;
+}
+
+// ── Cohort Stats (T2-5) ───────────────────────────────────────────────────────
+export interface CohortStats {
+  seniority_level: string;
+  role_family: string;
+  experience_bracket: string;
+  member_count: number;
+  avg_fit_score: number | null;
+  response_rate_pct: number | null;
+  offer_rate_pct: number | null;
+  computed_at: string;
+}
+
+// ── User Outcome History (T2-1) ───────────────────────────────────────────────
+export interface OutcomeHistoryItem {
+  fit_score_at_application: number;
+  outcome_stage_reached: OutcomeStage;
+  outcome_reason: string | null;
+  job_title: string;
+  company: string | null;
+}
+
 // ── DTOs ──────────────────────────────────────────────────────────────────────
 export interface AnalyseJobPayload {
   cvId: string;

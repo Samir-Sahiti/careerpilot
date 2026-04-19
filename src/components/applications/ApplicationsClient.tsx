@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Application, ApplicationStatus, OutcomeStage } from "@/types";
 import { OutcomeModal } from "./OutcomeModal";
+import { RejectionPostMortem } from "./RejectionPostMortem";
 
 const STATUSES: { value: ApplicationStatus; label: string; color: string; bg: string; border: string }[] = [
   { value: "saved",        label: "Saved",        color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20" },
@@ -47,6 +48,9 @@ export function ApplicationsClient({ initialApplications }: Props) {
     app: Application;
     status: ApplicationStatus;
   } | null>(null);
+
+  // Post-mortem: tracks which rejected app IDs should show the post-mortem card
+  const [postMortemAppId, setPostMortemAppId] = useState<string | null>(null);
 
   // Add form state
   const [addTitle, setAddTitle] = useState("");
@@ -122,6 +126,10 @@ export function ApplicationsClient({ initialApplications }: Props) {
       outcome_reason: reason || null,
       outcome_captured_at: new Date().toISOString(),
     });
+    // Auto-trigger post-mortem for rejected applications
+    if (status === "rejected" && stage) {
+      setPostMortemAppId(app.id);
+    }
   };
 
   const handleOutcomeSkip = () => {
@@ -441,6 +449,24 @@ export function ApplicationsClient({ initialApplications }: Props) {
                     className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors resize-none leading-relaxed"
                   />
                 </div>
+
+                {/* Rejection Post-Mortem */}
+                {selectedApp.status === "rejected" && selectedApp.outcome_stage_reached && (
+                  postMortemAppId === selectedApp.id ? (
+                    <RejectionPostMortem
+                      applicationId={selectedApp.id}
+                      onDismiss={() => setPostMortemAppId(null)}
+                      onAddToRoadmap={() => setPostMortemAppId(null)}
+                    />
+                  ) : (
+                    <button
+                      onClick={() => setPostMortemAppId(selectedApp.id)}
+                      className="w-full text-left px-3 py-2 bg-orange-500/5 hover:bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      Run rejection post-mortem →
+                    </button>
+                  )
+                )}
 
                 {/* Links */}
                 <div className="flex flex-col gap-2 pt-1">

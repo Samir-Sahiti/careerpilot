@@ -8,6 +8,7 @@ export const ROUTE_LIMITS_PER_HOUR: Record<string, number> = {
   "/api/cover-letter/generate": 5,
   "/api/cv/tailor": 2,
   "/api/applications/follow-up": 10,
+  "/api/applications/post-mortem": 5,
 };
 
 export async function checkRateLimit(
