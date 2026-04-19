@@ -15,28 +15,54 @@ import {
   FileEdit,
   ClipboardList,
   BarChart2,
+  ChevronDown,
 } from "lucide-react";
 import { SignOutButton } from "@/components/layout/SignOutButton";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
-const navLinks = [
-  { name: "Dashboard",       href: "/dashboard",     icon: LayoutDashboard },
-  { name: "CV",              href: "/cv",             icon: FileText        },
-  { name: "Job Analyzer",    href: "/jobs",           icon: Briefcase       },
-  { name: "Interview Coach", href: "/interview",      icon: MessageSquare   },
-  { name: "Cover Letter",    href: "/cover-letter",   icon: FileEdit        },
-  { name: "Applications",    href: "/applications",   icon: ClipboardList   },
-  { name: "Career Ladder",   href: "/career",         icon: TrendingUp      },
-  { name: "Analytics",       href: "/analytics",      icon: BarChart2       },
+const primaryLinks = [
+  { name: "Dashboard",       href: "/dashboard",   icon: LayoutDashboard },
+  { name: "Job Analyzer",    href: "/jobs",         icon: Briefcase       },
+  { name: "Applications",    href: "/applications", icon: ClipboardList   },
+  { name: "Interview Coach", href: "/interview",    icon: MessageSquare   },
+];
+
+const secondaryLinks = [
+  { name: "CV Hub",          href: "/cv",           icon: FileText        },
+  { name: "Career Ladder",   href: "/career",       icon: TrendingUp      },
+  { name: "Cover Letter",    href: "/cover-letter", icon: FileEdit        },
+  { name: "Analytics",       href: "/analytics",    icon: BarChart2       },
 ];
 
 export function Sidebar({ userEmail, displayName }: { userEmail: string; displayName: string }) {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [toolsExpanded, setToolsExpanded] = useState(false);
+
+  const isSecondaryActive = secondaryLinks.some(
+    (l) => pathname === l.href || pathname.startsWith(l.href + "/")
+  );
+
+  const NavLink = ({ href, icon: Icon, name }: { href: string; icon: typeof Briefcase; name: string }) => {
+    const isActive = pathname === href || pathname.startsWith(href + "/");
+    return (
+      <Link
+        href={href}
+        onClick={() => setIsMobileOpen(false)}
+        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+          isActive
+            ? "bg-blue-600/20 text-blue-400"
+            : "text-gray-400 hover:bg-white/5 hover:text-white"
+        }`}
+      >
+        <Icon className="h-5 w-5 shrink-0" />
+        {name}
+      </Link>
+    );
+  };
 
   const SidebarContent = (
     <div className="flex h-full flex-col justify-between p-4">
-      {/* Top: Logo & Nav */}
       <div>
         <div className="mb-8 px-2 flex items-center h-10">
           <Link
@@ -49,29 +75,35 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
         </div>
 
         <nav className="space-y-1">
-          {navLinks.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-blue-600/20 text-blue-400"
-                    : "text-gray-400 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <Icon className="h-5 w-5 shrink-0" />
-                {item.name}
-              </Link>
-            );
-          })}
+          {primaryLinks.map((item) => (
+            <NavLink key={item.href} {...item} />
+          ))}
+
+          {/* Tools group */}
+          <div className="pt-2">
+            <button
+              onClick={() => setToolsExpanded((v) => !v)}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors ${
+                isSecondaryActive && !toolsExpanded
+                  ? "text-blue-400"
+                  : "text-gray-600 hover:text-gray-400"
+              }`}
+            >
+              <span>Tools</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${toolsExpanded || isSecondaryActive ? "rotate-180" : ""}`} />
+            </button>
+
+            {(toolsExpanded || isSecondaryActive) && (
+              <div className="mt-1 space-y-1 pl-1">
+                {secondaryLinks.map((item) => (
+                  <NavLink key={item.href} {...item} />
+                ))}
+              </div>
+            )}
+          </div>
         </nav>
       </div>
 
-      {/* Settings */}
       <div className="mt-auto pt-4 px-2">
         <Link
           href="/settings"
@@ -88,7 +120,6 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
         <ThemeToggle />
       </div>
 
-      {/* User + Sign Out */}
       <div className="mt-4 border-t border-[#1E3A5F] pt-4">
         <div className="mb-2 px-3 flex flex-col gap-0.5 pointer-events-none">
           <span className="text-sm font-bold text-gray-200 truncate" title={displayName}>

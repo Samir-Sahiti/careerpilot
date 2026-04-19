@@ -126,7 +126,7 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
         </div>
         <Link
           href="/interview/progress"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#111827] border border-white/10 hover:border-blue-500/40 text-gray-300 hover:text-white text-sm font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-white/10 hover:border-blue-500/40 text-gray-300 hover:text-white text-sm font-medium rounded-lg transition-colors"
         >
           <BarChart2 className="w-4 h-4 text-blue-400" />
           Interview Progress
