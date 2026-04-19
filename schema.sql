@@ -31,12 +31,16 @@ END $$;
 -- One row per user, auto-created via trigger on signup.
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS profiles (
-  id          UUID        PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  full_name   TEXT,
-  avatar_url  TEXT,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id                    UUID        PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name             TEXT,
+  avatar_url            TEXT,
+  onboarding_completed_at TIMESTAMPTZ,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Idempotent migration for existing databases
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS onboarding_completed_at TIMESTAMPTZ;
 
 -- -----------------------------------------------------------------------------
 -- cvs
@@ -155,6 +159,23 @@ ALTER TABLE applications ADD COLUMN IF NOT EXISTS outcome_stage_reached      TEX
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS outcome_reason              TEXT;
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS outcome_fit_score_at_apply  INTEGER;
 ALTER TABLE applications ADD COLUMN IF NOT EXISTS outcome_captured_at         TIMESTAMPTZ;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS follow_up_sent_at           TIMESTAMPTZ;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS follow_up_draft             TEXT;
+
+-- -----------------------------------------------------------------------------
+-- tailored_cvs
+-- AI-tailored CV versions linked to a specific job analysis.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tailored_cvs (
+  id               UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id          UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  cv_id            UUID        NOT NULL REFERENCES cvs(id) ON DELETE CASCADE,
+  job_analysis_id  UUID        NOT NULL REFERENCES job_analyses(id) ON DELETE CASCADE,
+  tailored_data    JSONB       NOT NULL,
+  user_edits       JSONB,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 -- -----------------------------------------------------------------------------
 -- rate_limit_events
@@ -218,6 +239,7 @@ CREATE TRIGGER update_applications_updated_at
 -- 4. ROW LEVEL SECURITY
 -- =============================================================================
 
+ALTER TABLE tailored_cvs       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cvs                ENABLE ROW LEVEL SECURITY;
 ALTER TABLE job_analyses       ENABLE ROW LEVEL SECURITY;
@@ -226,6 +248,13 @@ ALTER TABLE career_roadmaps    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cover_letters      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE applications       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rate_limit_events  ENABLE ROW LEVEL SECURITY;
+
+-- tailored_cvs
+DROP POLICY IF EXISTS "Users can only access their own data" ON tailored_cvs;
+CREATE POLICY "Users can only access their own data"
+  ON tailored_cvs FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 -- profiles
 DROP POLICY IF EXISTS "Users can only access their own data" ON profiles;

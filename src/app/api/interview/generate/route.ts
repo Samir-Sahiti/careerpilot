@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       return errorResponse(parsed.error.errors[0]?.message ?? "Missing required field: jobTitle", 400);
     }
 
-    const { jobTitle, companyName, jobAnalysisId } = parsed.data;
+    const { jobTitle, companyName, jobAnalysisId, mode } = parsed.data;
 
     const supabase = await createClient();
 
@@ -81,12 +81,16 @@ export async function POST(req: Request) {
       throw new Error("Failed to generate valid interview questions.");
     }
 
+    // Adaptive mode: start with only the first question; subsequent questions are generated turn-by-turn
+    const sessionQuestions = mode === "adaptive" ? [cleanQuestions[0]] : cleanQuestions;
+
     const { data: sessionData, error: sessionError } = await supabase
       .from("interview_sessions")
       .insert({
         user_id: user.id,
         job_analysis_id: jobAnalysisId || null,
-        questions: cleanQuestions,
+        questions: sessionQuestions,
+        mode: mode ?? "standard",
       })
       .select("id")
       .single();
@@ -98,7 +102,7 @@ export async function POST(req: Request) {
 
     await consumeRateLimit(supabase, user.id, "/api/interview/generate");
 
-    return successResponse({ id: sessionData.id });
+    return successResponse({ id: sessionData.id, mode: mode ?? "standard" });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Internal server error";
     logger.error("Interview generation error", { route: "/api/interview/generate" }, error);

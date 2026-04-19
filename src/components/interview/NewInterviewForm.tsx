@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Briefcase, Building2, PlayCircle, Loader2 } from "lucide-react";
+import { Briefcase, Building2, PlayCircle, Loader2, Zap } from "lucide-react";
 import { useStepCycle } from "@/hooks/useStepCycle";
 
 interface NewInterviewFormProps {
@@ -28,6 +28,7 @@ export function NewInterviewForm({
   const router = useRouter();
   const [targetRole, setTargetRole] = useState(initialJobTitle);
   const [targetCompany, setTargetCompany] = useState(initialCompany);
+  const [mode, setMode] = useState<"standard" | "adaptive">("standard");
   const [loading, setLoading] = useState(false);
   const { stepIndex, start: startStepCycle, stop: stopStepCycle } = useStepCycle(GENERATION_STEPS.length, 4000);
 
@@ -47,6 +48,7 @@ export function NewInterviewForm({
           jobTitle: targetRole.trim(),
           companyName: targetCompany.trim() || undefined,
           jobAnalysisId,
+          mode,
         }),
       });
 
@@ -159,7 +161,37 @@ export function NewInterviewForm({
           </div>
         </div>
 
-        <div className="pt-4 flex justify-end relative z-10">
+        {/* Mode selector */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
+          <button
+            type="button"
+            onClick={() => setMode("standard")}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              mode === "standard" ? "border-blue-500 bg-blue-500/10" : "border-[#1E3A5F] hover:border-blue-500/40"
+            }`}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <PlayCircle className="w-4 h-4 text-blue-400" />
+              <span className="text-sm font-semibold text-white">Standard</span>
+            </div>
+            <p className="text-xs text-gray-400">10 pre-generated questions, answer at your own pace.</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("adaptive")}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              mode === "adaptive" ? "border-purple-500 bg-purple-500/10" : "border-[#1E3A5F] hover:border-purple-500/40"
+            }`}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Zap className="w-4 h-4 text-purple-400" />
+              <span className="text-sm font-semibold text-white">Adaptive</span>
+            </div>
+            <p className="text-xs text-gray-400">AI probes your answers with follow-up questions, like a real interview.</p>
+          </button>
+        </div>
+
+        <div className="pt-2 flex justify-end relative z-10">
           <button
             type="submit"
             disabled={loading || !targetRole.trim()}

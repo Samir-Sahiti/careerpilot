@@ -7,6 +7,7 @@ export interface Profile {
   id: string;
   full_name: string | null;
   avatar_url: string | null;
+  onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -148,6 +149,20 @@ export interface Application {
   outcome_reason: string | null;
   outcome_fit_score_at_apply: number | null;
   outcome_captured_at: string | null;
+  follow_up_sent_at: string | null;
+  follow_up_draft: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ── Tailored CV ───────────────────────────────────────────────────────────────
+export interface TailoredCv {
+  id: string;
+  user_id: string;
+  cv_id: string;
+  job_analysis_id: string;
+  tailored_data: ParsedCvData;
+  user_edits: Partial<ParsedCvData> | null;
   created_at: string;
   updated_at: string;
 }

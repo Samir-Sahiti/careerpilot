@@ -150,6 +150,107 @@ INSTRUCTIONS:
 - Output only the letter text itself — no subject line, no headers`;
 }
 
+// ── Follow-up Email ───────────────────────────────────────────────────────────
+export function buildFollowUpEmailPrompt(
+  jobTitle: string,
+  company: string | undefined,
+  appliedAt: string,
+  cvRole: string
+): string {
+  const daysSince = Math.round((Date.now() - new Date(appliedAt).getTime()) / (1000 * 60 * 60 * 24));
+  return `Write a short, polite follow-up message for a job application.
+
+The candidate applied for: ${jobTitle}${company ? ` at ${company}` : ""}
+Days since applying: ${daysSince}
+Candidate's current role: ${cvRole}
+
+Requirements:
+- Under 100 words
+- Professional but warm tone
+- Reference the role and approximately when they applied
+- Ask politely about the status of their application
+- Do NOT use: "I hope this email finds you well", "circle back", "touch base", "leverage", or other clichés
+- Output only the message body — no subject line, no salutation, no sign-off
+- Write it so the candidate can paste it into an email or LinkedIn message with minimal editing`;
+}
+
+// ── CV Tailoring ──────────────────────────────────────────────────────────────
+export function buildCvTailorPrompt(
+  cv: ParsedCvData,
+  jobTitle: string,
+  company: string | undefined,
+  jobRawText: string,
+  matchedSkills: string[],
+  missingSkills: string[]
+): string {
+  return `You are an expert CV writer and career coach.
+
+A candidate wants to tailor their CV for a specific job application.
+
+JOB TITLE: ${jobTitle}
+${company ? `COMPANY: ${company}` : ""}
+
+JOB DESCRIPTION:
+${jobRawText}
+
+CANDIDATE'S CURRENT CV:
+Current Role: ${cv.current_role}
+Seniority: ${cv.seniority_level}
+Years of Experience: ${cv.years_of_experience}
+Skills: ${cv.skills.join(", ")}
+Experience:
+${cv.experience.map((e) => `- ${e.title} at ${e.company} (${e.duration}): ${e.summary}`).join("\n")}
+Education:
+${cv.education.map((e) => `- ${e.degree} at ${e.institution}${e.year ? ` (${e.year})` : ""}`).join("\n")}
+
+MATCHED SKILLS: ${matchedSkills.join(", ") || "none identified"}
+MISSING SKILLS: ${missingSkills.join(", ") || "none"}
+
+Tailor this candidate's CV for the job above. Your output:
+1. skills: Reordered skills list — matched/relevant skills first, irrelevant ones last. Do not add skills the candidate doesn't have.
+2. experience: Rewritten experience bullets emphasising work relevant to this role. Reorder entries to put the most relevant experience first. Do NOT invent or exaggerate — only reframe what's there.
+3. education: Return as-is (no changes usually needed).
+4. summary: One optional 2-sentence professional summary targeting this specific role. Only include if it adds value.
+5. tailoring_notes: 3-5 bullet points explaining what you changed and why, so the candidate understands the strategy.
+
+Be honest: if the candidate is a weak match, say so in tailoring_notes — don't over-promise.`;
+}
+
+// ── Interview Next Turn ───────────────────────────────────────────────────────
+export function buildInterviewNextTurnPrompt(
+  cv: ParsedCvData,
+  jobTitle: string,
+  company: string | undefined,
+  parentQuestionCount: number,
+  maxParentQuestions: number,
+  question: string,
+  answer: string,
+  questionType: string
+): string {
+  return `You are a senior interviewer conducting a mock interview.
+
+ROLE: ${jobTitle}${company ? ` at ${company}` : ""}
+CANDIDATE: ${cv.current_role}, ${cv.years_of_experience} years experience
+
+Current parent question count: ${parentQuestionCount} of ${maxParentQuestions} main questions asked.
+Question just asked (type: ${questionType}): "${question}"
+Candidate's answer: "${answer}"
+
+Decide your next move:
+- "follow_up": The answer was vague, incomplete, or left out a key detail worth probing. Generate a sharp follow-up that would be asked in a real interview.
+- "next_question": The answer was reasonably complete. Move to the next main question. Generate it (behavioral/technical/role-specific, appropriate for their background).
+- "end": We have reached or exceeded ${maxParentQuestions} parent questions AND the current answer is complete. End the session.
+
+Rules:
+- Only choose "follow_up" if the answer genuinely warrants it — don't probe just to probe.
+- Follow-ups don't count toward the ${maxParentQuestions} parent question total.
+- If parentQuestionCount >= ${maxParentQuestions}, only choose "follow_up" if critical, otherwise choose "end".
+- For "next_question": vary the question type from the previous one if possible.
+- text: the exact question or closing statement to show the user.
+- reasoning: 1 sentence explaining your decision (internal only, not shown to user).
+- question_type: only include for "next_question" or "follow_up" actions.`;
+}
+
 // ── Career Roadmap ────────────────────────────────────────────────────────────
 export const CAREER_ROADMAP_SYSTEM_PROMPT = `You are an expert career advisor and technical recruiter.
 Review the candidate's CV and generate 3 distinct, highly realistic career progression paths for them.

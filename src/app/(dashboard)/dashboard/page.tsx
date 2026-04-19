@@ -7,6 +7,8 @@ import { RecentInterviewsWidget } from "@/components/dashboard/RecentInterviewsW
 import { CareerRoadmapWidget } from "@/components/dashboard/CareerRoadmapWidget";
 import { ApplicationsWidget } from "@/components/dashboard/ApplicationsWidget";
 import { SkillsGapWidget } from "@/components/dashboard/SkillsGapWidget";
+import { FollowUpWidget } from "@/components/dashboard/FollowUpWidget";
+import { NoCvBanner } from "@/components/dashboard/NoCvBanner";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -15,7 +17,10 @@ export default async function DashboardPage() {
   if (!user) redirect("/login");
 
   // All data fetched in parallel
-  const [cvResult, jobsResult, interviewsResult, roadmapResult, profileResult, appsResult] =
+  // eslint-disable-next-line react-hooks/purity
+  const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [cvResult, jobsResult, interviewsResult, roadmapResult, profileResult, appsResult, followUpResult] =
     await Promise.all([
       supabase
         .from("cvs")
@@ -57,14 +62,25 @@ export default async function DashboardPage() {
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false }),
+
+      // Applications needing follow-up: 'applied' status, applied_at >= 10 days ago, no follow_up_sent_at
+      supabase
+        .from("applications")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("status", "applied")
+        .not("applied_at", "is", null)
+        .lte("applied_at", tenDaysAgo)
+        .is("follow_up_sent_at", null),
     ]);
 
-  const cv           = (cvResult.data as Cv | null) ?? null;
-  const jobs         = (jobsResult.data as JobAnalysis[]) ?? [];
-  const interviews   = (interviewsResult.data as InterviewSession[]) ?? [];
-  const roadmap      = (roadmapResult.data as CareerRoadmap | null) ?? null;
-  const profile      = profileResult?.data as { full_name: string } | null;
-  const applications = (appsResult.data as Application[]) ?? [];
+  const cv             = (cvResult.data as Cv | null) ?? null;
+  const jobs           = (jobsResult.data as JobAnalysis[]) ?? [];
+  const interviews     = (interviewsResult.data as InterviewSession[]) ?? [];
+  const roadmap        = (roadmapResult.data as CareerRoadmap | null) ?? null;
+  const profile        = profileResult?.data as { full_name: string } | null;
+  const applications   = (appsResult.data as Application[]) ?? [];
+  const followUpApps   = (followUpResult.data as Application[]) ?? [];
 
   const displayName = profile?.full_name || user.email?.split("@")[0] || "there";
 
@@ -78,6 +94,12 @@ export default async function DashboardPage() {
           Here&apos;s an overview of your CareerPilot activity.
         </p>
       </div>
+
+      {/* No-CV banner — shown until CV is uploaded */}
+      {!cv && <NoCvBanner />}
+
+      {/* Follow-up reminders widget */}
+      {followUpApps.length > 0 && <FollowUpWidget applications={followUpApps} />}
 
       {/* 2×2 grid for core widgets */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
