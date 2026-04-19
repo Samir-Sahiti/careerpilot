@@ -1,4 +1,4 @@
-import { ParsedCvData } from "@/types";
+import { OutcomeHistoryItem, ParsedCvData } from "@/types";
 
 // ── CV Parsing ────────────────────────────────────────────────────────────────
 export function buildCvParsePrompt(extractedText: string): string {
@@ -10,7 +10,8 @@ export function buildJobAnalysisPrompt(
   cv: ParsedCvData,
   jobTitle: string,
   company: string | undefined,
-  jobRawText: string
+  jobRawText: string,
+  userHistory?: OutcomeHistoryItem[]
 ): string {
   return `You are an expert technical recruiter and career coach.
 
@@ -43,7 +44,9 @@ Use this fit_score rubric strictly. Pick the band the candidate fits, then adjus
   0–19    Wrong role family or wrong seniority tier entirely.
 
 Before picking a band, list the hard requirements in the listing (as you understand them) and check them off against the candidate's skills and experience. Include this checklist in your internal reasoning but do NOT include it in the output.
-
+${userHistory && userHistory.length >= 3
+  ? `\n---\n\nCALIBRATION — This candidate's own outcome history (use to recalibrate your score):\n${userHistory.map((h) => `- Fit score ${h.fit_score_at_application} for "${h.job_title}"${h.company ? ` at ${h.company}` : ""} → furthest stage reached: ${h.outcome_stage_reached}${h.outcome_reason ? ` ("${h.outcome_reason}")` : ""}`).join("\n")}\n\nIf the historical data shows the AI was systematically over- or under-predicting (e.g. scores of 70+ that got no response), adjust this new score accordingly. Do not inflate or deflate beyond what the rubric bands justify.\n`
+  : ""}
 Provide:
 1. fit_score (0–100 integer) — use the rubric above, do not inflate
 2. fit_score_basis: one of 'explicit' | 'inferred' | 'speculative'
@@ -266,4 +269,33 @@ export function buildCareerRoadmapPrompt(cv: ParsedCvData): string {
 ${JSON.stringify(cv, null, 2)}
 
 Provide the structured career roadmap paths.`;
+}
+
+// ── Rejection Post-Mortem (T2-3) ──────────────────────────────────────────────
+export function buildRejectionPostMortemPrompt(
+  jobTitle: string,
+  company: string | undefined,
+  fitScore: number | null,
+  matchedSkills: string[],
+  missingSkills: string[],
+  stageReached: string,
+  outcomeReason: string | undefined
+): string {
+  return `You are a career coach analyzing why a job application was unsuccessful.
+
+REJECTED APPLICATION:
+Role: ${jobTitle}${company ? ` at ${company}` : ""}
+Fit score at application: ${fitScore ?? "unknown"}/100
+Stage reached: ${stageReached}
+${outcomeReason ? `Candidate's note: "${outcomeReason}"` : ""}
+
+MATCHED SKILLS: ${matchedSkills.join(", ") || "none"}
+MISSING SKILLS: ${missingSkills.join(", ") || "none identified"}
+
+Based on the fit score, the missing skills, and the stage reached, identify the most likely root cause of this rejection and give actionable, concrete advice.
+
+Return:
+1. likely_gap: The single most likely gap that caused this rejection. Be specific — name the actual skill, experience type, or level mismatch. 1–2 sentences.
+2. similar_profiles_action: What candidates with a similar profile typically do after this kind of rejection to fix the gap. 1–2 concrete sentences.
+3. roadmap_update_suggestion: A specific skill or project to add to their career roadmap to address this gap. 1 sentence — name the thing.`;
 }
