@@ -1,9 +1,11 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { JobAnalysis, SalaryEstimate } from "@/types";
+import { JobAnalysis, SalaryEstimate, ParsedCvData, TailoredCv } from "@/types";
 import { FitScoreArc } from "@/components/jobs/FitScoreArc";
 import { TrackApplicationButton } from "@/components/jobs/TrackApplicationButton";
 import { ConfidenceBadge } from "@/components/ui/ConfidenceBadge";
+import { TailoredCvView } from "@/components/cv/TailoredCvView";
+import { CompanyContextPanel } from "@/components/jobs/CompanyContextPanel";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -17,6 +19,7 @@ import {
   DollarSign,
   TrendingUp,
   Info,
+  Wand2,
 } from "lucide-react";
 
 interface PageProps {
@@ -94,16 +97,17 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: analysisData, error } = await supabase
-    .from("job_analyses")
-    .select("*")
-    .eq("id", analysisId)
-    .eq("user_id", user.id)
-    .single();
+  const [{ data: analysisData, error }, cvResult, tailoredResult] = await Promise.all([
+    supabase.from("job_analyses").select("*").eq("id", analysisId).eq("user_id", user.id).single(),
+    supabase.from("cvs").select("parsed_data").eq("user_id", user.id).eq("is_active", true).maybeSingle(),
+    supabase.from("tailored_cvs").select("*").eq("job_analysis_id", analysisId).eq("user_id", user.id).maybeSingle(),
+  ]);
 
   if (error || !analysisData) notFound();
 
   const analysis = analysisData as JobAnalysis;
+  const parsedCv = (cvResult.data?.parsed_data as ParsedCvData | null) ?? null;
+  const existingTailored = tailoredResult.data as TailoredCv | null;
 
   const rec = analysis.recommendation || "maybe";
   let recTheme = "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
@@ -220,6 +224,24 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
             </h3>
           </div>
           <SalarySection salary={analysis.salary_estimate} />
+        </div>
+      )}
+
+      {/* Company Context */}
+      {analysis.company && <CompanyContextPanel company={analysis.company} />}
+
+      {/* CV Tailoring */}
+      {parsedCv && (
+        <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-4">
+          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
+            <Wand2 className="w-5 h-5 text-blue-400" />
+            <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Tailor CV for This Role</h3>
+          </div>
+          <TailoredCvView
+            jobAnalysisId={analysis.id}
+            originalCv={parsedCv}
+            initialTailored={existingTailored ?? undefined}
+          />
         </div>
       )}
 

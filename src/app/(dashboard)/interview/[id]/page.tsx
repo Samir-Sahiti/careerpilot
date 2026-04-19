@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ActiveSession } from "@/components/interview/ActiveSession";
+import { ChatSession } from "@/components/interview/ChatSession";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -44,14 +45,25 @@ export default async function InterviewSessionPage({ params }: PageProps) {
     );
   }
 
+  const isAdaptive = (sessionData as { mode?: string }).mode === "adaptive";
+
   return (
     <div className="max-w-4xl mx-auto py-8">
-      <ActiveSession 
-        sessionId={sessionData.id} 
-        questions={questions} 
-        jobTitle={sessionData.job_analyses?.job_title || "Mock Interview"}
-        company={sessionData.job_analyses?.company || ""}
-      />
+      {isAdaptive ? (
+        <ChatSession
+          sessionId={sessionData.id}
+          initialQuestions={questions}
+          jobTitle={sessionData.job_analyses?.job_title || "Mock Interview"}
+          company={sessionData.job_analyses?.company || ""}
+        />
+      ) : (
+        <ActiveSession
+          sessionId={sessionData.id}
+          questions={questions}
+          jobTitle={sessionData.job_analyses?.job_title || "Mock Interview"}
+          company={sessionData.job_analyses?.company || ""}
+        />
+      )}
     </div>
   );
 }

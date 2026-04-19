@@ -6,6 +6,8 @@ export const GLOBAL_AI_LIMIT_PER_HOUR = 10;
 export const ROUTE_LIMITS_PER_HOUR: Record<string, number> = {
   "/api/cv/parse": 3,
   "/api/cover-letter/generate": 5,
+  "/api/cv/tailor": 2,
+  "/api/applications/follow-up": 10,
 };
 
 export async function checkRateLimit(
