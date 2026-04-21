@@ -1,23 +1,27 @@
-# CareerPilot 🚀
+# CareerPilot
 
-An AI-powered career management platform that helps you land your next job and plan your long-term career growth.
+An AI-powered career management platform that closes the full job-search loop — from CV to offer — and learns from your outcomes over time.
 
 ## Features
 
-- **CV Hub** — Upload your CV once, AI parses it into a structured profile that powers everything else
-- **Job Analyzer** — Paste any job listing and get an instant fit score, skill gap analysis, and tailored CV improvement suggestions
-- **Interview Coach** — AI-generated mock interviews tailored to the specific role and your background, with scored feedback on every answer
-- **Career Ladder** — See what roles you can progress to next, with exactly what skills, projects, and experience you need to get there
-- **Cover Letter Generator** — AI-crafted cover letters tailored to each job listing and your CV profile
-- **Application Tracker** — Track every application from saved through offered/rejected with notes and links
-- **Analytics** — Application funnel, job fit trends, skills gap, and interview score history
+### Core
+- **CV Hub** — Upload your CV once. AI parses it into a structured profile that powers every other feature.
+- **Job Analyzer** — Paste any listing and get a fit score (with confidence basis), matched/missing skills, salary context, and an honest apply/skip recommendation. Scores are calibrated against your own application history.
+- **Interview Coach** — Adaptive AI mock interviews that follow up on vague answers, just like a real interviewer. Score trends tracked by question type (behavioral, technical, role-specific) across all sessions.
+- **Career Ladder** — A living roadmap: pick a path, track skills and projects individually, mark them done, and watch your progress bar move. Next step always surfaced on the dashboard.
+- **Cover Letter Generator** — Tailored cover letters from your CV and the job listing. Accessible inline from the job detail page.
+- **Application Tracker** — Track every application with status, notes, and outcome capture. Rejection post-mortems generated automatically when you mark an app rejected.
+- **Analytics** — Prescriptive insights: AI calibration drift, top rejection patterns, interview score trends, and cohort benchmarks against anonymised peers.
+
+### Landing demo
+- Paste any job listing on the homepage — no login required — to get an instant role breakdown (required skills, seniority, red flags). Rate-limited to 1 per IP per day.
 
 ## Tech Stack
 
-- **Framework** — [Next.js 16](https://nextjs.org/) (App Router)
-- **AI** — [Vercel AI SDK](https://sdk.vercel.ai/) + [Anthropic Claude](https://www.anthropic.com/)
-- **Database & Auth** — [Supabase](https://supabase.com/) (PostgreSQL + Storage)
-- **Styling** — [Tailwind CSS](https://tailwindcss.com/)
+- **Framework** — [Next.js 16](https://nextjs.org/) (App Router), React 19, TypeScript 5 strict
+- **AI** — [Vercel AI SDK](https://sdk.vercel.ai/) + Anthropic `claude-haiku-4-5`
+- **Database & Auth** — [Supabase](https://supabase.com/) (PostgreSQL + Storage + Auth)
+- **Styling** — [Tailwind CSS v4](https://tailwindcss.com/)
 - **Deployment** — [Vercel](https://vercel.com/)
 
 ## Getting Started
@@ -30,82 +34,98 @@ An AI-powered career management platform that helps you land your next job and p
 
 ### Installation
 
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/careerpilot.git
-   cd careerpilot
-   ```
+```bash
+git clone https://github.com/YOUR_USERNAME/careerpilot.git
+cd careerpilot
+npm install
+```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+Create `.env.local`:
 
-3. Set up environment variables — create a `.env.local` file in the root:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-   ANTHROPIC_API_KEY=your_anthropic_api_key
-   ```
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+```
 
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+```
 
-5. Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000).
 
-## Database Setup
+### Database Setup
 
-The project requires a PostgreSQL database provisioned through Supabase.
+1. Open your Supabase project → **SQL Editor** → **New query**
+2. Paste the contents of `schema.sql` and click **Run**
 
-1. In your [Supabase dashboard](https://supabase.com/), open the project created during installation.
-2. Navigate to **SQL Editor** and click **New query**.
-3. Open `schema.sql` from the root of this repository, paste the entire contents into the editor, and click **Run**.
+The schema is idempotent — safe to run on a fresh database or re-run on an existing one.
 
-The schema is safe to run on a fresh database or re-run on an existing one — all statements use `CREATE TABLE IF NOT EXISTS` and `DROP POLICY IF EXISTS` guards.
+### OAuth Setup (optional)
+
+To enable Google and GitHub sign-in:
+
+**GitHub:** Settings → Developer settings → OAuth Apps → New OAuth App. Set the callback URL to `https://<your-project-ref>.supabase.co/auth/v1/callback`. Copy the Client ID and Secret into Supabase → Authentication → Providers → GitHub.
+
+**Google:** Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client ID (Web). Add the same callback URL. Copy credentials into Supabase → Authentication → Providers → Google.
 
 ## Project Structure
 
 ```
 careerpilot/
-├── schema.sql              # Run once in Supabase SQL Editor to set up all tables
+├── schema.sql                    # Full DB schema — run once in Supabase
 ├── src/
 │   ├── app/
 │   │   ├── (auth)/
-│   │   │   ├── login/
-│   │   │   └── signup/
+│   │   │   ├── login/            # OAuth + magic link + password fallback
+│   │   │   ├── signup/           # OAuth + progressive email flow
+│   │   │   └── forgot-password/
 │   │   ├── (dashboard)/
-│   │   │   ├── dashboard/
+│   │   │   ├── dashboard/        # Unified overview + NextStepWidget
 │   │   │   ├── cv/
-│   │   │   ├── jobs/
-│   │   │   │   └── [id]/
+│   │   │   ├── jobs/[id]/        # Job analysis detail + Cover Letter CTA
 │   │   │   ├── interview/
 │   │   │   │   ├── new/
-│   │   │   │   └── [id]/
-│   │   │   ├── career/
+│   │   │   │   ├── [id]/
+│   │   │   │   └── progress/     # Score trends by question type
+│   │   │   ├── career/           # Living roadmap with item tracking
 │   │   │   ├── cover-letter/
 │   │   │   ├── applications/
-│   │   │   ├── analytics/
+│   │   │   ├── analytics/        # Prescriptive insights + cohort benchmarks
 │   │   │   └── settings/
 │   │   ├── api/
-│   │   │   ├── cv/
-│   │   │   ├── jobs/
-│   │   │   ├── interview/
+│   │   │   ├── analytics/cohort/       # Cohort benchmarking
+│   │   │   ├── applications/
+│   │   │   │   ├── [id]/
+│   │   │   │   ├── follow-up/
+│   │   │   │   └── post-mortem/        # Rejection post-mortem
 │   │   │   ├── career/
-│   │   │   ├── cover-letter/
-│   │   │   └── applications/
-│   │   └── page.tsx        # Landing page
+│   │   │   │   ├── roadmap/
+│   │   │   │   └── roadmap-items/      # Item status toggle
+│   │   │   ├── cv/
+│   │   │   ├── interview/
+│   │   │   └── jobs/
+│   │   │       ├── analyze/
+│   │   │       ├── company-context/
+│   │   │       └── demo-analyze/       # Unauthenticated landing demo
+│   │   └── page.tsx                    # Landing page with inline demo
 │   ├── components/
-│   ├── hooks/
-│   │   └── useStepCycle.ts # Shared step-cycling hook for AI loading overlays
+│   │   ├── analytics/
+│   │   ├── applications/               # Tracker + RejectionPostMortem
+│   │   ├── career/                     # RoadmapDisplay (living plan)
+│   │   ├── dashboard/                  # Widgets incl. NextStepWidget
+│   │   ├── interview/                  # Sessions + ProgressView
+│   │   ├── landing/                    # LandingDemo component
+│   │   ├── layout/                     # Sidebar (primary/tools groups)
+│   │   └── ui/                         # Shared components
 │   ├── lib/
 │   │   ├── supabase/
-│   │   ├── ai/
-│   │   └── validation/
-│   └── types/
-├── public/
+│   │   ├── ai/prompts.ts               # All AI prompt builders
+│   │   ├── validation/schemas.ts       # All Zod schemas
+│   │   ├── rateLimit.ts
+│   │   └── logger.ts
+│   └── types/index.ts                  # All shared TypeScript types
 └── ...config files
 ```
 
@@ -113,22 +133,27 @@ careerpilot/
 
 | Variable | Description |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key (server-side only) |
-| `ANTHROPIC_API_KEY` | Your Anthropic API key (server-side only) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server-side only, bypasses RLS) |
+| `ANTHROPIC_API_KEY` | Anthropic API key (server-side only) |
 
-## Roadmap
+## Database Tables
 
-- [x] Project setup
-- [x] CV Hub — upload and AI parsing
-- [x] Job Analyzer — fit score and gap analysis
-- [x] Interview Coach — question generation and feedback
-- [x] Career Ladder — progression mapping
-- [x] Cover Letter Generator — AI-crafted tailored cover letters
-- [x] Application Tracker — status tracking with notes
-- [x] Dashboard — unified history and insights
-- [x] Analytics — application funnel, skills gap, interview score trends
+| Table | Purpose |
+|---|---|
+| `profiles` | User metadata |
+| `cvs` | CV files and parsed structured data |
+| `job_analyses` | Fit scores, skill gaps, salary context |
+| `interview_sessions` | Questions, answers, scores |
+| `career_roadmaps` | AI-generated career paths |
+| `roadmap_items` | Individual tracked skills/projects within a roadmap |
+| `cover_letters` | Generated cover letters |
+| `tailored_cvs` | Per-job tailored CV versions |
+| `applications` | Application tracking with outcome capture |
+| `rate_limit_events` | Per-user AI request throttling |
+| `demo_rate_limits` | IP-based throttle for the unauthenticated demo |
+| `cohort_stats` | Aggregate peer benchmarks (populated by background job) |
 
 ## License
 
