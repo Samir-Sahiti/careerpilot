@@ -12,7 +12,23 @@
  * Requires: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in environment.
  */
 
+import * as fs from "fs";
+import * as path from "path";
 import { createClient } from "@supabase/supabase-js";
+
+// Load .env.local — Next.js does this automatically but plain tsx doesn't
+try {
+  const envFile = fs.readFileSync(path.join(process.cwd(), ".env.local"), "utf-8");
+  for (const line of envFile.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const idx = trimmed.indexOf("=");
+    if (idx === -1) continue;
+    const key = trimmed.substring(0, idx).trim();
+    const val = trimmed.substring(idx + 1).trim().replace(/^["']|["']$/g, "");
+    if (key && !process.env[key]) process.env[key] = val;
+  }
+} catch { /* rely on actual env vars */ }
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
