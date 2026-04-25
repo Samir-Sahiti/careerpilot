@@ -24,6 +24,8 @@ npm run start    # Serve production build
 npm run lint     # ESLint (flat config, core-web-vitals + typescript)
 npx vitest       # Run unit tests
 npx prettier --write .  # Format code (run manually before committing)
+npm run seed:taxonomy    # Seed/update skills_taxonomy from data/skills-taxonomy.json
+npm run review:unknowns  # List top unresolved unknown skills (taxonomy maintenance)
 ```
 
 ## Project Structure
@@ -77,6 +79,12 @@ src/
 │   │   └── middleware.ts    # Session refresh helper
 │   ├── ai/
 │   │   └── prompts.ts       # All AI prompt builders (centralised)
+│   ├── skills/              # Skill taxonomy layer (SG-1 through SG-7)
+│   │   ├── normalizer.ts    # Deterministic 3-tier skill lookup (exact→alias→normalized)
+│   │   ├── autoComplete.ts  # Roadmap item auto-completion after CV parse
+│   │   ├── extractFromListing.ts  # Claude-constrained listing skill extraction
+│   │   ├── index.ts         # Public export surface
+│   │   └── __tests__/normalizer.test.ts
 │   ├── pdf/
 │   │   └── polyfills.ts     # DOMMatrix/DOMPoint/DOMRect stubs for pdfjs-dist
 │   ├── validation/
@@ -93,6 +101,12 @@ src/
 ```
 
 Schema file at project root: `schema.sql` (consolidated — safe to run on fresh or existing databases).
+
+Additional top-level paths:
+- `data/skills-taxonomy.json` — canonical skill list (treat as code, ships in PRs)
+- `scripts/seed-taxonomy.ts` — idempotent seed from JSON into DB
+- `scripts/generate-taxonomy.ts` — one-time Claude-assisted taxonomy generation
+- `scripts/review-unknowns.ts` — weekly maintenance: list unknown skills by frequency
 
 ## Key Patterns
 
@@ -125,6 +139,42 @@ Auth pages support: Google OAuth, GitHub OAuth, magic link (passwordless), and e
 Within the chosen band, adjust ±5 for nuance. Do not inflate.
 
 The prompt also accepts an optional `userHistory: OutcomeHistoryItem[]` parameter (T2-1). When the user has ≥3 captured outcomes, their last 10 (split 5 positives / 5 rejections) are injected as few-shot calibration examples before the rubric.
+
+**Skill Ground Truth (SG-6 — architectural change):** `buildJobAnalysisPrompt` now receives an optional `groundTruth: SkillGroundTruth | null` parameter. When populated, matched/missing skills are passed as deterministic inputs (not derived by Claude). Claude only produces the qualitative fields: fit_score, recommendation, cv_suggestions, salary_estimate. `matched_skills` and `missing_skills` in `job_analyses` are written from the deterministic computation, not from Claude's output.
+
+### Skill Taxonomy (SG-1 through SG-7)
+
+A normalized skill taxonomy replaces the ad-hoc `string[]` approach. This powers consistent fit scoring, roadmap auto-completion, and cohort comparisons.
+
+**Taxonomy source of truth:** `data/skills-taxonomy.json` — committed to the repo, ships in PRs. Nine categories: `language`, `framework`, `database`, `cloud`, `devops`, `tool`, `concept`, `domain`, `soft`.
+
+**Normalizer (`src/lib/skills/normalizer.ts`):** Deterministic 3-tier lookup:
+1. Exact match on `canonical_name` (case-insensitive)
+2. Exact match on any `alias` (case-insensitive)
+3. Normalized match — strip punctuation, collapse whitespace, lowercase (`"react.js"` → `"reactjs"`)
+
+Returns `NormalizationResult` with `canonical: CanonicalSkill | null` and `match_type`. O(1) per lookup via in-memory Map. Cache TTL: 10 minutes.
+
+**Data flow after a CV parse:**
+1. Normalize `parsed_data.skills` → upsert `cv_skills` junction table
+2. Log unknowns to `unknown_skills` table
+3. Auto-complete roadmap items whose `skill_id` appears in the new `cv_skills` (returns count, surfaced as toast)
+
+**Data flow after a job analysis:**
+1. Extract listing skills via constrained Claude call (`extractFromListing.ts`)
+2. Normalize extracted skills → compute `matched ∩ cv`, `missing − cv` deterministically
+3. Pass as `groundTruth` to `buildJobAnalysisPrompt`
+4. Persist `job_analysis_skills` junction table
+5. Log unknown listing skills
+
+**Taxonomy maintenance loop (run weekly):**
+```bash
+npm run review:unknowns          # see top-N unresolved unknown skills
+# edit data/skills-taxonomy.json
+npm run seed:taxonomy            # upsert + mark resolved unknowns
+```
+
+**No RLS:** `skills_taxonomy` and `unknown_skills` are global/system tables accessed only via the admin client.
 
 ### Rate Limiting
 Two-tier system tracked via `rate_limit_events` table:

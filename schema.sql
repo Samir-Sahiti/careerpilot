@@ -178,8 +178,109 @@ CREATE TABLE IF NOT EXISTS tailored_cvs (
 );
 
 -- -----------------------------------------------------------------------------
+-- skills_taxonomy
+-- Canonical skill list powering normalization across CV parsing, job analysis,
+-- roadmap auto-completion, and cohort comparisons (SG-1).
+-- No RLS — this table is global (not user-scoped), read via admin client.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS skills_taxonomy (
+  id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  canonical_name  TEXT        NOT NULL UNIQUE,
+  category        TEXT        NOT NULL,  -- 'language'|'framework'|'database'|'cloud'|'devops'|'tool'|'concept'|'domain'|'soft'
+  aliases         TEXT[]      NOT NULL DEFAULT '{}',
+  description     TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_skills_taxonomy_aliases
+  ON skills_taxonomy USING GIN (aliases);
+
+CREATE INDEX IF NOT EXISTS idx_skills_taxonomy_canonical_lower
+  ON skills_taxonomy ((LOWER(canonical_name)));
+
+-- -----------------------------------------------------------------------------
+-- cv_skills
+-- Normalized skill links for each parsed CV (SG-3).
+-- RLS enforced via parent CV ownership.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS cv_skills (
+  cv_id           UUID        NOT NULL REFERENCES cvs(id) ON DELETE CASCADE,
+  skill_id        UUID        NOT NULL REFERENCES skills_taxonomy(id) ON DELETE CASCADE,
+  raw_text        TEXT        NOT NULL,  -- original string from the CV
+  match_type      TEXT        NOT NULL,  -- 'exact' | 'alias' | 'normalized'
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (cv_id, skill_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cv_skills_skill ON cv_skills(skill_id);
+
+ALTER TABLE cv_skills ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users access their own cv_skills" ON cv_skills;
+CREATE POLICY "Users access their own cv_skills"
+  ON cv_skills FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM cvs WHERE cvs.id = cv_skills.cv_id AND cvs.user_id = auth.uid()
+    )
+  );
+
+-- -----------------------------------------------------------------------------
+-- job_analysis_skills
+-- Normalized skill links for each job analysis (SG-4).
+-- RLS enforced via parent job_analysis ownership.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS job_analysis_skills (
+  job_analysis_id UUID        NOT NULL REFERENCES job_analyses(id) ON DELETE CASCADE,
+  skill_id        UUID        NOT NULL REFERENCES skills_taxonomy(id) ON DELETE CASCADE,
+  raw_text        TEXT        NOT NULL,
+  is_required     BOOLEAN     NOT NULL,
+  is_matched      BOOLEAN     NOT NULL,  -- true = candidate has it, false = gap
+  match_type      TEXT        NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (job_analysis_id, skill_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_job_analysis_skills_skill
+  ON job_analysis_skills(skill_id);
+
+ALTER TABLE job_analysis_skills ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users access their own job_analysis_skills" ON job_analysis_skills;
+CREATE POLICY "Users access their own job_analysis_skills"
+  ON job_analysis_skills FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM job_analyses
+      WHERE job_analyses.id = job_analysis_skills.job_analysis_id
+        AND job_analyses.user_id = auth.uid()
+    )
+  );
+
+-- -----------------------------------------------------------------------------
+-- unknown_skills
+-- Tracks skill strings that failed to normalize against the taxonomy (SG-7).
+-- No RLS — system table, accessed only via admin client.
+-- Run `scripts/review-unknowns.ts` weekly to identify taxonomy gaps.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS unknown_skills (
+  id                UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  raw_text_lower    TEXT        NOT NULL UNIQUE,
+  source            TEXT        NOT NULL,  -- 'cv' | 'job_listing'
+  occurrence_count  INTEGER     NOT NULL DEFAULT 1,
+  first_seen        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  last_seen         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  resolved_at       TIMESTAMPTZ,
+  resolved_skill_id UUID REFERENCES skills_taxonomy(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_unknown_skills_unresolved
+  ON unknown_skills(occurrence_count DESC) WHERE resolved_at IS NULL;
+
+-- -----------------------------------------------------------------------------
 -- roadmap_items
 -- Individual tracked items within a career roadmap (T2-4).
+-- skill_id links to taxonomy for auto-completion matching (SG-5).
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS roadmap_items (
   id                    UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -192,8 +293,14 @@ CREATE TABLE IF NOT EXISTS roadmap_items (
   status                TEXT        NOT NULL DEFAULT 'not_started',  -- 'not_started' | 'in_progress' | 'done'
   completed_at          TIMESTAMPTZ,
   auto_completed_by_cv_id UUID      REFERENCES cvs(id) ON DELETE SET NULL,
+  skill_id              UUID        REFERENCES skills_taxonomy(id) ON DELETE SET NULL,  -- SG-5
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Idempotent migration: add skill_id to existing roadmap_items rows
+ALTER TABLE roadmap_items ADD COLUMN IF NOT EXISTS skill_id UUID REFERENCES skills_taxonomy(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_roadmap_items_skill ON roadmap_items(skill_id);
 
 -- -----------------------------------------------------------------------------
 -- cohort_stats
@@ -246,6 +353,43 @@ CREATE INDEX IF NOT EXISTS idx_rate_limit_events_user_time
 -- =============================================================================
 -- 3. FUNCTIONS & TRIGGERS
 -- =============================================================================
+
+-- Atomic upsert-with-increment for unknown_skills logging (SG-7)
+CREATE OR REPLACE FUNCTION log_unknown_skill(skill_text TEXT, skill_source TEXT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO unknown_skills (raw_text_lower, source)
+  VALUES (skill_text, skill_source)
+  ON CONFLICT (raw_text_lower) DO UPDATE
+    SET occurrence_count = unknown_skills.occurrence_count + 1,
+        last_seen = NOW();
+END;
+$$;
+
+-- After re-seeding the taxonomy, mark unknowns that now resolve as done
+CREATE OR REPLACE FUNCTION resolve_known_unknowns()
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE
+  updated_count INTEGER;
+BEGIN
+  UPDATE unknown_skills u
+  SET resolved_at = NOW(), resolved_skill_id = st.id
+  FROM skills_taxonomy st
+  WHERE u.resolved_at IS NULL
+    AND (
+      LOWER(st.canonical_name) = u.raw_text_lower
+      OR u.raw_text_lower = ANY(SELECT LOWER(a) FROM UNNEST(st.aliases) AS a)
+    );
+  GET DIAGNOSTICS updated_count = ROW_COUNT;
+  RETURN updated_count;
+END;
+$$;
 
 -- Auto-create a profile row when a new user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user()

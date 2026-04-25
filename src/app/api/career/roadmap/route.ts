@@ -8,6 +8,7 @@ import { logger } from "@/lib/logger";
 import { errorResponse, successResponse, rateLimitResponse } from "@/lib/apiResponse";
 import { generateRoadmapSchema } from "@/lib/validation/schemas";
 import { CAREER_ROADMAP_SYSTEM_PROMPT, buildCareerRoadmapPrompt } from "@/lib/ai/prompts";
+import { getTaxonomyIndex, normalizeSkill } from "@/lib/skills";
 
 export const maxDuration = 60;
 
@@ -100,13 +101,22 @@ export async function POST(req: Request) {
 
     if (insertError) throw insertError;
 
-    // T2-4: Create roadmap_items from paths' missing_skills and recommended_projects
+    // T2-4 + SG-5: Create roadmap_items from paths' missing_skills and recommended_projects.
+    // Normalize skill titles to populate skill_id for auto-completion.
+    let taxonomyIndex;
+    try {
+      taxonomyIndex = await getTaxonomyIndex();
+    } catch {
+      taxonomyIndex = null;
+    }
+
     const itemsToInsert: {
       user_id: string;
       roadmap_id: string;
       item_type: string;
       title: string;
       description: string | null;
+      skill_id: string | null;
     }[] = [];
 
     for (const path of object.paths) {
@@ -114,10 +124,18 @@ export async function POST(req: Request) {
         const colonIdx = skill.indexOf(":");
         const title = colonIdx > 0 ? skill.substring(0, colonIdx).trim() : skill;
         const description = colonIdx > 0 ? skill.substring(colonIdx + 1).trim() : null;
-        itemsToInsert.push({ user_id: user.id, roadmap_id: insertedRoadmap.id, item_type: "skill", title, description });
+
+        // SG-5: Normalize skill title against taxonomy
+        let skill_id: string | null = null;
+        if (taxonomyIndex) {
+          const result = normalizeSkill(title, taxonomyIndex);
+          skill_id = result.canonical?.id ?? null;
+        }
+
+        itemsToInsert.push({ user_id: user.id, roadmap_id: insertedRoadmap.id, item_type: "skill", title, description, skill_id });
       }
       for (const proj of path.recommended_projects ?? []) {
-        itemsToInsert.push({ user_id: user.id, roadmap_id: insertedRoadmap.id, item_type: "project", title: proj, description: null });
+        itemsToInsert.push({ user_id: user.id, roadmap_id: insertedRoadmap.id, item_type: "project", title: proj, description: null, skill_id: null });
       }
     }
 
