@@ -34,7 +34,7 @@ function computeSlope(values: number[]): number {
 }
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  behavioral:    { label: "Behavioral",    color: "text-blue-400",   bg: "bg-blue-500"   },
+  behavioral:    { label: "Behavioral",    color: "text-amber-400",   bg: "bg-blue-500"   },
   technical:     { label: "Technical",     color: "text-purple-400", bg: "bg-purple-500" },
   "role-specific": { label: "Role-Specific", color: "text-amber-400",  bg: "bg-amber-500"  },
 };
@@ -92,7 +92,7 @@ export function ProgressView({ sessions }: Props) {
           const lastFew = stat.entries.slice(-6);
 
           return (
-            <div key={stat.type} className="rounded-xl border border-white/5 bg-[#111827] p-5 space-y-4">
+            <div key={stat.type} className="rounded-xl border border-white/5 bg-[#1a1916] p-5 space-y-4">
               <div className="flex items-center justify-between">
                 <span className={`text-xs font-bold uppercase tracking-wider ${stat.color}`}>{stat.label}</span>
                 <TrendIcon className={`w-4 h-4 ${trendColor}`} />
@@ -133,7 +133,7 @@ export function ProgressView({ sessions }: Props) {
 
       {/* Session overall score history */}
       {scoredSessions.length > 0 && (
-        <div className="rounded-xl border border-white/5 bg-[#111827] p-6">
+        <div className="rounded-xl border border-white/5 bg-[#1a1916] p-6">
           <h3 className="text-sm font-semibold text-white mb-4">Overall Score History</h3>
           <div className="flex items-end gap-2 h-28">
             {scoredSessions.map((session, i) => {

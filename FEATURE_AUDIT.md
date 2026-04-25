@@ -1,6 +1,6 @@
-# CareerPilot — Feature Audit (Updated)
+# CareerOS — Feature Audit (Updated)
 
-> Current state as of April 2026, reflecting all Tier 0, Tier 1, Tier 2, and Design/UX issues shipped. Use this as a baseline for the next review cycle.
+> Current state as of April 2026, reflecting all Tier 0, Tier 1, Tier 2, and Design/UX issues shipped, plus the CareerOS visual rebrand. Use this as a baseline for the next review cycle.
 
 ---
 
@@ -122,7 +122,7 @@ AI-powered career management platform. A logged-in user uploads their CV once, t
 - **Rejection patterns (T2-3):** aggregates `missing_skills` from all rejected applications. Shows top 3 recurring gaps with a link to add them to the Career Ladder.
 - **Interview score trends (T2-2):** linked to `/interview/progress` for per-type breakdown.
 - **Cohort benchmarks (T2-5):** assigns users to a cohort by seniority × role family × experience bracket. Shows response rate and offer rate vs cohort average — only when cohort has ≥20 members (privacy threshold). Opt-out in Settings.
-- **No more hardcoded colors:** all `bg-[#111827]` → `bg-[var(--card-bg)]` for theme compatibility.
+- **Theme-aware:** all hardcoded hex values replaced with CSS variables (`bg-[var(--card-bg)]` etc.) across the full codebase as part of the CareerOS rebrand.
 
 **Remaining gaps:**
 - `cohort_stats` table must be populated by a manual or scheduled aggregate job — not auto-computed.
@@ -130,7 +130,19 @@ AI-powered career management platform. A logged-in user uploads their CV once, t
 
 ---
 
-## 4. Auth & Onboarding
+## 4. Visual Rebrand — CareerOS
+
+**Shipped (April 2026):**
+- **Brand rename:** CareerPilot → CareerOS throughout all code, copy, metadata, and documentation.
+- **Color system:** warm dark palette (`#0f0e0c` background, `#1a1916` cards, `#2d2a26` borders) replacing cold navy. Amber (`#f59e0b`) primary accent replacing blue (`#2563eb`). New CSS tokens: `--muted`, `--sidebar-bg`, `--sidebar-border`.
+- **Typography:** Syne (headings, geometric/bold) + DM Sans (body) + DM Mono (data/stats), replacing Plus Jakarta Sans + Inter.
+- **Contrast compliance:** all amber CTAs use `text-stone-900` (WCAG AA). No `text-white` on amber backgrounds.
+- **Hardcoded hex eliminated:** all raw hex values in JSX replaced with CSS variable references. Light-mode override selectors in `globals.css` updated in lock-step.
+- **Bug fix:** onboarding pages used undefined `var(--bg-base)` — corrected to `var(--background)`.
+
+---
+
+## 5. Auth & Onboarding
 
 **Shipped improvements:**
 - **OAuth (D-2):** Google and GitHub sign-in via `supabase.auth.signInWithOAuth`. Requires provider configuration in Supabase dashboard.
@@ -141,7 +153,7 @@ AI-powered career management platform. A logged-in user uploads their CV once, t
 
 ---
 
-## 5. Landing Page & Navigation
+## 6. Landing Page & Navigation
 
 **Shipped improvements (D-1, D-3):**
 - **New hero (D-1):** "Paste a job listing. Know in 30 seconds if it's worth your time." Leads with the trigger, not a feature grid.
@@ -151,7 +163,7 @@ AI-powered career management platform. A logged-in user uploads their CV once, t
 
 ---
 
-## 6. Remaining strategic gaps
+## 7. Remaining strategic gaps
 
 - **No job-board ingestion.** Everything starts with a paste. A browser extension or URL scraper would raise usage frequency significantly.
 - **CV upload doesn't auto-complete roadmap items.** The schema and `auto_completed_by_cv_id` column are in place; the diff logic needs wiring in the CV parse route.

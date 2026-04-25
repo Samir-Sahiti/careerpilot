@@ -52,13 +52,13 @@ export function LandingDemo() {
 
   if (result) {
     return (
-      <div className="w-full rounded-2xl border border-blue-500/30 bg-[#0A0F1C] p-5 text-left space-y-5">
+      <div className="w-full rounded-2xl border border-amber-500/30 bg-[#0f0e0c] p-5 text-left space-y-5">
         {/* Role header */}
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide">{result.role_family}</p>
             <h3 className="text-lg font-bold text-white mt-0.5">{result.role_title}</h3>
-            <span className="inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
+            <span className="inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">
               {result.seniority_level}
             </span>
           </div>
@@ -114,7 +114,7 @@ export function LandingDemo() {
           </p>
           <Link
             href="/signup"
-            className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors"
+            className="shrink-0 flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-stone-900 text-sm font-semibold rounded-lg transition-colors"
           >
             Try with my CV <ChevronRight className="w-3.5 h-3.5" />
           </Link>
@@ -131,7 +131,7 @@ export function LandingDemo() {
           value={jobText}
           onChange={(e) => { setJobText(e.target.value); setError(null); }}
           placeholder="Paste a job listing here — title, description, requirements…"
-          className="w-full rounded-xl border border-[var(--border-subtle)] bg-[#111827]/80 px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500/60 transition-colors resize-none leading-relaxed"
+          className="w-full rounded-xl border border-[var(--border-subtle)] bg-[#1a1916]/80 px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-amber-500/60 transition-colors resize-none leading-relaxed"
         />
         {jobText.length > 0 && (
           <span className="absolute bottom-3 right-3 text-[10px] text-gray-600">{jobText.length} chars</span>
@@ -148,7 +148,7 @@ export function LandingDemo() {
       <button
         type="submit"
         disabled={loading || jobText.length < 50}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors text-sm shadow-lg shadow-blue-900/30"
+        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-stone-900 font-semibold rounded-xl transition-colors text-sm shadow-lg shadow-amber-900/30"
       >
         {loading ? (
           <><Loader2 className="w-4 h-4 animate-spin" /> Analysing listing…</>

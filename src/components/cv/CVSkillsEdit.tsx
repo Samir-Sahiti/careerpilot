@@ -92,13 +92,13 @@ export function CVSkillsEdit({ cvId, parsedData }: CVSkillsEditProps) {
         {skills.map((skill) => (
           <span 
             key={skill} 
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-blue-600/10 text-blue-400 border border-blue-500/20 max-w-full"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 max-w-full"
           >
             <span className="truncate">{skill}</span>
             <button 
               onClick={() => handleRemoveSkill(skill)}
               disabled={isSubmitting}
-              className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded-full p-0.5 transition-colors flex-shrink-0"
+              className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/20 rounded-full p-0.5 transition-colors flex-shrink-0"
               aria-label={`Remove ${skill}`}
             >
               <X className="w-3.5 h-3.5" />
@@ -114,12 +114,12 @@ export function CVSkillsEdit({ cvId, parsedData }: CVSkillsEditProps) {
           onChange={(e) => setNewSkill(e.target.value)}
           disabled={isSubmitting}
           placeholder="Add a skill..."
-          className="flex-1 bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 min-w-0"
+          className="flex-1 bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 min-w-0"
         />
         <button 
           type="submit"
           disabled={isSubmitting || !newSkill.trim()}
-          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 shrink-0"
+          className="bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-stone-900 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 shrink-0"
         >
           {isSubmitting ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}
           <span>Add Skill</span>

@@ -40,9 +40,9 @@ export function SkillsGapWidget({ jobs, roadmap }: SkillsGapWidgetProps) {
 
   if (topSkills.length === 0) {
     return (
-      <div className="rounded-xl border border-white/5 bg-[#111827] p-6">
+      <div className="rounded-xl border border-[#2d2a26]/30 bg-[#1a1916] p-6">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="h-5 w-5 text-blue-400" />
+          <TrendingUp className="h-5 w-5 text-amber-400" />
           <h2 className="font-semibold text-white">Skills Gap</h2>
         </div>
         <p className="text-sm text-gray-500">
@@ -53,15 +53,15 @@ export function SkillsGapWidget({ jobs, roadmap }: SkillsGapWidgetProps) {
   }
 
   return (
-    <div className="rounded-xl border border-white/5 bg-[#111827] p-6">
+    <div className="rounded-xl border border-[#2d2a26]/30 bg-[#1a1916] p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-blue-400" />
+          <TrendingUp className="h-5 w-5 text-amber-400" />
           <h2 className="font-semibold text-white">Skills Gap</h2>
         </div>
         <Link
           href="/jobs"
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-400 transition-colors"
+          className="flex items-center gap-1 text-xs text-gray-500 hover:text-amber-400 transition-colors"
         >
           Analyze more <ChevronRight className="h-3 w-3" />
         </Link>
@@ -75,7 +75,7 @@ export function SkillsGapWidget({ jobs, roadmap }: SkillsGapWidgetProps) {
             </div>
             <div className="h-1.5 w-full rounded-full bg-white/5">
               <div
-                className="h-1.5 rounded-full bg-blue-500 transition-all"
+                className="h-1.5 rounded-full bg-amber-500 transition-all"
                 style={{ width: `${(count / maxCount) * 100}%` }}
               />
             </div>

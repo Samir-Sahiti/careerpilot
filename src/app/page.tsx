@@ -11,14 +11,14 @@ const scenarios = [
     answer: "Paste the listing. Get a fit score, missing skills, and an honest recommendation in 30 seconds.",
     href: "/signup",
     cta: "Try it free",
-    color: "border-blue-500/30 hover:border-blue-500/60",
+    color: "border-amber-500/30 hover:border-amber-500/60",
     badge: "Job Analyzer",
-    badgeColor: "bg-blue-500/10 text-blue-300 border-blue-500/20",
+    badgeColor: "bg-amber-500/10 text-amber-300 border-amber-500/20",
   },
   {
     trigger: "I got rejected yesterday",
     question: "What went wrong?",
-    answer: "CareerPilot captures your outcomes and runs a post-mortem: likely gap, what similar candidates did next, what to add to your roadmap.",
+    answer: "CareerOS captures your outcomes and runs a post-mortem: likely gap, what similar candidates did next, what to add to your roadmap.",
     href: "/signup",
     cta: "Start tracking",
     color: "border-orange-500/30 hover:border-orange-500/60",
@@ -59,13 +59,13 @@ export default async function LandingPage() {
       <nav className="sticky top-0 z-50 backdrop-blur-sm border-b border-[var(--border-subtle)] bg-[var(--background)]/85">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <span className="text-xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
-            Career<span className="text-blue-500">Pilot</span>
+            Career<span className="text-amber-500">OS</span>
           </span>
           <div className="flex items-center gap-3">
             <Link href="/login" className="nav-link text-sm font-medium px-4 py-2 rounded-lg transition-colors">
               Log In
             </Link>
-            <Link href="/signup" className="text-sm font-semibold px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors">
+            <Link href="/signup" className="text-sm font-semibold px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-900 transition-colors">
               Get Started
             </Link>
           </div>
@@ -76,32 +76,32 @@ export default async function LandingPage() {
       <section className="relative flex flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-16 text-center">
         {/* Background glow */}
         <div aria-hidden className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-[500px] w-full max-w-2xl rounded-full bg-blue-600/10 blur-3xl" />
+          <div className="h-[500px] w-full max-w-2xl rounded-full bg-amber-500/8 blur-3xl" />
         </div>
 
         {/* Dot grid */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-40"
-          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='1' fill='%231E3A5F'/%3E%3C/svg%3E\")" }}
+          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='1' fill='%232d2a26'/%3E%3C/svg%3E\")" }}
         />
 
         <div className="relative z-10 flex flex-col items-center gap-6 max-w-3xl mx-auto">
-          <div className="animate-fade-in-up inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-subtle)] text-blue-400 bg-blue-600/8">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+          <div className="animate-fade-in-up inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-subtle)] text-amber-400 bg-amber-500/8">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
             AI-Powered · Built for Ambitious Professionals
           </div>
 
-          <h1 className="animate-fade-in-up delay-100 text-5xl md:text-6xl font-extrabold leading-tight tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
+          <h1 className="animate-fade-in-up delay-100 text-4xl md:text-5xl font-extrabold leading-tight tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
             Paste a job listing.{" "}
-            <span className="bg-gradient-to-r from-blue-500 to-blue-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">
               Know in 30 seconds
             </span>{" "}
             if it&apos;s worth your time.
           </h1>
 
           <p className="animate-fade-in-up delay-200 text-lg text-gray-400 max-w-xl leading-relaxed">
-            CareerPilot scores your fit, identifies gaps, preps your interview, and learns from every outcome — all from your CV.
+            CareerOS scores your fit, identifies gaps, preps your interview, and learns from every outcome — all from your CV.
           </p>
 
           {/* Inline demo */}
@@ -111,7 +111,7 @@ export default async function LandingPage() {
 
           <p className="animate-fade-in-up delay-300 text-xs text-gray-600">
             No account needed for the demo. &nbsp;
-            <Link href="/signup" className="text-blue-400 hover:underline">Sign up free</Link>
+            <Link href="/signup" className="text-amber-400 hover:underline">Sign up free</Link>
             {" "}to analyse against your CV.
           </p>
         </div>
@@ -140,7 +140,7 @@ export default async function LandingPage() {
               <p className="text-sm text-gray-400 leading-relaxed flex-1">{s.answer}</p>
               <Link
                 href={s.href}
-                className="inline-flex items-center gap-1 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors"
               >
                 {s.cta} →
               </Link>
@@ -177,11 +177,11 @@ export default async function LandingPage() {
       {/* ── CTA strip ─────────────────────────────────────────────────────────── */}
       <section className="border-t border-[var(--border-subtle)] py-16 text-center px-6">
         <h2 className="text-2xl font-extrabold text-white mb-4" style={{ fontFamily: "var(--font-heading)" }}>
-          Ready to stop guessing?
+          Take control of your career.
         </h2>
         <Link
           href="/signup"
-          className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors shadow-lg shadow-blue-900/30 text-sm"
+          className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-900 font-semibold transition-colors shadow-lg shadow-amber-900/30 text-sm"
         >
           Get started — it&apos;s free
         </Link>
@@ -189,7 +189,7 @@ export default async function LandingPage() {
 
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
       <footer className="text-center py-8 text-sm text-gray-700 border-t border-[var(--border-subtle)]">
-        CareerPilot &copy; {new Date().getFullYear()}
+        CareerOS &copy; {new Date().getFullYear()}
       </footer>
     </div>
   );

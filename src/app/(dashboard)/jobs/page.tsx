@@ -29,8 +29,8 @@ export default async function JobsPage() {
   if (!cvData || error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 animate-fade-in-up max-w-md mx-auto">
-        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[#1E3A5F]/30 border border-[#1E3A5F]">
-          <CopyX className="w-8 h-8 text-blue-400" />
+        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[#2d2a26]/30 border border-[#2d2a26]">
+          <CopyX className="w-8 h-8 text-amber-400" />
         </div>
         <div>
           <h2
@@ -46,7 +46,7 @@ export default async function JobsPage() {
         </div>
         <Link
           href="/cv"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors text-sm"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-stone-900 font-semibold rounded-lg transition-colors text-sm"
         >
           Upload your CV
           <ArrowRight className="w-4 h-4" />
@@ -77,7 +77,7 @@ export default async function JobsPage() {
         </div>
         <Link
           href="/cv"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors text-sm"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-stone-900 font-semibold rounded-lg transition-colors text-sm"
         >
           Fix CV
           <ArrowRight className="w-4 h-4" />
@@ -90,7 +90,7 @@ export default async function JobsPage() {
   if (!cv.parsed_data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4 animate-fade-in-up">
-        <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
         <h2
           className="text-xl font-semibold text-white"
           style={{ fontFamily: "var(--font-heading)" }}
@@ -102,7 +102,7 @@ export default async function JobsPage() {
         </p>
         <Link
           href="/cv"
-          className="text-blue-400 hover:text-blue-300 text-sm font-medium mt-4"
+          className="text-amber-400 hover:text-amber-300 text-sm font-medium mt-4"
         >
           ← View CV status
         </Link>

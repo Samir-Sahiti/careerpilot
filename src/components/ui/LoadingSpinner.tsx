@@ -17,7 +17,7 @@ export function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) 
       role="status"
       aria-label="Loading"
       className={twMerge(
-        "inline-block animate-spin rounded-full border-2 border-current border-t-transparent text-blue-400",
+        "inline-block animate-spin rounded-full border-2 border-current border-t-transparent text-amber-400",
         sizeClasses[size],
         className
       )}

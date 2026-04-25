@@ -14,16 +14,16 @@ export function NextStepWidget({ nextItem, inProgressCount, doneCount, totalCoun
 
   const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
   const ItemIcon = nextItem?.status === "in_progress" ? PlayCircle : Circle;
-  const itemColor = nextItem?.status === "in_progress" ? "text-blue-400" : "text-gray-500";
+  const itemColor = nextItem?.status === "in_progress" ? "text-amber-400" : "text-gray-500";
 
   return (
-    <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-5 space-y-4">
+    <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 space-y-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Map className="w-4 h-4 text-blue-400" />
-          <span className="text-sm font-semibold text-blue-300">Career Ladder</span>
+          <Map className="w-4 h-4 text-amber-400" />
+          <span className="text-sm font-semibold text-amber-300">Career Ladder</span>
         </div>
-        <Link href="/career" className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
+        <Link href="/career" className="text-xs text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1">
           View all <ArrowRight className="w-3 h-3" />
         </Link>
       </div>
@@ -32,10 +32,10 @@ export function NextStepWidget({ nextItem, inProgressCount, doneCount, totalCoun
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-gray-400">
           <span>{doneCount} of {totalCount} items done</span>
-          <span className="text-blue-300 font-semibold">{pct}%</span>
+          <span className="text-amber-300 font-semibold">{pct}%</span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-white/10">
-          <div className="h-1.5 rounded-full bg-blue-500 transition-all" style={{ width: `${pct}%` }} />
+          <div className="h-1.5 rounded-full bg-amber-500 transition-all" style={{ width: `${pct}%` }} />
         </div>
       </div>
 

@@ -69,10 +69,10 @@ export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8 animate-fade-in-up">
         {/* Animated glow orb */}
         <div className="relative flex items-center justify-center w-24 h-24">
-          <div className="absolute inset-0 rounded-full bg-blue-600/20 animate-ping" />
-          <div className="absolute inset-2 rounded-full bg-blue-600/30 animate-ping [animation-delay:0.3s]" />
-          <div className="relative z-10 flex items-center justify-center w-16 h-16 rounded-full bg-blue-600/20 border border-blue-500/40">
-            <Sparkles className="w-7 h-7 text-blue-400" />
+          <div className="absolute inset-0 rounded-full bg-amber-500/15 animate-ping" />
+          <div className="absolute inset-2 rounded-full bg-amber-500/30 animate-ping [animation-delay:0.3s]" />
+          <div className="relative z-10 flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/15 border border-amber-500/40">
+            <Sparkles className="w-7 h-7 text-amber-400" />
           </div>
         </div>
 
@@ -89,7 +89,7 @@ export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
         </div>
 
         {/* Progress bar */}
-        <div className="w-64 h-1.5 bg-[#1E3A5F]/60 rounded-full overflow-hidden">
+        <div className="w-64 h-1.5 bg-[#2d2a26]/60 rounded-full overflow-hidden">
           <div
             className="h-full bg-blue-500 rounded-full transition-all duration-[3500ms] ease-in-out"
             style={{
@@ -124,7 +124,7 @@ export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 sm:p-8 space-y-6"
+        className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 sm:p-8 space-y-6"
       >
         {/* Job title */}
         <div className="space-y-2">
@@ -132,7 +132,7 @@ export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
             htmlFor="jobTitle"
             className="flex items-center gap-2 text-sm font-medium text-gray-300"
           >
-            <Briefcase className="w-4 h-4 text-blue-400" />
+            <Briefcase className="w-4 h-4 text-amber-400" />
             Job Title
             <span className="text-red-400">*</span>
           </label>
@@ -143,7 +143,7 @@ export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
             value={jobTitle}
             onChange={(e) => setJobTitle(e.target.value)}
             placeholder="e.g. Senior Frontend Engineer"
-            className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition-colors"
+            className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-colors"
           />
         </div>
 
@@ -163,7 +163,7 @@ export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
             value={company}
             onChange={(e) => setCompany(e.target.value)}
             placeholder="e.g. Stripe"
-            className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition-colors"
+            className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-colors"
           />
         </div>
 
@@ -184,7 +184,7 @@ export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
             value={jobRawText}
             onChange={(e) => setJobRawText(e.target.value)}
             placeholder="Paste the full job listing here — the more detail the better…"
-            className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-4 py-3 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition-colors resize-none leading-relaxed"
+            className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-4 py-3 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-colors resize-none leading-relaxed"
           />
           <p className="text-xs text-gray-600">
             {jobRawText.trim().length > 0
@@ -198,7 +198,7 @@ export function JobAnalyzerForm({ cvId }: JobAnalyzerFormProps) {
           <button
             type="submit"
             disabled={loading || !jobTitle.trim() || !jobRawText.trim()}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors text-sm"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-stone-900 font-semibold rounded-lg transition-colors text-sm"
           >
             <Sparkles className="w-4 h-4" />
             Analyse my fit

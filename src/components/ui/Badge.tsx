@@ -10,7 +10,7 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 const variantClasses: Record<BadgeVariant, string> = {
   green: "bg-green-500/10 text-green-400 border-green-500/20",
   red: "bg-red-500/10 text-red-400 border-red-500/20",
-  blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  blue: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   yellow: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
   gray: "bg-white/5 text-gray-400 border-white/10",
 };

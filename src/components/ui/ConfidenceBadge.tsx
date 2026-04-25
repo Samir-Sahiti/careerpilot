@@ -46,11 +46,11 @@ export function ConfidenceBadge({ basis, rationale }: ConfidenceBadgeProps) {
 
       {open && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 z-50 pointer-events-none">
-          <div className="bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg p-3 shadow-xl text-xs text-gray-300 leading-relaxed">
+          <div className="bg-[#0f0e0c] border border-[#2d2a26] rounded-lg p-3 shadow-xl text-xs text-gray-300 leading-relaxed">
             <p className="font-semibold text-white mb-1">{cfg.label} score</p>
             <p>{rationale || cfg.tooltip}</p>
           </div>
-          <div className="w-2 h-2 bg-[#0A0F1C] border-r border-b border-[#1E3A5F] rotate-45 mx-auto -mt-1" />
+          <div className="w-2 h-2 bg-[#0f0e0c] border-r border-b border-[#2d2a26] rotate-45 mx-auto -mt-1" />
         </div>
       )}
     </div>

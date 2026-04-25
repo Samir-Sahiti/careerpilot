@@ -49,7 +49,7 @@ export function TrackApplicationButton({ jobAnalysisId, jobTitle, company }: Pro
       className={`flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all text-sm border ${
         tracked
           ? "bg-green-500/10 border-green-500/30 text-green-400 cursor-default"
-          : "bg-[#111827] border-[#1E3A5F] hover:border-blue-500/50 hover:bg-[#1E3A5F]/30 text-gray-300"
+          : "bg-[#1a1916] border-[#2d2a26] hover:border-amber-500/50 hover:bg-[#2d2a26]/30 text-gray-300"
       }`}
     >
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : tracked ? <Check className="w-4 h-4" /> : <ClipboardList className="w-4 h-4" />}

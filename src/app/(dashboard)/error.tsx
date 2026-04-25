@@ -23,7 +23,7 @@ export default function DashboardError({
         We encountered an error loading this dashboard feature. Please try again or contact support if the issue persists.
       </p>
       <button
-        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium text-white shadow-lg transition-colors"
+        className="px-6 py-2 bg-amber-500 hover:bg-amber-400 rounded-lg font-medium text-stone-900 shadow-lg transition-colors"
         onClick={() => reset()}
       >
         Try again

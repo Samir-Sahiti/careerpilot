@@ -9,18 +9,18 @@ interface CVStatusWidgetProps {
 
 export function CVStatusWidget({ cv }: CVStatusWidgetProps) {
   return (
-    <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 flex flex-col gap-4">
+    <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-blue-400" />
+          <FileText className="w-5 h-5 text-amber-400" />
           <h2 className="text-base font-semibold text-white" style={{ fontFamily: "var(--font-heading)" }}>
             Your CV / Resume
           </h2>
         </div>
         <Link
           href="/cv"
-          className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors"
+          className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-medium transition-colors"
         >
           View all <ArrowRight className="w-3 h-3" />
         </Link>
@@ -38,7 +38,7 @@ export function CVStatusWidget({ cv }: CVStatusWidgetProps) {
           </div>
 
           {/* File info */}
-          <div className="bg-[#0A0F1C] border border-[#1E3A5F]/60 rounded-lg p-3">
+          <div className="bg-[#0f0e0c] border border-[#2d2a26]/60 rounded-lg p-3">
             <p className="text-white text-sm font-medium truncate" title={cv.file_name}>
               {cv.file_name}
             </p>
@@ -49,7 +49,7 @@ export function CVStatusWidget({ cv }: CVStatusWidgetProps) {
 
           <Link
             href="/cv"
-            className="text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors mt-1"
+            className="text-sm text-amber-400 hover:text-amber-300 font-medium transition-colors mt-1"
           >
             View &amp; edit profile →
           </Link>
@@ -57,7 +57,7 @@ export function CVStatusWidget({ cv }: CVStatusWidgetProps) {
       ) : (
         /* Empty state */
         <div className="flex flex-col items-start gap-4 py-2">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#1E3A5F]/30">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#2d2a26]/30">
             <Upload className="w-5 h-5 text-gray-500" />
           </div>
           <div>
@@ -67,7 +67,7 @@ export function CVStatusWidget({ cv }: CVStatusWidgetProps) {
           </div>
           <Link
             href="/cv"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-900 text-sm font-semibold transition-colors"
           >
             Upload your CV / Resume <ArrowRight className="w-4 h-4" />
           </Link>

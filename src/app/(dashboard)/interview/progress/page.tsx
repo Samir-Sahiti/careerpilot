@@ -29,7 +29,7 @@ export default async function InterviewProgressPage() {
         </Link>
         <div>
           <div className="flex items-center gap-2">
-            <BarChart2 className="w-5 h-5 text-blue-400" />
+            <BarChart2 className="w-5 h-5 text-amber-400" />
             <h1 className="text-2xl font-extrabold text-white" style={{ fontFamily: "var(--font-heading)" }}>
               Interview Progress
             </h1>

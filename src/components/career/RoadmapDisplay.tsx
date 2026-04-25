@@ -26,7 +26,7 @@ interface Props {
 
 const STATUS_CONFIG: Record<RoadmapItemStatus, { icon: typeof Circle; label: string; color: string }> = {
   not_started: { icon: Circle,       label: "Not started", color: "text-gray-500" },
-  in_progress:  { icon: PlayCircle,  label: "In progress", color: "text-blue-400"  },
+  in_progress:  { icon: PlayCircle,  label: "In progress", color: "text-amber-400"  },
   done:         { icon: CheckCircle2, label: "Done",       color: "text-green-400" },
 };
 
@@ -94,11 +94,11 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
     <div className="max-w-7xl mx-auto space-y-12 pb-24 animate-fade-in-up">
 
       {/* ── Hero / Header ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-[#111827] border border-[#1E3A5F] rounded-3xl p-8 sm:p-12 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3" />
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-[#1a1916] border border-[#2d2a26] rounded-3xl p-8 sm:p-12 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3" />
 
         <div className="space-y-4 relative z-10 flex-1">
-          <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium px-4 py-1.5 rounded-full">
+          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm font-medium px-4 py-1.5 rounded-full">
             <Map className="w-4 h-4" />
             AI Career Roadmap
           </div>
@@ -107,7 +107,7 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
             Your Next Moves
           </h1>
 
-          <p className="text-gray-400 max-w-xl text-lg relative pl-5 before:absolute before:inset-y-1 before:left-0 before:w-1 before:bg-blue-600 before:rounded-full">
+          <p className="text-gray-400 max-w-xl text-lg relative pl-5 before:absolute before:inset-y-1 before:left-0 before:w-1 before:bg-amber-500 before:rounded-full">
             Based on your baseline profile as a <strong className="text-white font-semibold">{roadmap.current_role}</strong>.
           </p>
 
@@ -116,7 +116,7 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
             <div className="space-y-1.5 max-w-sm">
               <div className="flex justify-between text-xs text-gray-400">
                 <span>{doneItems} of {totalItems} items complete</span>
-                <span className="text-blue-300 font-semibold">{progressPct}%</span>
+                <span className="text-amber-300 font-semibold">{progressPct}%</span>
               </div>
               <div className="h-2 w-full rounded-full bg-white/10">
                 <div
@@ -135,7 +135,7 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-all shadow-lg shadow-blue-900/20"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-stone-900 rounded-xl font-medium transition-all shadow-lg shadow-amber-900/20"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
             {isRefreshing ? "Regenerating..." : "Refresh Roadmap"}
@@ -161,8 +161,8 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
                     item.status === "done"
                       ? "bg-green-500/5 border-green-500/20 opacity-70"
                       : item.status === "in_progress"
-                      ? "bg-blue-500/5 border-blue-500/20"
-                      : "bg-[#111827] border-[#1E3A5F] hover:border-white/20"
+                      ? "bg-amber-500/5 border-amber-500/20"
+                      : "bg-[#1a1916] border-[#2d2a26] hover:border-white/20"
                   }`}
                 >
                   <div className="flex items-start gap-2">
@@ -196,7 +196,7 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
             return (
               <div
                 key={idx}
-                className={`bg-[#0A0F1C] border ${isExpanded ? "border-blue-500 shadow-lg shadow-blue-500/10" : "border-[#1E3A5F] hover:border-blue-500/40"} rounded-2xl flex flex-col relative overflow-hidden transition-all duration-300`}
+                className={`bg-[#0f0e0c] border ${isExpanded ? "border-blue-500 shadow-lg shadow-blue-500/10" : "border-[#2d2a26] hover:border-amber-500/40"} rounded-2xl flex flex-col relative overflow-hidden transition-all duration-300`}
               >
                 <button
                   onClick={() => setExpandedIdx(isExpanded ? null : idx)}
@@ -205,12 +205,12 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                   <div className="relative z-10 space-y-4">
-                    <span className={`inline-block px-3 py-1 bg-[#111827] border ${isExpanded ? "border-blue-500 text-blue-300" : "border-gray-700 text-gray-300"} text-xs font-bold uppercase tracking-widest rounded-md transition-colors`}>
+                    <span className={`inline-block px-3 py-1 bg-[#1a1916] border ${isExpanded ? "border-blue-500 text-amber-300" : "border-gray-700 text-gray-300"} text-xs font-bold uppercase tracking-widest rounded-md transition-colors`}>
                       {path.path_title}
                     </span>
                     <div className="flex items-center justify-between gap-4">
                       <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                        <Target className="w-6 h-6 text-blue-400 shrink-0" />
+                        <Target className="w-6 h-6 text-amber-400 shrink-0" />
                         {path.next_role}
                       </h2>
                       <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`} />
@@ -220,8 +220,8 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
 
                 <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? "max-h-[2000px] opacity-100 border-t border-gray-800" : "max-h-0 opacity-0"}`}>
                   <div className="p-6 sm:p-8 pt-0 space-y-8 mt-6">
-                    <div className="bg-[#111827] rounded-xl p-5 border border-gray-800 space-y-3">
-                      <div className="flex items-center gap-2 text-blue-300 font-semibold">
+                    <div className="bg-[#1a1916] rounded-xl p-5 border border-gray-800 space-y-3">
+                      <div className="flex items-center gap-2 text-amber-300 font-semibold">
                         <Clock className="w-4 h-4" />
                         Expected Timeline: {path.timeline_estimate}
                       </div>
@@ -267,7 +267,7 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
                       </h3>
                       <ul className="space-y-3 mt-2">
                         {path.recommended_projects?.map((proj: string, i: number) => (
-                          <li key={i} className="text-sm text-gray-400 flex items-start gap-3 leading-relaxed bg-[#111827] p-4 rounded-lg border border-gray-800">
+                          <li key={i} className="text-sm text-gray-400 flex items-start gap-3 leading-relaxed bg-[#1a1916] p-4 rounded-lg border border-gray-800">
                             <CheckCircle2 className="w-5 h-5 text-purple-500 shrink-0" />
                             <span>{proj}</span>
                           </li>
@@ -281,7 +281,7 @@ export function RoadmapDisplay({ roadmap, initialItems }: Props) {
                     <div className="pt-4 border-t border-gray-800">
                       <button
                         onClick={() => router.push(`/jobs?target_role=${encodeURIComponent(path.next_role)}`)}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-[#111827] border border-blue-500/30 hover:bg-blue-600/10 hover:border-blue-500 text-blue-400 transition-colors font-semibold rounded-lg text-sm"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-[#1a1916] border border-amber-500/30 hover:bg-amber-500/10 hover:border-amber-500 text-amber-400 transition-colors font-semibold rounded-lg text-sm"
                       >
                         <BriefcaseBusiness className="w-4 h-4" />
                         Find jobs at this level

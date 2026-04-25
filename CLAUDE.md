@@ -1,4 +1,4 @@
-# CareerPilot
+# CareerOS
 
 AI-powered career management platform. Seven core features: CV Hub, Job Analyzer, Interview Coach, Career Ladder, Cover Letter Generator, Application Tracker, Analytics.
 
@@ -158,7 +158,23 @@ Log all errors with `logger.error(message, context, error)` from `src/lib/logger
 All API routes use Zod schemas from `src/lib/validation/schemas.ts`. Use `schema.safeParse(body)` and return 400 with `errors[0].message` on failure.
 
 ### Theme
-`next-themes` with `attribute="class"`. Dark/light CSS variables in `globals.css` under `:root` (dark default) and `.light`. Toggle is in the Sidebar via `ThemeToggle`. Use `bg-[var(--card-bg)]`, `border-[var(--border-subtle)]`, etc. — never hardcode `#111827` or similar hex values in components.
+`next-themes` with `attribute="class"`. Dark/light CSS variables in `globals.css` under `:root` (dark default) and `.light`. Toggle is in the Sidebar via `ThemeToggle`.
+
+**Design tokens (dark default):**
+- `--background: #0f0e0c` · `--card-bg: #1a1916` · `--border-subtle: #2d2a26`
+- `--accent: #f59e0b` (amber) · `--accent-hover: #fbbf24`
+- `--muted: #a8a29e` · `--sidebar-bg: #0c0b0a` · `--sidebar-border: #232220`
+
+**Light overrides (`.light`):**
+- `--background: #faf9f7` · `--card-bg: #ffffff` · `--border-subtle: #e7e5e4`
+- `--accent: #d97706` · `--muted: #78716c`
+- Sidebar stays dark even in light mode (uses `--sidebar-bg`/`--sidebar-border` directly)
+
+**Typography:** `--font-heading` → Syne (weights 400–800), `--font-body` → DM Sans (weights 400–600), `--font-mono` → DM Mono (weights 400–500). All loaded via `next/font/google` in `layout.tsx`.
+
+**Amber button contrast rule:** `bg-amber-500`/`bg-amber-400` buttons must use `text-stone-900` — never `text-white`. `#f59e0b` on white fails WCAG AA.
+
+Always use CSS variables (`bg-[var(--card-bg)]`, `border-[var(--border-subtle)]`, etc.) — never hardcode hex values in components. The light-mode override system in `globals.css` (lines ~160+) uses CSS attribute selectors keyed to exact hex strings — if you change a hex in JSX, update the matching selector in that section too.
 
 ### Shared UI Components
 Import from `@/components/ui`: `Button`, `Card`, `Badge`, `Input`, `LoadingSpinner`, `EmptyState`, `ConfidenceBadge`.

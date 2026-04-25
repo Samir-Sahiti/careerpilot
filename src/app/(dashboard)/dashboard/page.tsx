@@ -110,7 +110,7 @@ export default async function DashboardPage() {
           Welcome back, {displayName} 👋
         </h1>
         <p className="text-gray-400 mt-1 text-sm">
-          Here&apos;s an overview of your CareerPilot activity.
+          Here&apos;s an overview of your CareerOS activity.
         </p>
       </div>
 

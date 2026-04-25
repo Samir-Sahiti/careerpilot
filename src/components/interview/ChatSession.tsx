@@ -170,7 +170,7 @@ export function ChatSession({ sessionId, initialQuestions, jobTitle, company }: 
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-baseline justify-between gap-4 pb-4 border-b border-[#1E3A5F]">
+      <div className="flex flex-col sm:flex-row items-baseline justify-between gap-4 pb-4 border-b border-[#2d2a26]">
         <div>
           <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-heading)" }}>
             {jobTitle} — Adaptive Interview
@@ -194,7 +194,7 @@ export function ChatSession({ sessionId, initialQuestions, jobTitle, company }: 
             className={`rounded-xl border p-4 space-y-2 ${
               q.is_follow_up
                 ? "ml-6 border-purple-500/20 bg-purple-500/5"
-                : "border-[#1E3A5F] bg-[#111827]/60"
+                : "border-[#2d2a26] bg-[#1a1916]/60"
             }`}
           >
             <div className="flex items-start gap-2">
@@ -202,7 +202,7 @@ export function ChatSession({ sessionId, initialQuestions, jobTitle, company }: 
               <div className="space-y-1 min-w-0">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium uppercase tracking-wide border ${
                   q.type === "behavioral" ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-                  q.type === "technical" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
+                  q.type === "technical" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
                   "bg-amber-500/10 text-amber-400 border-amber-500/20"
                 }`}>
                   {q.is_follow_up ? "Follow-up" : q.type}
@@ -224,8 +224,8 @@ export function ChatSession({ sessionId, initialQuestions, jobTitle, company }: 
 
       {/* Current question */}
       {!done && (
-        <div className={`bg-[#111827] rounded-2xl border p-6 sm:p-8 space-y-6 ${
-          currentQ.is_follow_up ? "border-purple-500/30" : "border-[#1E3A5F]"
+        <div className={`bg-[#1a1916] rounded-2xl border p-6 sm:p-8 space-y-6 ${
+          currentQ.is_follow_up ? "border-purple-500/30" : "border-[#2d2a26]"
         }`}>
           {currentQ.is_follow_up && (
             <div className="flex items-center gap-2 text-purple-400 text-xs font-semibold">
@@ -236,7 +236,7 @@ export function ChatSession({ sessionId, initialQuestions, jobTitle, company }: 
           <div>
             <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider border ${
               currentQ.type === "behavioral" ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
-              currentQ.type === "technical" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
+              currentQ.type === "technical" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
               "bg-amber-500/10 text-amber-400 border-amber-500/20"
             }`}>
               {currentQ.type} Question
@@ -247,21 +247,21 @@ export function ChatSession({ sessionId, initialQuestions, jobTitle, company }: 
             &ldquo;{currentQ.question_text}&rdquo;
           </p>
 
-          <form onSubmit={submitAnswer} className="space-y-4 pt-4 border-t border-[#1E3A5F]/50">
+          <form onSubmit={submitAnswer} className="space-y-4 pt-4 border-t border-[#2d2a26]/50">
             <label className="block text-sm font-medium text-gray-300">Your Answer</label>
             <textarea
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               disabled={isLoading || isAnswered || isSaving}
               placeholder="Type your answer exactly as you would say it…"
-              className="w-full h-40 bg-[#0A0F1C] border border-[#1E3A5F] rounded-xl p-4 text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 resize-none disabled:opacity-60 transition-colors"
+              className="w-full h-40 bg-[#0f0e0c] border border-[#2d2a26] rounded-xl p-4 text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 resize-none disabled:opacity-60 transition-colors"
             />
             {!isAnswered && !isLoading && (
               <div className="flex justify-end">
                 <button
                   type="submit"
                   disabled={!answer.trim() || isSaving}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors text-sm"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-900 font-medium rounded-lg transition-colors text-sm"
                 >
                   Submit Answer <SendHorizontal className="w-4 h-4" />
                 </button>
@@ -271,8 +271,8 @@ export function ChatSession({ sessionId, initialQuestions, jobTitle, company }: 
 
           {/* Feedback */}
           {(isLoading || displayFeedback) && (
-            <div className="bg-blue-900/10 border border-blue-500/20 rounded-xl p-6 space-y-5 animate-fade-in-up">
-              <div className="flex items-center gap-2 text-blue-400 font-semibold">
+            <div className="bg-blue-900/10 border border-amber-500/20 rounded-xl p-6 space-y-5 animate-fade-in-up">
+              <div className="flex items-center gap-2 text-amber-400 font-semibold">
                 <MessageSquare className="w-5 h-5" />
                 AI Feedback
                 {isLoading && <Loader2 className="w-4 h-4 animate-spin ml-auto" />}
@@ -352,7 +352,7 @@ export function ChatSession({ sessionId, initialQuestions, jobTitle, company }: 
                 <button
                   onClick={getNextTurn}
                   disabled={gettingNext}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors text-sm"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-900 font-medium rounded-lg transition-colors text-sm"
                 >
                   {gettingNext ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   {gettingNext ? "Thinking…" : "Next"}

@@ -14,7 +14,7 @@ import { RejectionPostMortem } from "./RejectionPostMortem";
 
 const STATUSES: { value: ApplicationStatus; label: string; color: string; bg: string; border: string }[] = [
   { value: "saved",        label: "Saved",        color: "text-gray-400",   bg: "bg-gray-500/10",   border: "border-gray-500/20" },
-  { value: "applied",      label: "Applied",      color: "text-blue-400",   bg: "bg-blue-500/10",   border: "border-blue-500/20" },
+  { value: "applied",      label: "Applied",      color: "text-amber-400",   bg: "bg-amber-500/10",   border: "border-amber-500/20" },
   { value: "interviewing", label: "Interviewing", color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20" },
   { value: "offered",      label: "Offered",      color: "text-green-400",  bg: "bg-green-500/10",  border: "border-green-500/20" },
   { value: "rejected",     label: "Rejected",     color: "text-red-400",    bg: "bg-red-500/10",    border: "border-red-500/20" },
@@ -232,7 +232,7 @@ export function ApplicationsClient({ initialApplications }: Props) {
         </div>
         <button
           onClick={() => setShowAdd((v) => !v)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors text-sm"
+          className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 rounded-lg font-medium transition-colors text-sm"
         >
           <Plus className="w-4 h-4" />
           Add Application
@@ -241,7 +241,7 @@ export function ApplicationsClient({ initialApplications }: Props) {
 
       {/* Add form */}
       {showAdd && (
-        <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 animate-fade-in-up">
+        <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 animate-fade-in-up">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-base font-semibold text-white">New Application</h2>
             <button onClick={() => setShowAdd(false)} className="text-gray-500 hover:text-white transition-colors">
@@ -254,24 +254,24 @@ export function ApplicationsClient({ initialApplications }: Props) {
                 <label className="text-xs font-medium text-gray-400">Job Title *</label>
                 <input required value={addTitle} onChange={(e) => setAddTitle(e.target.value)}
                   placeholder="e.g. Senior Frontend Engineer"
-                  className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors" />
+                  className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-gray-400">Company</label>
                 <input value={addCompany} onChange={(e) => setAddCompany(e.target.value)}
                   placeholder="e.g. Stripe"
-                  className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors" />
+                  className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-gray-400">Job URL</label>
                 <input type="url" value={addUrl} onChange={(e) => setAddUrl(e.target.value)}
                   placeholder="https://..."
-                  className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors" />
+                  className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 transition-colors" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-gray-400">Status</label>
                 <select value={addStatus} onChange={(e) => setAddStatus(e.target.value as ApplicationStatus)}
-                  className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                  className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors">
                   {STATUSES.map((s) => (
                     <option key={s.value} value={s.value}>{s.label}</option>
                   ))}
@@ -282,10 +282,10 @@ export function ApplicationsClient({ initialApplications }: Props) {
               <label className="text-xs font-medium text-gray-400">Notes</label>
               <textarea rows={3} value={addNotes} onChange={(e) => setAddNotes(e.target.value)}
                 placeholder="Recruiter name, interview date, anything useful…"
-                className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors resize-none" />
+                className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none" />
             </div>
             <button type="submit" disabled={addLoading || !addTitle.trim()}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg font-medium transition-colors text-sm">
+              className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-900 rounded-lg font-medium transition-colors text-sm">
               {addLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               {addLoading ? "Adding…" : "Add Application"}
             </button>
@@ -305,8 +305,8 @@ export function ApplicationsClient({ initialApplications }: Props) {
               onClick={() => setActiveTab(tab.value as typeof activeTab)}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
                 activeTab === tab.value
-                  ? "bg-blue-600 border-blue-500 text-white"
-                  : "bg-[#111827] border-[#1E3A5F] text-gray-400 hover:text-white hover:border-blue-500/40"
+                  ? "bg-amber-500 border-amber-500 text-stone-900"
+                  : "bg-[#1a1916] border-[#2d2a26] text-gray-400 hover:text-white hover:border-amber-500/40"
               }`}
             >
               {tab.label}
@@ -317,8 +317,8 @@ export function ApplicationsClient({ initialApplications }: Props) {
 
       {/* Main content: list + detail panel */}
       {apps.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 border-2 border-dashed border-[#1E3A5F] rounded-xl">
-          <div className="w-14 h-14 rounded-2xl bg-[#1E3A5F]/30 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 border-2 border-dashed border-[#2d2a26] rounded-xl">
+          <div className="w-14 h-14 rounded-2xl bg-[#2d2a26]/30 flex items-center justify-center">
             <ClipboardList className="w-7 h-7 text-gray-500" />
           </div>
           <div className="space-y-2 max-w-sm">
@@ -329,7 +329,7 @@ export function ApplicationsClient({ initialApplications }: Props) {
           </div>
           <Link
             href="/jobs"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors text-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 rounded-lg font-medium transition-colors text-sm"
           >
             Analyse a job listing
           </Link>
@@ -347,8 +347,8 @@ export function ApplicationsClient({ initialApplications }: Props) {
                   onClick={() => setSelectedApp(app)}
                   className={`w-full text-left p-4 rounded-xl border transition-all ${
                     selectedApp?.id === app.id
-                      ? "bg-blue-600/10 border-blue-500/40"
-                      : "bg-[#111827] border-[#1E3A5F] hover:border-blue-500/30"
+                      ? "bg-amber-500/10 border-amber-500/40"
+                      : "bg-[#1a1916] border-[#2d2a26] hover:border-amber-500/30"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -368,7 +368,7 @@ export function ApplicationsClient({ initialApplications }: Props) {
                       {format(new Date(app.created_at), "MMM d, yyyy")}
                     </span>
                     {app.job_analysis_id && (
-                      <span className="flex items-center gap-1 text-blue-500/60">
+                      <span className="flex items-center gap-1 text-amber-500/60">
                         <Briefcase className="w-3 h-3" /> Analysis linked
                       </span>
                     )}
@@ -380,9 +380,9 @@ export function ApplicationsClient({ initialApplications }: Props) {
 
           {/* Detail panel */}
           {selectedApp && (
-            <div className="w-full lg:w-96 shrink-0 bg-[#111827] border border-[#1E3A5F] rounded-xl overflow-hidden animate-fade-in-up">
+            <div className="w-full lg:w-96 shrink-0 bg-[#1a1916] border border-[#2d2a26] rounded-xl overflow-hidden animate-fade-in-up">
               {/* Panel header */}
-              <div className="flex items-center justify-between p-4 border-b border-[#1E3A5F]">
+              <div className="flex items-center justify-between p-4 border-b border-[#2d2a26]">
                 <h3 className="text-sm font-bold text-white truncate pr-2">{selectedApp.job_title}</h3>
                 <button onClick={() => setSelectedApp(null)} className="text-gray-500 hover:text-white shrink-0 transition-colors">
                   <X className="w-4 h-4" />
@@ -399,7 +399,7 @@ export function ApplicationsClient({ initialApplications }: Props) {
                 )}
                 {selectedApp.job_url && (
                   <a href={selectedApp.job_url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors truncate">
+                    className="flex items-center gap-2 text-xs text-amber-400 hover:text-amber-300 transition-colors truncate">
                     <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                     {selectedApp.job_url}
                   </a>
@@ -411,7 +411,7 @@ export function ApplicationsClient({ initialApplications }: Props) {
                   <select
                     value={selectedApp.status}
                     onChange={(e) => handleStatusChange(selectedApp, e.target.value as ApplicationStatus)}
-                    className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors"
                   >
                     {STATUSES.map((s) => (
                       <option key={s.value} value={s.value}>{s.label}</option>
@@ -446,7 +446,7 @@ export function ApplicationsClient({ initialApplications }: Props) {
                     value={selectedApp.notes || ""}
                     onChange={(e) => handleNotesChange(selectedApp, e.target.value)}
                     placeholder="Interview notes, recruiter name, key dates…"
-                    className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors resize-none leading-relaxed"
+                    className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none leading-relaxed"
                   />
                 </div>
 
@@ -473,16 +473,16 @@ export function ApplicationsClient({ initialApplications }: Props) {
                   {selectedApp.job_analysis_id && (
                     <Link
                       href={`/jobs/${selectedApp.job_analysis_id}`}
-                      className="flex items-center gap-2 px-3 py-2 bg-[#0A0F1C] border border-[#1E3A5F] hover:border-blue-500/40 text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 bg-[#0f0e0c] border border-[#2d2a26] hover:border-amber-500/40 text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors"
                     >
-                      <Briefcase className="w-3.5 h-3.5 text-blue-400" />
+                      <Briefcase className="w-3.5 h-3.5 text-amber-400" />
                       View Job Analysis
                     </Link>
                   )}
                   {selectedApp.cover_letter_id && (
                     <Link
                       href="/cover-letter"
-                      className="flex items-center gap-2 px-3 py-2 bg-[#0A0F1C] border border-[#1E3A5F] hover:border-blue-500/40 text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 bg-[#0f0e0c] border border-[#2d2a26] hover:border-amber-500/40 text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors"
                     >
                       <FileEdit className="w-3.5 h-3.5 text-purple-400" />
                       View Cover Letter

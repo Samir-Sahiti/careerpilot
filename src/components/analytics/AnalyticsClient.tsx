@@ -126,9 +126,9 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
         </div>
         <Link
           href="/interview/progress"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-white/10 hover:border-blue-500/40 text-gray-300 hover:text-white text-sm font-medium rounded-lg transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--card-bg)] border border-white/10 hover:border-amber-500/40 text-gray-300 hover:text-white text-sm font-medium rounded-lg transition-colors"
         >
-          <BarChart2 className="w-4 h-4 text-blue-400" />
+          <BarChart2 className="w-4 h-4 text-amber-400" />
           Interview Progress
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
@@ -137,12 +137,12 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
       {/* Summary stats */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { label: "Total Applications", value: applications.length, icon: Briefcase, color: "text-blue-400" },
+          { label: "Total Applications", value: applications.length, icon: Briefcase, color: "text-amber-400" },
           { label: "Jobs Analyzed", value: jobs.length, icon: BarChart2, color: "text-purple-400" },
           { label: "Avg Fit Score", value: avgFitScore !== null ? `${avgFitScore}%` : "—", icon: TrendingUp, color: "text-yellow-400" },
           { label: "Avg Interview Score", value: avgInterviewScore !== null ? `${avgInterviewScore}%` : "—", icon: MessageSquare, color: "text-green-400" },
         ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="rounded-xl border border-white/5 bg-[var(--card-bg,#111827)] p-5">
+          <div key={label} className="rounded-xl border border-white/5 bg-[var(--card-bg,#1a1916)] p-5">
             <Icon className={`h-5 w-5 mb-3 ${color}`} />
             <p className="text-2xl font-bold text-white">{value}</p>
             <p className="text-xs text-gray-500 mt-1">{label}</p>
@@ -152,7 +152,7 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Application funnel */}
-        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#111827)] p-6">
+        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#1a1916)] p-6">
           <h2 className="font-semibold text-white mb-4">Application Funnel</h2>
           {applications.length === 0 ? (
             <p className="text-sm text-gray-500">No applications tracked yet.</p>
@@ -180,7 +180,7 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
         </div>
 
         {/* Job recommendation breakdown */}
-        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#111827)] p-6">
+        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#1a1916)] p-6">
           <h2 className="font-semibold text-white mb-4">Job Recommendation Breakdown</h2>
           {jobs.length === 0 ? (
             <p className="text-sm text-gray-500">No jobs analyzed yet.</p>
@@ -210,10 +210,10 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
 
       {/* Interview score trend */}
       {scoredInterviews.length > 0 && (
-        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#111827)] p-6">
+        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#1a1916)] p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-white">Interview Score History</h2>
-            <Link href="/interview/progress" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+            <Link href="/interview/progress" className="text-xs text-amber-400 hover:text-amber-300 transition-colors">
               View by type →
             </Link>
           </div>
@@ -241,7 +241,7 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
 
       {/* T2-1: AI Calibration */}
       {outcomedApps.length >= 3 && (
-        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#111827)] p-6">
+        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#1a1916)] p-6">
           <h2 className="font-semibold text-white mb-1">Your AI Calibration</h2>
           <p className="text-xs text-gray-500 mb-4">
             How accurate have fit score predictions been compared to your real outcomes?
@@ -279,7 +279,7 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
 
       {/* T2-3: Top rejection patterns */}
       {topRejectionSkills.length >= 2 && (
-        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#111827)] p-6">
+        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#1a1916)] p-6">
           <h2 className="font-semibold text-white mb-1">Top Rejection Patterns</h2>
           <p className="text-xs text-gray-500 mb-4">
             Skills most often missing on rejected applications.
@@ -293,14 +293,14 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
             ))}
           </div>
           <p className="text-xs text-gray-600 mt-3">
-            <Link href="/career" className="text-blue-400 hover:text-blue-300 transition-colors">Add these to your Career Ladder →</Link>
+            <Link href="/career" className="text-amber-400 hover:text-amber-300 transition-colors">Add these to your Career Ladder →</Link>
           </p>
         </div>
       )}
 
       {/* T2-5: Cohort benchmarking */}
       {cohortData && (
-        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#111827)] p-6">
+        <div className="rounded-xl border border-white/5 bg-[var(--card-bg,#1a1916)] p-6">
           <div className="flex items-center gap-2 mb-1">
             <Users className="w-4 h-4 text-purple-400" />
             <h2 className="font-semibold text-white">Benchmarks</h2>
@@ -347,7 +347,7 @@ export function AnalyticsClient({ applications, jobs, interviews }: Props) {
             </div>
           ) : null}
           <p className="text-xs text-gray-600 mt-4">
-            Aggregate-only data. <Link href="/settings" className="text-blue-400 hover:text-blue-300 transition-colors">Opt out in Settings →</Link>
+            Aggregate-only data. <Link href="/settings" className="text-amber-400 hover:text-amber-300 transition-colors">Opt out in Settings →</Link>
           </p>
         </div>
       )}

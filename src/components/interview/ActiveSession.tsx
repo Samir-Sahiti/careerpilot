@@ -168,7 +168,7 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-baseline justify-between gap-4 pb-4 border-b border-[#1E3A5F]">
+      <div className="flex flex-col sm:flex-row items-baseline justify-between gap-4 pb-4 border-b border-[#2d2a26]">
         <div>
           <h1 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-heading)" }}>
             {jobTitle}
@@ -183,7 +183,7 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
           <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
             Question {currentIndex + 1} of {questions.length}
           </span>
-          <div className="w-24 h-2 bg-[#1E3A5F] rounded-full overflow-hidden shrink-0">
+          <div className="w-24 h-2 bg-[#2d2a26] rounded-full overflow-hidden shrink-0">
             <div
               className="h-full bg-blue-500 rounded-full transition-all"
               style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
@@ -193,14 +193,14 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
       </div>
 
       {/* Question card */}
-      <div className="bg-[#111827] border border-[#1E3A5F] rounded-2xl p-6 sm:p-8 space-y-8">
+      <div className="bg-[#1a1916] border border-[#2d2a26] rounded-2xl p-6 sm:p-8 space-y-8">
         <div>
           <span
             className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider border ${
               currentQ.type === "behavioral"
                 ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
                 : currentQ.type === "technical"
-                ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
                 : "bg-amber-500/10 text-amber-400 border-amber-500/20"
             }`}
           >
@@ -213,14 +213,14 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
         </p>
 
         {/* Answer form */}
-        <form onSubmit={onSubmit} className="space-y-4 pt-4 border-t border-[#1E3A5F]/50">
+        <form onSubmit={onSubmit} className="space-y-4 pt-4 border-t border-[#2d2a26]/50">
           <label className="block text-sm font-medium text-gray-300">Your Answer</label>
           <textarea
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             disabled={isLoading || isAnswered || isSaving}
             placeholder="Type your answer here exactly as you would speak it..."
-            className="w-full h-40 bg-[#0A0F1C] border border-[#1E3A5F] rounded-xl p-4 text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 resize-none disabled:opacity-60 transition-colors"
+            className="w-full h-40 bg-[#0f0e0c] border border-[#2d2a26] rounded-xl p-4 text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 resize-none disabled:opacity-60 transition-colors"
           />
           {!isAnswered && !isLoading && (
             <div className="flex justify-end gap-3">
@@ -235,7 +235,7 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
               <button
                 type="submit"
                 disabled={!answer.trim() || isSaving}
-                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors text-sm"
+                className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-900 font-medium rounded-lg transition-colors text-sm"
               >
                 Submit Answer <SendHorizontal className="w-4 h-4" />
               </button>
@@ -245,8 +245,8 @@ export function ActiveSession({ sessionId, questions: initialQs, jobTitle, compa
 
         {/* Feedback area */}
         {(isLoading || displayFeedback) && (
-          <div className="bg-blue-900/10 border border-blue-500/20 rounded-xl p-6 space-y-5 animate-fade-in-up">
-            <div className="flex items-center gap-2 text-blue-400 font-semibold">
+          <div className="bg-blue-900/10 border border-amber-500/20 rounded-xl p-6 space-y-5 animate-fade-in-up">
+            <div className="flex items-center gap-2 text-amber-400 font-semibold">
               <MessageSquare className="w-5 h-5" />
               AI Interviewer Feedback
               {isLoading && <Loader2 className="w-4 h-4 animate-spin ml-auto" />}

@@ -8,7 +8,7 @@ interface CareerRoadmapWidgetProps {
 
 export function CareerRoadmapWidget({ roadmap }: CareerRoadmapWidgetProps) {
   return (
-    <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 flex flex-col gap-4">
+    <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -19,7 +19,7 @@ export function CareerRoadmapWidget({ roadmap }: CareerRoadmapWidgetProps) {
         </div>
         <Link
           href="/career"
-          className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors"
+          className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-medium transition-colors"
         >
           View all <ArrowRight className="w-3 h-3" />
         </Link>
@@ -29,7 +29,7 @@ export function CareerRoadmapWidget({ roadmap }: CareerRoadmapWidgetProps) {
       {roadmap ? (
         <div className="flex flex-col gap-4">
           {/* Route visualisation */}
-          <div className="bg-[#0A0F1C] border border-[#1E3A5F]/60 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <div className="bg-[#0f0e0c] border border-[#2d2a26]/60 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
             {/* Current role */}
             <div className="flex-1 min-w-0">
               <p className="text-gray-500 text-xs uppercase tracking-wider mb-1 font-medium">Current</p>
@@ -37,10 +37,10 @@ export function CareerRoadmapWidget({ roadmap }: CareerRoadmapWidgetProps) {
             </div>
 
             {/* Arrow */}
-            <div className="flex items-center gap-1 text-blue-500 shrink-0">
-              <div className="w-8 h-[2px] bg-blue-500/40 hidden sm:block" />
+            <div className="flex items-center gap-1 text-amber-500 shrink-0">
+              <div className="w-8 h-[2px] bg-amber-500/40 hidden sm:block" />
               <ArrowRight className="w-5 h-5" />
-              <div className="w-8 h-[2px] bg-blue-500/40 hidden sm:block" />
+              <div className="w-8 h-[2px] bg-amber-500/40 hidden sm:block" />
             </div>
 
             {/* Target role */}
@@ -59,7 +59,7 @@ export function CareerRoadmapWidget({ roadmap }: CareerRoadmapWidgetProps) {
 
           <Link
             href="/career"
-            className="text-sm text-blue-400 hover:text-blue-300 font-medium transition-colors"
+            className="text-sm text-amber-400 hover:text-amber-300 font-medium transition-colors"
           >
             View full roadmap →
           </Link>
@@ -67,7 +67,7 @@ export function CareerRoadmapWidget({ roadmap }: CareerRoadmapWidgetProps) {
       ) : (
         /* Empty state */
         <div className="flex flex-col items-start gap-4 py-2">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#1E3A5F]/30">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#2d2a26]/30">
             <MapPin className="w-5 h-5 text-gray-500" />
           </div>
           <p className="text-gray-400 text-sm leading-relaxed">
@@ -75,7 +75,7 @@ export function CareerRoadmapWidget({ roadmap }: CareerRoadmapWidgetProps) {
           </p>
           <Link
             href="/career"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-900 text-sm font-semibold transition-colors"
           >
             Generate your roadmap <ArrowRight className="w-4 h-4" />
           </Link>
