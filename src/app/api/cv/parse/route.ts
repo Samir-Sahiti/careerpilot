@@ -9,6 +9,8 @@ import { parseCvSchema } from "@/lib/validation/schemas";
 import { buildCvParsePrompt } from "@/lib/ai/prompts";
 import { logger } from "@/lib/logger";
 import { errorResponse, successResponse, rateLimitResponse } from "@/lib/apiResponse";
+import { getTaxonomyIndex, normalizeSkills, logUnknownSkills } from "@/lib/skills";
+import { autoCompleteRoadmapItems } from "@/lib/skills/autoComplete";
 
 export const maxDuration = 60;
 
@@ -211,7 +213,53 @@ export async function POST(req: Request) {
 
     await consumeRateLimit(supabase, user.id, "/api/cv/parse");
 
-    return successResponse({ success: true, cv_id: cvId });
+    // SG-3: Normalize and persist skill links
+    let autoCompletedCount = 0;
+    try {
+      const taxonomy = await getTaxonomyIndex();
+      const results = normalizeSkills(object.skills, taxonomy);
+
+      const matched = results.filter((r) => r.canonical !== null);
+      const unknown = results.filter((r) => r.canonical === null);
+
+      console.log(
+        `CV ${cvId} — normalized ${matched.length}/${results.length} skills (${unknown.length} unknown)`
+      );
+
+      if (matched.length > 0) {
+        // Delete existing links before inserting (idempotent re-parse)
+        await adminClient.from("cv_skills").delete().eq("cv_id", cvId);
+
+        const { error: skillsError } = await adminClient.from("cv_skills").insert(
+          matched.map((r) => ({
+            cv_id: cvId,
+            skill_id: r.canonical!.id,
+            raw_text: r.raw,
+            match_type: r.match_type,
+          }))
+        );
+
+        if (skillsError) {
+          logger.error("Failed to persist cv_skills", { cvId }, skillsError);
+        }
+      }
+
+      // SG-7: Log unknown skills for taxonomy maintenance
+      if (unknown.length > 0) {
+        await logUnknownSkills(unknown.map((r) => r.raw), "cv");
+      }
+
+      // SG-5: Auto-complete roadmap items whose skill_id now appears in cv_skills
+      autoCompletedCount = await autoCompleteRoadmapItems(cvId, supabase);
+      if (autoCompletedCount > 0) {
+        console.log(`CV ${cvId} — auto-completed ${autoCompletedCount} roadmap items`);
+      }
+    } catch (skillErr) {
+      // Non-critical — skill normalization failure does not fail the parse
+      logger.error("Skill normalization error (non-critical)", { cvId }, skillErr);
+    }
+
+    return successResponse({ success: true, cv_id: cvId, auto_completed_count: autoCompletedCount });
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "Internal server error during parsing";

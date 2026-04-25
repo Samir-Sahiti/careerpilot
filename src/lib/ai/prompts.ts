@@ -1,4 +1,4 @@
-import { OutcomeHistoryItem, ParsedCvData } from "@/types";
+import { OutcomeHistoryItem, ParsedCvData, SkillGroundTruth } from "@/types";
 
 // ── CV Parsing ────────────────────────────────────────────────────────────────
 export function buildCvParsePrompt(extractedText: string): string {
@@ -11,8 +11,21 @@ export function buildJobAnalysisPrompt(
   jobTitle: string,
   company: string | undefined,
   jobRawText: string,
+  groundTruth: SkillGroundTruth | null,
   userHistory?: OutcomeHistoryItem[]
 ): string {
+  const groundTruthSection = groundTruth
+    ? `---
+
+GROUND TRUTH — Skill match computed deterministically from the candidate's profile and the listing.
+Do NOT re-derive these lists. Use them to inform your fit_score, recommendation, and rationale.
+- Matched skills: ${groundTruth.matched.length > 0 ? groundTruth.matched.join(", ") : "none"}
+- Missing required skills: ${groundTruth.required_missing.length > 0 ? groundTruth.required_missing.join(", ") : "none"}
+- Missing preferred skills: ${groundTruth.preferred_missing.length > 0 ? groundTruth.preferred_missing.join(", ") : "none"}
+
+`
+    : "";
+
   return `You are an expert technical recruiter and career coach.
 
 A candidate is applying for:
@@ -34,7 +47,7 @@ ${cv.experience.map((e) => `- ${e.title} at ${e.company} (${e.duration}): ${e.su
 
 ---
 
-Use this fit_score rubric strictly. Pick the band the candidate fits, then adjust ±5 within it.
+${groundTruthSection}Use this fit_score rubric strictly. Pick the band the candidate fits, then adjust ±5 within it.
 
   90–100  Meets every stated requirement + most preferred. Seniority match. Direct domain experience.
   75–89   Meets all hard requirements. Missing 1–2 preferred. Seniority match or one level off.
@@ -55,9 +68,7 @@ Provide:
    - 'speculative': significant ambiguity in the listing or the candidate profile — score has lower confidence
 3. fit_score_rationale: 1–2 sentences explaining what the score is based on (e.g. "Matched 7/9 listed skills. Seniority inferred from years of experience — listing doesn't state level.")
 4. recommendation: 'apply' / 'maybe' / 'skip' — honest assessment
-3. recommendation_reason: 1–2 candid sentences
-4. matched_skills: candidate skills that directly match the role
-5. missing_skills: required skills the candidate lacks
+5. recommendation_reason: 1–2 candid sentences
 6. cv_suggestions: 3–5 specific, actionable improvements (e.g. "Add Docker to skills — the role lists it as required")
 7. salary_estimate: an object with these exact fields:
    - shown_in_listing: true if the listing explicitly states a salary range or number, false otherwise

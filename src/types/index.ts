@@ -188,7 +188,26 @@ export interface RoadmapItem {
   status: RoadmapItemStatus;
   completed_at: string | null;
   auto_completed_by_cv_id: string | null;
+  skill_id: string | null; // SG-5: links to skills_taxonomy for auto-completion
   created_at: string;
+}
+
+// ── Skill Graph (SG-1 through SG-7) ──────────────────────────────────────────
+
+export interface SkillTaxonomyEntry {
+  id: string;
+  canonical_name: string;
+  category: 'language' | 'framework' | 'database' | 'cloud' | 'devops' | 'tool' | 'concept' | 'domain' | 'soft';
+  aliases: string[];
+  description: string | null;
+  created_at: string;
+}
+
+// Pre-computed skill match passed as ground truth to the job analysis prompt (SG-6)
+export interface SkillGroundTruth {
+  matched: string[];           // canonical names the candidate has
+  required_missing: string[];  // required skills the candidate lacks
+  preferred_missing: string[]; // preferred skills the candidate lacks
 }
 
 // ── Rejection Post-Mortem (T2-3) ──────────────────────────────────────────────
