@@ -18,7 +18,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { SignOutButton } from "@/components/layout/SignOutButton";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 const primaryLinks = [
   { name: "Dashboard",       href: "/dashboard",   icon: LayoutDashboard },
@@ -117,7 +116,6 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
           <Settings className="h-5 w-5" />
           Settings
         </Link>
-        <ThemeToggle />
       </div>
 
       <div className="mt-4 border-t border-[#232220] pt-4">
