@@ -44,7 +44,7 @@ export default function OnboardingFirstAnalysisPage() {
         await supabase.from("profiles").update({ onboarding_completed_at: new Date().toISOString() }).eq("id", user.id);
       }
 
-      toast.success("Analysis complete! Welcome to CareerPilot.");
+      toast.success("Analysis complete! Welcome to CareerOS.");
       router.push(`/jobs/${data.id}`);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
@@ -61,12 +61,12 @@ export default function OnboardingFirstAnalysisPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6" style={{ background: "var(--bg-base)" }}>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6" style={{ background: "var(--background)" }}>
       <div className="w-full max-w-xl">
         {/* Logo */}
         <div className="text-center mb-10">
           <span className="text-2xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-heading)", color: "#F1F5F9" }}>
-            Career<span style={{ color: "#2563EB" }}>Pilot</span>
+            Career<span style={{ color: "#f59e0b" }}>OS</span>
           </span>
         </div>
 
@@ -77,10 +77,10 @@ export default function OnboardingFirstAnalysisPage() {
           </div>
         )}
 
-        <div className="bg-[#111827] border border-[#1E3A5F] rounded-2xl p-8 space-y-6">
+        <div className="bg-[#1a1916] border border-[#2d2a26] rounded-2xl p-8 space-y-6">
           <div className="text-center space-y-2">
-            <div className="flex items-center justify-center w-12 h-12 bg-blue-500/10 rounded-full mx-auto mb-4">
-              <Briefcase className="w-6 h-6 text-blue-400" />
+            <div className="flex items-center justify-center w-12 h-12 bg-amber-500/10 rounded-full mx-auto mb-4">
+              <Briefcase className="w-6 h-6 text-amber-400" />
             </div>
             <h1 className="text-2xl font-extrabold text-white" style={{ fontFamily: "var(--font-heading)" }}>
               Try your first job analysis
@@ -99,7 +99,7 @@ export default function OnboardingFirstAnalysisPage() {
                   value={jobTitle}
                   onChange={(e) => setJobTitle(e.target.value)}
                   placeholder="e.g. Senior Frontend Engineer"
-                  className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 transition-colors"
                 />
               </div>
               <div className="space-y-1.5">
@@ -108,7 +108,7 @@ export default function OnboardingFirstAnalysisPage() {
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   placeholder="e.g. Stripe"
-                  className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 transition-colors"
                 />
               </div>
             </div>
@@ -120,13 +120,13 @@ export default function OnboardingFirstAnalysisPage() {
                 value={jobText}
                 onChange={(e) => setJobText(e.target.value)}
                 placeholder="Paste the full job description here…"
-                className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors resize-none leading-relaxed"
+                className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none leading-relaxed"
               />
             </div>
             <button
               type="submit"
               disabled={loading || !jobTitle.trim() || !jobText.trim()}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-900 font-semibold rounded-lg transition-colors"
             >
               {loading ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Analysing…</>

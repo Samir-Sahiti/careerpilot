@@ -108,7 +108,7 @@ export default function SignupPage() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <span className="text-2xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
-            Career<span className="text-blue-500">Pilot</span>
+            Career<span className="text-amber-500">OS</span>
           </span>
           <p className="text-sm text-gray-400 mt-2">Free. No credit card.</p>
         </div>
@@ -116,15 +116,15 @@ export default function SignupPage() {
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card-bg)] p-7 space-y-5">
           {emailSent ? (
             <div className="text-center py-6 space-y-3">
-              <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto">
-                <Check className="w-6 h-6 text-blue-400" />
+              <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto">
+                <Check className="w-6 h-6 text-amber-400" />
               </div>
               <p className="font-semibold text-white">Check your inbox</p>
               <p className="text-sm text-gray-400">
                 We sent a confirmation link to <span className="text-white">{email}</span>.
                 <br />Click it to activate your account.
               </p>
-              <button onClick={() => setEmailSent(false)} className="text-xs text-blue-400 hover:underline mt-2">
+              <button onClick={() => setEmailSent(false)} className="text-xs text-amber-400 hover:underline mt-2">
                 Use a different email
               </button>
             </div>
@@ -248,7 +248,7 @@ export default function SignupPage() {
 
         <p className="text-center text-sm text-gray-500">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-400 hover:underline">
+          <Link href="/login" className="text-amber-400 hover:underline">
             Log in
           </Link>
         </p>

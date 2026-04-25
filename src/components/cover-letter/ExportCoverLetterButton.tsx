@@ -30,7 +30,7 @@ export function ExportCoverLetterButton({ jobTitle, company, content }: ExportCo
   return (
     <button
       onClick={handleExport}
-      className="flex items-center gap-1.5 px-3 py-2 bg-[#1E3A5F]/40 hover:bg-[#1E3A5F] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#1E3A5F]"
+      className="flex items-center gap-1.5 px-3 py-2 bg-[#2d2a26]/40 hover:bg-[#2d2a26] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#2d2a26]"
       title="Export as PDF"
     >
       <Download className="w-3.5 h-3.5" />

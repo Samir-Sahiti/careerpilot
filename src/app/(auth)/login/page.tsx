@@ -73,7 +73,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center">
           <span className="text-2xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
-            Career<span className="text-blue-500">Pilot</span>
+            Career<span className="text-amber-500">OS</span>
           </span>
           <p className="text-sm text-gray-400 mt-2">Welcome back</p>
         </div>
@@ -112,7 +112,7 @@ export default function LoginPage() {
                 <div className="text-center py-4 space-y-2">
                   <p className="text-sm font-medium text-white">Check your inbox</p>
                   <p className="text-xs text-gray-400">We sent a sign-in link to <span className="text-white">{email}</span>.</p>
-                  <button onClick={() => { setMagicSent(false); setEmail(""); }} className="text-xs text-blue-400 hover:underline mt-2">
+                  <button onClick={() => { setMagicSent(false); setEmail(""); }} className="text-xs text-amber-400 hover:underline mt-2">
                     Use a different email
                   </button>
                 </div>
@@ -164,7 +164,7 @@ export default function LoginPage() {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="auth-label" htmlFor="password">Password</label>
-                  <Link href="/forgot-password" className="text-xs text-blue-400 hover:underline">
+                  <Link href="/forgot-password" className="text-xs text-amber-400 hover:underline">
                     Forgot password?
                   </Link>
                 </div>
@@ -199,7 +199,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-gray-500">
           No account?{" "}
-          <Link href="/signup" className="text-blue-400 hover:underline">
+          <Link href="/signup" className="text-amber-400 hover:underline">
             Sign up free
           </Link>
         </p>

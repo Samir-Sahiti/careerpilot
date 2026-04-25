@@ -75,7 +75,7 @@ export function NewInterviewForm({
         <div className="relative flex items-center justify-center w-24 h-24">
           <div className="absolute inset-0 rounded-full border-b-2 border-blue-500 animate-spin" style={{ animationDuration: '2s' }} />
           <div className="absolute inset-2 rounded-full border-t-2 border-purple-500 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '3s' }} />
-          <div className="relative z-10 flex flex-col justify-end w-12 h-16 bg-[#1E3A5F]/40 border border-[#1E3A5F] rounded-full overflow-hidden pb-2">
+          <div className="relative z-10 flex flex-col justify-end w-12 h-16 bg-[#2d2a26]/40 border border-[#2d2a26] rounded-full overflow-hidden pb-2">
             <div className="w-1.5 h-6 bg-blue-500 mx-auto rounded-full animate-pulse" />
             <div className="flex gap-1 justify-center mt-1">
               <div className="w-1 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -95,7 +95,7 @@ export function NewInterviewForm({
         </div>
 
         {/* Progress bar */}
-        <div className="w-64 h-1.5 bg-[#1E3A5F]/60 rounded-full overflow-hidden mt-2">
+        <div className="w-64 h-1.5 bg-[#2d2a26]/60 rounded-full overflow-hidden mt-2">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-[4000ms] ease-in-out"
             style={{ width: `${((stepIndex + 1) / GENERATION_STEPS.length) * 100}%` }}
@@ -115,12 +115,12 @@ export function NewInterviewForm({
     <div className="animate-fade-in-up">
       <form
         onSubmit={handleSubmit}
-        className="bg-[#111827] border border-[#1E3A5F] rounded-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden"
+        className="bg-[#1a1916] border border-[#2d2a26] rounded-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden"
       >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/2 -translate-y-1/2" />
         
         {jobAnalysisId && (
-          <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm px-4 py-3 rounded-lg flex items-start gap-3">
+          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm px-4 py-3 rounded-lg flex items-start gap-3">
             <span className="shrink-0 pt-0.5">ℹ️</span>
             <span>
               We automatically loaded the role from your previous analysis. Adjust the fields below if needed, or proceed directly.
@@ -131,7 +131,7 @@ export function NewInterviewForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
           <div className="space-y-2">
             <label htmlFor="targetRole" className="flex items-center gap-2 text-sm font-medium text-gray-300">
-              <Briefcase className="w-4 h-4 text-blue-400" />
+              <Briefcase className="w-4 h-4 text-amber-400" />
               Target Role <span className="text-red-400">*</span>
             </label>
             <input
@@ -141,7 +141,7 @@ export function NewInterviewForm({
               value={targetRole}
               onChange={(e) => setTargetRole(e.target.value)}
               placeholder="e.g. Frontend Engineer"
-              className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-4 py-3 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition-colors"
+              className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-4 py-3 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-colors"
             />
           </div>
 
@@ -156,7 +156,7 @@ export function NewInterviewForm({
               value={targetCompany}
               onChange={(e) => setTargetCompany(e.target.value)}
               placeholder="e.g. OpenAI"
-              className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-4 py-3 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition-colors"
+              className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-4 py-3 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-colors"
             />
           </div>
         </div>
@@ -167,11 +167,11 @@ export function NewInterviewForm({
             type="button"
             onClick={() => setMode("standard")}
             className={`p-4 rounded-xl border text-left transition-all ${
-              mode === "standard" ? "border-blue-500 bg-blue-500/10" : "border-[#1E3A5F] hover:border-blue-500/40"
+              mode === "standard" ? "border-blue-500 bg-amber-500/10" : "border-[#2d2a26] hover:border-amber-500/40"
             }`}
           >
             <div className="flex items-center gap-2 mb-1">
-              <PlayCircle className="w-4 h-4 text-blue-400" />
+              <PlayCircle className="w-4 h-4 text-amber-400" />
               <span className="text-sm font-semibold text-white">Standard</span>
             </div>
             <p className="text-xs text-gray-400">10 pre-generated questions, answer at your own pace.</p>
@@ -180,7 +180,7 @@ export function NewInterviewForm({
             type="button"
             onClick={() => setMode("adaptive")}
             className={`p-4 rounded-xl border text-left transition-all ${
-              mode === "adaptive" ? "border-purple-500 bg-purple-500/10" : "border-[#1E3A5F] hover:border-purple-500/40"
+              mode === "adaptive" ? "border-purple-500 bg-purple-500/10" : "border-[#2d2a26] hover:border-purple-500/40"
             }`}
           >
             <div className="flex items-center gap-2 mb-1">
@@ -195,7 +195,7 @@ export function NewInterviewForm({
           <button
             type="submit"
             disabled={loading || !targetRole.trim()}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors text-sm shadow-lg shadow-blue-900/20"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-stone-900 font-semibold rounded-lg transition-colors text-sm shadow-lg shadow-amber-900/20"
           >
             <PlayCircle className="w-5 h-5" />
             Start Interview

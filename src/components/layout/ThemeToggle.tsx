@@ -24,7 +24,7 @@ export function ThemeToggle() {
         aria-label="Toggle theme"
         className="relative flex items-center rounded-full p-0.5 transition-colors duration-300"
         style={{
-          background: isDark ? "#1E3A5F" : "#CBD5E1",
+          background: isDark ? "#2d2a26" : "#e7e5e4",
           width: "56px",
           height: "28px",
         }}
@@ -35,7 +35,7 @@ export function ThemeToggle() {
           style={{
             width: "22px",
             height: "22px",
-            background: isDark ? "#2563EB" : "#ffffff",
+            background: isDark ? "#f59e0b" : "#ffffff",
             left: isDark ? "3px" : "31px",
           }}
         >

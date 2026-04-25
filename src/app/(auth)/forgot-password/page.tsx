@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <span className="text-2xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
-            Career<span className="text-blue-500">Pilot</span>
+            Career<span className="text-amber-500">OS</span>
           </span>
         </div>
 
@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
               <p className="text-sm text-gray-400">
                 If <span className="text-white">{email}</span> has an account, we sent a reset link.
               </p>
-              <Link href="/login" className="inline-flex items-center gap-1.5 text-sm text-blue-400 hover:underline mt-2">
+              <Link href="/login" className="inline-flex items-center gap-1.5 text-sm text-amber-400 hover:underline mt-2">
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to login
               </Link>
             </div>

@@ -26,8 +26,8 @@ export default async function CareerLadderPage() {
   if (!cv || cvError) {
     return (
       <div className="flex flex-col items-center justify-center py-24 space-y-8 animate-fade-in-up text-center max-w-lg mx-auto">
-        <div className="w-20 h-20 bg-blue-900/20 border border-blue-500/30 rounded-3xl flex items-center justify-center rotate-3 relative hover:rotate-0 transition-transform">
-          <FileUp className="w-10 h-10 text-blue-400" />
+        <div className="w-20 h-20 bg-blue-900/20 border border-amber-500/30 rounded-3xl flex items-center justify-center rotate-3 relative hover:rotate-0 transition-transform">
+          <FileUp className="w-10 h-10 text-amber-400" />
         </div>
         
         <div className="space-y-3">
@@ -41,7 +41,7 @@ export default async function CareerLadderPage() {
 
         <Link
           href="/cv"
-          className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-all shadow-lg shadow-blue-900/20 inline-flex items-center gap-2"
+          className="px-8 py-3 bg-amber-500 hover:bg-amber-400 text-stone-900 font-medium rounded-xl transition-all shadow-lg shadow-amber-900/20 inline-flex items-center gap-2"
         >
           <Target className="w-4 h-4" />
           Go Upload CV

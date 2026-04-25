@@ -1,4 +1,4 @@
-# CareerPilot
+# CareerOS
 
 An AI-powered career management platform that closes the full job-search loop — from CV to offer — and learns from your outcomes over time.
 
@@ -35,8 +35,8 @@ An AI-powered career management platform that closes the full job-search loop �
 ### Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/careerpilot.git
-cd careerpilot
+git clone https://github.com/YOUR_USERNAME/careeros.git
+cd careeros
 npm install
 ```
 

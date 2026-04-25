@@ -91,22 +91,22 @@ export default function OnboardingCvPage() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6" style={{ background: "var(--bg-base)" }}>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6" style={{ background: "var(--background)" }}>
       <div className="w-full max-w-xl">
         {/* Logo */}
         <div className="text-center mb-10">
           <span className="text-2xl font-extrabold tracking-tight" style={{ fontFamily: "var(--font-heading)", color: "#F1F5F9" }}>
-            Career<span style={{ color: "#2563EB" }}>Pilot</span>
+            Career<span style={{ color: "#f59e0b" }}>OS</span>
           </span>
         </div>
 
-        <div className="bg-[#111827] border border-[#1E3A5F] rounded-2xl p-8 space-y-6">
+        <div className="bg-[#1a1916] border border-[#2d2a26] rounded-2xl p-8 space-y-6">
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-extrabold text-white" style={{ fontFamily: "var(--font-heading)" }}>
               Upload your CV
             </h1>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Your CV powers every CareerPilot feature. Upload it once and we&apos;ll match you to jobs instantly.
+              Your CV powers every CareerOS feature. Upload it once and we&apos;ll match you to jobs instantly.
             </p>
           </div>
 
@@ -115,17 +115,17 @@ export default function OnboardingCvPage() {
             className={`border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center gap-4 text-center transition-all min-h-[220px] ${
               state === "idle" ? "cursor-pointer" : "cursor-default"
             } ${
-              isDragActive ? "border-blue-500 bg-blue-500/10" :
+              isDragActive ? "border-amber-500 bg-amber-500/10" :
               state === "failed" ? "border-red-500/50 bg-red-500/5" :
-              "border-[#1E3A5F] hover:border-blue-500/50"
+              "border-[#2d2a26] hover:border-amber-500/50"
             }`}
           >
             <input {...(state === "idle" ? getInputProps() : {})} />
 
             {state === "idle" && (
               <>
-                <div className="p-3 bg-blue-500/10 rounded-full">
-                  <UploadCloud className="w-8 h-8 text-blue-500" />
+                <div className="p-3 bg-amber-500/10 rounded-full">
+                  <UploadCloud className="w-8 h-8 text-amber-500" />
                 </div>
                 <div>
                   <p className="text-white font-medium">
@@ -138,7 +138,7 @@ export default function OnboardingCvPage() {
 
             {(state === "uploading" || state === "parsing") && (
               <>
-                <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
                 <p className="text-white font-medium">
                   {state === "uploading" ? "Uploading…" : "Analysing with AI…"}
                 </p>
@@ -164,7 +164,7 @@ export default function OnboardingCvPage() {
                 <div className="flex gap-2 justify-center">
                   <button
                     onClick={() => { setState("idle"); setParseError(null); setCurrentCvId(null); }}
-                    className="px-4 py-2 bg-[#1E3A5F] hover:bg-[#2A4B75] text-white rounded-lg text-sm font-medium transition-colors"
+                    className="px-4 py-2 bg-[#2d2a26] hover:bg-[#3a3632] text-white rounded-lg text-sm font-medium transition-colors"
                   >
                     Try Again
                   </button>
@@ -179,7 +179,7 @@ export default function OnboardingCvPage() {
                           body: JSON.stringify({ cvId: currentCvId }),
                         }).catch(() => null);
                       }}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+                      className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-stone-900 rounded-lg text-sm font-medium transition-colors"
                     >
                       Retry Parse
                     </button>

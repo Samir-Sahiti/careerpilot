@@ -1,38 +1,45 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import { Syne, DM_Sans, DM_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import "./globals.css";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const syne = Syne({
   variable: "--font-heading",
   subsets: ["latin"],
-  weight: ["400", "500", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const inter = Inter({
+const dmSans = DM_Sans({
   variable: "--font-body",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
   weight: ["400", "500"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "CareerPilot – Your AI Career Co-Pilot",
+  title: "CareerOS — Your Professional Command Center",
   description:
-    "Analyze job fits, practice mock interviews, and map your path to the next level — all powered by AI.",
+    "Analyze job fits, practice mock interviews, and map your career path — powered by AI. Your operating system for career growth.",
   openGraph: {
-    title: "CareerPilot – Your AI Career Co-Pilot",
-    description: "Analyze job fits, practice mock interviews, and map your path to the next level — all powered by AI.",
+    title: "CareerOS — Your Professional Command Center",
+    description: "Analyze job fits, practice mock interviews, and map your career path — powered by AI. Your operating system for career growth.",
     url: "https://careerpilot.vercel.app",
-    siteName: "CareerPilot",
+    siteName: "CareerOS",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "CareerPilot Social Card",
+        alt: "CareerOS Social Card",
       },
     ],
     locale: "en_US",
@@ -40,8 +47,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "CareerPilot – Your AI Career Co-Pilot",
-    description: "Analyze job fits, practice mock interviews, and map your path to the next level — all powered by AI.",
+    title: "CareerOS — Your Professional Command Center",
+    description: "Analyze job fits, practice mock interviews, and map your career path — powered by AI. Your operating system for career growth.",
     images: ["/og-image.png"],
   },
 };
@@ -54,7 +61,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} ${inter.variable}`}
+      className={`${syne.variable} ${dmSans.variable} ${dmMono.variable}`}
       suppressHydrationWarning
     >
       <body className="antialiased">
@@ -64,9 +71,9 @@ export default function RootLayout({
             position="top-center"
             toastOptions={{
               style: {
-                background: "#111827",
-                border: "1px solid #1E3A5F",
-                color: "#F1F5F9",
+                background: "#1a1916",
+                border: "1px solid #2d2a26",
+                color: "#fafaf9",
               },
             }}
           />

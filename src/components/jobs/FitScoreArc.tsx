@@ -27,14 +27,14 @@ export function FitScoreArc({ score }: FitScoreArcProps) {
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   return (
-    <div className={`relative flex items-center justify-center w-32 h-32 rounded-full ${bgClass} border border-[#1E3A5F]/40 shrink-0`}>
+    <div className={`relative flex items-center justify-center w-32 h-32 rounded-full ${bgClass} border border-[#2d2a26]/40 shrink-0`}>
       <svg
         className="transform -rotate-90 w-28 h-28"
         viewBox="0 0 100 100"
       >
         {/* Background track */}
         <circle
-          className="stroke-[#1E3A5F]/50"
+          className="stroke-[#2d2a26]/50"
           strokeWidth="8"
           fill="transparent"
           r={radius}

@@ -45,14 +45,14 @@ export function CompanyContextPanel({ company }: Props) {
   const hasLayoffSignal = context?.layoff_signals && !context.layoff_signals.includes("No known");
 
   return (
-    <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl overflow-hidden">
+    <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl overflow-hidden">
       <button
         onClick={load}
-        className="w-full flex items-center justify-between p-4 hover:bg-[#1E3A5F]/20 transition-colors"
+        className="w-full flex items-center justify-between p-4 hover:bg-[#2d2a26]/20 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-500/10 rounded-lg">
-            <Building2 className="w-4 h-4 text-blue-400" />
+          <div className="p-2 bg-amber-500/10 rounded-lg">
+            <Building2 className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-left">
             <p className="text-sm font-semibold text-white">Company Context — {company}</p>
@@ -62,7 +62,7 @@ export function CompanyContextPanel({ company }: Props) {
         <div className="flex items-center gap-2">
           {loading && <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />}
           {loaded && !error && (collapsed ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronUp className="w-4 h-4 text-gray-400" />)}
-          {!loaded && !loading && <span className="text-xs text-blue-400 font-medium">Load context</span>}
+          {!loaded && !loading && <span className="text-xs text-amber-400 font-medium">Load context</span>}
         </div>
       </button>
 
@@ -73,7 +73,7 @@ export function CompanyContextPanel({ company }: Props) {
             href={`https://www.google.com/search?q=${encodeURIComponent(company + " company info glassdoor")} `}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-blue-400 hover:underline mt-1 inline-block"
+            className="text-xs text-amber-400 hover:underline mt-1 inline-block"
           >
             Search manually
           </a>
@@ -81,26 +81,26 @@ export function CompanyContextPanel({ company }: Props) {
       )}
 
       {context && !collapsed && (
-        <div className="px-4 pb-4 space-y-4 border-t border-[#1E3A5F] pt-4">
+        <div className="px-4 pb-4 space-y-4 border-t border-[#2d2a26] pt-4">
           {/* Overview */}
           <p className="text-sm text-gray-300 leading-relaxed">{context.overview}</p>
 
           {/* Key stats */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <div className="bg-[#0A0F1C] rounded-lg p-3 space-y-1">
+            <div className="bg-[#0f0e0c] rounded-lg p-3 space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-gray-500">
                 <Users className="w-3 h-3" /> Size
               </div>
               <p className="text-sm font-medium text-white">{context.size}</p>
             </div>
-            <div className="bg-[#0A0F1C] rounded-lg p-3 space-y-1">
+            <div className="bg-[#0f0e0c] rounded-lg p-3 space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-gray-500">
                 <TrendingUp className="w-3 h-3" /> Stage
               </div>
               <p className="text-sm font-medium text-white">{context.funding_stage}</p>
             </div>
             {context.glassdoor_rating !== null && (
-              <div className="bg-[#0A0F1C] rounded-lg p-3 space-y-1">
+              <div className="bg-[#0f0e0c] rounded-lg p-3 space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-gray-500">
                   <Star className="w-3 h-3" /> Glassdoor
                 </div>
@@ -111,7 +111,7 @@ export function CompanyContextPanel({ company }: Props) {
 
           {/* Recent notable */}
           <div className="flex items-start gap-2">
-            <Info className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
+            <Info className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
             <p className="text-xs text-gray-400">{context.recent_notable}</p>
           </div>
 
@@ -124,7 +124,7 @@ export function CompanyContextPanel({ company }: Props) {
           )}
 
           {/* Disclaimer */}
-          <p className="text-xs text-gray-600 italic border-t border-[#1E3A5F] pt-3">{context.disclaimer}</p>
+          <p className="text-xs text-gray-600 italic border-t border-[#2d2a26] pt-3">{context.disclaimer}</p>
         </div>
       )}
     </div>

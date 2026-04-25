@@ -43,13 +43,13 @@ function SalaryRangeBar({ salary }: { salary: Extract<SalaryEstimate, { shown_in
         <span className="text-sm font-semibold text-gray-400 w-16 text-right shrink-0">
           {salary.currency} {fmt(salary.low)}
         </span>
-        <div className="relative flex-1 h-3 bg-[#1E3A5F]/60 rounded-full">
+        <div className="relative flex-1 h-3 bg-[#2d2a26]/60 rounded-full">
           <div
-            className="absolute left-0 top-0 h-full bg-blue-600/60 rounded-full"
+            className="absolute left-0 top-0 h-full bg-amber-500/60 rounded-full"
             style={{ width: `${midPct}%` }}
           />
           <div
-            className="absolute top-1/2 w-4 h-4 bg-blue-400 rounded-full border-2 border-[#0A0F1C] shadow"
+            className="absolute top-1/2 w-4 h-4 bg-blue-400 rounded-full border-2 border-[#0f0e0c] shadow"
             style={{ left: `${midPct}%`, transform: "translate(-50%, -50%)" }}
           />
         </div>
@@ -73,13 +73,13 @@ function SalarySection({ salary }: { salary: SalaryEstimate }) {
       {salary.shown_in_listing ? (
         <SalaryRangeBar salary={salary} />
       ) : (
-        <div className="flex items-start gap-3 bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg p-4">
-          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 bg-[#0f0e0c] border border-[#2d2a26] rounded-lg p-4">
+          <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
           <p className="text-sm text-gray-300 leading-relaxed">{salary.guidance}</p>
         </div>
       )}
 
-      <div className="flex items-start gap-3 bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg p-4">
+      <div className="flex items-start gap-3 bg-[#0f0e0c] border border-[#2d2a26] rounded-lg p-4">
         <TrendingUp className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
         <p className="text-sm text-gray-300 leading-relaxed">
           <span className="text-emerald-400 font-semibold">Negotiation tip: </span>
@@ -125,8 +125,8 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
       </Link>
 
       {/* Header card */}
-      <div className="bg-[#111827] border border-[#1E3A5F] rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row gap-8 items-start sm:items-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/2 -translate-y-1/2" />
+      <div className="bg-[#1a1916] border border-[#2d2a26] rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row gap-8 items-start sm:items-center relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none transform translate-x-1/2 -translate-y-1/2" />
         <div className="flex flex-col items-center gap-2">
           <FitScoreArc score={analysis.fit_score ?? 0} />
           {analysis.fit_score_basis && (
@@ -161,15 +161,15 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
 
       {/* Skills grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-4">
-          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
+        <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 space-y-4">
+          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#2d2a26]">
             <CheckCircle2 className="w-5 h-5 text-green-500" />
             <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Matched Skills</h3>
           </div>
           {analysis.matched_skills?.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {analysis.matched_skills.map((skill, i) => (
-                <span key={i} className="px-3 py-1 bg-[#1E3A5F]/30 text-green-400 text-sm font-medium rounded-md border border-green-500/20">{skill}</span>
+                <span key={i} className="px-3 py-1 bg-[#2d2a26]/30 text-green-400 text-sm font-medium rounded-md border border-green-500/20">{skill}</span>
               ))}
             </div>
           ) : (
@@ -177,15 +177,15 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
           )}
         </div>
 
-        <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-4">
-          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
+        <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 space-y-4">
+          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#2d2a26]">
             <XCircle className="w-5 h-5 text-red-500" />
             <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Missing Skills</h3>
           </div>
           {analysis.missing_skills?.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {analysis.missing_skills.map((skill, i) => (
-                <span key={i} className="px-3 py-1 bg-[#1E3A5F]/30 text-red-400 text-sm font-medium rounded-md border border-red-500/20">{skill}</span>
+                <span key={i} className="px-3 py-1 bg-[#2d2a26]/30 text-red-400 text-sm font-medium rounded-md border border-red-500/20">{skill}</span>
               ))}
             </div>
           ) : (
@@ -195,8 +195,8 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
       </div>
 
       {/* CV Suggestions */}
-      <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-4">
-        <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
+      <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 space-y-4">
+        <div className="flex items-center gap-2 text-white pb-3 border-b border-[#2d2a26]">
           <Lightbulb className="w-5 h-5 text-amber-500" />
           <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Actionable CV Suggestions</h3>
         </div>
@@ -204,7 +204,7 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
           <ul className="space-y-3">
             {analysis.cv_suggestions.map((s, i) => (
               <li key={i} className="flex gap-3 text-sm text-gray-300">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-[#1E3A5F]/50 flex items-center justify-center text-xs font-bold text-amber-500">{i + 1}</span>
+                <span className="shrink-0 w-6 h-6 rounded-full bg-[#2d2a26]/50 flex items-center justify-center text-xs font-bold text-amber-500">{i + 1}</span>
                 <span className="pt-0.5 leading-relaxed">{s}</span>
               </li>
             ))}
@@ -216,8 +216,8 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
 
       {/* Salary */}
       {analysis.salary_estimate && (
-        <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-6">
-          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
+        <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 space-y-6">
+          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#2d2a26]">
             <DollarSign className="w-5 h-5 text-emerald-500" />
             <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>
               {analysis.salary_estimate.shown_in_listing ? "Salary (from listing)" : "Salary"}
@@ -232,9 +232,9 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
 
       {/* CV Tailoring */}
       {parsedCv && (
-        <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 space-y-4">
-          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#1E3A5F]">
-            <Wand2 className="w-5 h-5 text-blue-400" />
+        <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 space-y-4">
+          <div className="flex items-center gap-2 text-white pb-3 border-b border-[#2d2a26]">
+            <Wand2 className="w-5 h-5 text-amber-400" />
             <h3 className="text-lg font-bold" style={{ fontFamily: "var(--font-heading)" }}>Tailor CV for This Role</h3>
           </div>
           <TailoredCvView
@@ -246,7 +246,7 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
       )}
 
       {/* CTAs */}
-      <div className="pt-6 border-t border-[#1E3A5F] flex flex-wrap items-center gap-3 sm:justify-end">
+      <div className="pt-6 border-t border-[#2d2a26] flex flex-wrap items-center gap-3 sm:justify-end">
         <TrackApplicationButton
           jobAnalysisId={analysis.id}
           jobTitle={analysis.job_title}
@@ -254,14 +254,14 @@ export default async function JobAnalysisResultPage({ params }: PageProps) {
         />
         <Link
           href={`/cover-letter?job_analysis_id=${analysis.id}`}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-[#111827] border border-[#1E3A5F] hover:border-blue-500/50 hover:bg-[#1E3A5F]/30 text-gray-300 hover:text-white font-medium rounded-lg transition-all text-sm"
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-[#1a1916] border border-[#2d2a26] hover:border-amber-500/50 hover:bg-[#2d2a26]/30 text-gray-300 hover:text-white font-medium rounded-lg transition-all text-sm"
         >
           <FileEdit className="w-4 h-4" />
           Generate Cover Letter
         </Link>
         <Link
           href={`/interview/new?job_id=${analysis.id}`}
-          className="flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors text-sm shadow-lg shadow-blue-900/20"
+          className="flex items-center justify-center gap-2 px-8 py-3 bg-amber-500 hover:bg-amber-400 text-stone-900 font-semibold rounded-lg transition-colors text-sm shadow-lg shadow-amber-900/20"
         >
           <MessageSquare className="w-4 h-4" />
           Start Interview Prep

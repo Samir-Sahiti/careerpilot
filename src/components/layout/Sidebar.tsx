@@ -51,8 +51,8 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
         onClick={() => setIsMobileOpen(false)}
         className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
           isActive
-            ? "bg-blue-600/20 text-blue-400"
-            : "text-gray-400 hover:bg-white/5 hover:text-white"
+            ? "bg-amber-500/15 text-amber-400"
+            : "text-stone-400 hover:bg-white/5 hover:text-stone-100"
         }`}
       >
         <Icon className="h-5 w-5 shrink-0" />
@@ -70,7 +70,7 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
             className="text-xl font-extrabold tracking-tight"
             style={{ fontFamily: "var(--font-heading)", color: "#F1F5F9" }}
           >
-            Career<span style={{ color: "#2563EB" }}>Pilot</span>
+            Career<span style={{ color: "#f59e0b" }}>OS</span>
           </Link>
         </div>
 
@@ -85,8 +85,8 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
               onClick={() => setToolsExpanded((v) => !v)}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors ${
                 isSecondaryActive && !toolsExpanded
-                  ? "text-blue-400"
-                  : "text-gray-600 hover:text-gray-400"
+                  ? "text-amber-400"
+                  : "text-stone-600 hover:text-stone-400"
               }`}
             >
               <span>Tools</span>
@@ -110,8 +110,8 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
           onClick={() => setIsMobileOpen(false)}
           className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
             pathname === "/settings"
-              ? "bg-blue-600/20 text-blue-400"
-              : "text-gray-400 hover:bg-white/5 hover:text-white"
+              ? "bg-amber-500/15 text-amber-400"
+              : "text-stone-400 hover:bg-white/5 hover:text-stone-100"
           }`}
         >
           <Settings className="h-5 w-5" />
@@ -120,7 +120,7 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
         <ThemeToggle />
       </div>
 
-      <div className="mt-4 border-t border-[#1E3A5F] pt-4">
+      <div className="mt-4 border-t border-[#232220] pt-4">
         <div className="mb-2 px-3 flex flex-col gap-0.5 pointer-events-none">
           <span className="text-sm font-bold text-gray-200 truncate" title={displayName}>
             {displayName}
@@ -138,7 +138,7 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
     <>
       <button
         onClick={() => setIsMobileOpen((v) => !v)}
-        className="fixed top-4 left-4 z-40 p-2 rounded-md bg-[#111827] border border-[#1E3A5F] text-gray-300 hover:text-white lg:hidden"
+        className="fixed top-4 left-4 z-40 p-2 rounded-md bg-[#1a1916] border border-[#2d2a26] text-gray-300 hover:text-white lg:hidden"
         aria-label="Toggle Navigation"
       >
         <Menu className="h-5 w-5" />
@@ -148,7 +148,7 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div className="fixed inset-0 bg-black/60" onClick={() => setIsMobileOpen(false)} />
-          <div className="relative flex w-64 max-w-xs flex-1 flex-col shadow-xl" style={{ background: "#0D1117" }}>
+          <div className="relative flex w-64 max-w-xs flex-1 flex-col shadow-xl" style={{ background: "#0c0b0a" }}>
             <div className="absolute top-0 right-0 -mr-12 pt-4">
               <button
                 type="button"
@@ -166,7 +166,7 @@ export function Sidebar({ userEmail, displayName }: { userEmail: string; display
       {/* Desktop */}
       <div
         className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-[240px] lg:flex-col"
-        style={{ background: "#0D1117", borderRight: "1px solid #1E3A5F" }}
+        style={{ background: "#0c0b0a", borderRight: "1px solid #232220" }}
       >
         {SidebarContent}
       </div>

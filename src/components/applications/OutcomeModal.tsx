@@ -43,8 +43,8 @@ export function OutcomeModal({ status, onSubmit, onSkip }: OutcomeModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md bg-[#111827] border border-[#1E3A5F] rounded-2xl shadow-2xl animate-fade-in-up">
-        <div className="flex items-center justify-between p-5 border-b border-[#1E3A5F]">
+      <div className="w-full max-w-md bg-[#1a1916] border border-[#2d2a26] rounded-2xl shadow-2xl animate-fade-in-up">
+        <div className="flex items-center justify-between p-5 border-b border-[#2d2a26]">
           <h2 className="text-base font-bold text-white">{title}</h2>
           <button onClick={onSkip} className="text-gray-500 hover:text-white transition-colors">
             <X className="w-4 h-4" />
@@ -60,7 +60,7 @@ export function OutcomeModal({ status, onSubmit, onSkip }: OutcomeModalProps) {
               <select
                 value={stage}
                 onChange={(e) => setStage(e.target.value as OutcomeStage | "")}
-                className="w-full appearance-none bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors pr-8"
+                className="w-full appearance-none bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors pr-8"
               >
                 <option value="">{stagePlaceholder}</option>
                 {OUTCOME_STAGES.map((s) => (
@@ -82,7 +82,7 @@ export function OutcomeModal({ status, onSubmit, onSkip }: OutcomeModalProps) {
               onChange={(e) => setReason(e.target.value)}
               rows={3}
               placeholder="Recruiter feedback, rejection reason, what went well…"
-              className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 transition-colors resize-none"
+              className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
             />
           </div>
 
@@ -90,13 +90,13 @@ export function OutcomeModal({ status, onSubmit, onSkip }: OutcomeModalProps) {
             <button
               type="button"
               onClick={onSkip}
-              className="flex-1 px-4 py-2.5 bg-[#0A0F1C] border border-[#1E3A5F] text-gray-400 hover:text-white rounded-lg text-sm font-medium transition-colors"
+              className="flex-1 px-4 py-2.5 bg-[#0f0e0c] border border-[#2d2a26] text-gray-400 hover:text-white rounded-lg text-sm font-medium transition-colors"
             >
               Skip
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+              className="flex-1 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 rounded-lg text-sm font-medium transition-colors"
             >
               Save
             </button>

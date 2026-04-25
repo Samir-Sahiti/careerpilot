@@ -93,14 +93,14 @@ export function RejectionPostMortem({ applicationId, onDismiss, onAddToRoadmap }
           </div>
 
           <div className="space-y-1">
-            <p className="text-xs font-bold text-blue-400 uppercase tracking-wide">What similar candidates do</p>
+            <p className="text-xs font-bold text-amber-400 uppercase tracking-wide">What similar candidates do</p>
             <p className="text-sm text-gray-300 leading-relaxed">{postMortem.similar_profiles_action}</p>
           </div>
 
-          <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3 flex items-start gap-2">
-            <Lightbulb className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 flex items-start gap-2">
+            <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-blue-300 mb-1">Add to Career Ladder</p>
+              <p className="text-xs font-semibold text-amber-300 mb-1">Add to Career Ladder</p>
               <p className="text-xs text-gray-400 leading-relaxed">{postMortem.roadmap_update_suggestion}</p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export function RejectionPostMortem({ applicationId, onDismiss, onAddToRoadmap }
           <div className="flex items-center gap-2 flex-wrap">
             <button
               onClick={handleAddToRoadmap}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-stone-900 text-xs font-semibold rounded-lg transition-colors"
             >
               <ChevronRight className="w-3.5 h-3.5" />
               Add to Career Ladder

@@ -107,14 +107,14 @@ export function CVParsingStatus({ cvId, initialStatus, initialError }: CVParsing
         <div className="flex gap-3">
           <button
             onClick={() => router.push("/cv")}
-            className="px-5 py-2.5 bg-[#1E3A5F] hover:bg-[#2A4B75] text-white rounded-lg text-sm font-medium transition-colors border border-[#1E3A5F]"
+            className="px-5 py-2.5 bg-[#2d2a26] hover:bg-[#3a3632] text-white rounded-lg text-sm font-medium transition-colors border border-[#2d2a26]"
           >
             Upload a Different File
           </button>
           <button
             onClick={handleRetry}
             disabled={isRetrying}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-900 rounded-lg text-sm font-medium transition-colors"
           >
             {isRetrying ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -131,7 +131,7 @@ export function CVParsingStatus({ cvId, initialStatus, initialError }: CVParsing
   // ── Pending / processing state ────────────────────────────────────────────
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-4 animate-fade-in-up">
-      <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+      <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
       <h2
         className="text-xl font-semibold text-white"
         style={{ fontFamily: "var(--font-heading)" }}

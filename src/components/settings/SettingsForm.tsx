@@ -141,10 +141,10 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
   return (
     <div className="space-y-8">
       {/* ── Profile Section ───────────────────────────────────────────────── */}
-      <section className="bg-[#111827] border border-[#1E3A5F] rounded-xl overflow-hidden">
-        <div className="p-6 border-b border-[#1E3A5F] flex items-center gap-3">
-          <div className="p-2 bg-blue-500/10 rounded-lg shrink-0">
-            <User className="h-5 w-5 text-blue-500" />
+      <section className="bg-[#1a1916] border border-[#2d2a26] rounded-xl overflow-hidden">
+        <div className="p-6 border-b border-[#2d2a26] flex items-center gap-3">
+          <div className="p-2 bg-amber-500/10 rounded-lg shrink-0">
+            <User className="h-5 w-5 text-amber-500" />
           </div>
           <div>
             <h2 className="text-xl font-semibold text-white">Profile Details</h2>
@@ -152,7 +152,7 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
           </div>
         </div>
         
-        <form onSubmit={handleSaveProfile} className="p-6 bg-[#0D1117]">
+        <form onSubmit={handleSaveProfile} className="p-6 bg-[#0c0b0a]">
           <div className="max-w-md space-y-4">
             <div>
               <label htmlFor="displayName" className="block text-sm font-medium text-gray-300 mb-1.5">
@@ -165,7 +165,7 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
                 required
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full bg-[#1A263A] border border-[#2A4B75] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="w-full bg-[#1A263A] border border-[#3a3632] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 placeholder="e.g. Samir"
               />
             </div>
@@ -173,7 +173,7 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
             <button
               type="submit"
               disabled={isSavingProfile}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSavingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {isSavingProfile ? "Saving..." : "Save Profile"}
@@ -183,8 +183,8 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
       </section>
 
       {/* ── Security Section ──────────────────────────────────────────────── */}
-      <section className="bg-[#111827] border border-[#1E3A5F] rounded-xl overflow-hidden">
-        <div className="p-6 border-b border-[#1E3A5F] flex items-center gap-3">
+      <section className="bg-[#1a1916] border border-[#2d2a26] rounded-xl overflow-hidden">
+        <div className="p-6 border-b border-[#2d2a26] flex items-center gap-3">
           <div className="p-2 bg-indigo-500/10 rounded-lg shrink-0">
             <Lock className="h-5 w-5 text-indigo-500" />
           </div>
@@ -194,7 +194,7 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
           </div>
         </div>
 
-        <div className="p-6 bg-[#0D1117] space-y-6">
+        <div className="p-6 bg-[#0c0b0a] space-y-6">
           <form onSubmit={handleSaveEmail} className="max-w-md space-y-4">
             <h3 className="text-sm font-semibold text-gray-200">Change Email Address</h3>
             <div>
@@ -207,13 +207,13 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
                 required
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-                className="w-full bg-[#1A263A] border border-[#2A4B75] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="w-full bg-[#1A263A] border border-[#3a3632] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
               />
             </div>
             <button
               type="submit"
               disabled={isSavingEmail || newEmail === email}
-              className="px-6 py-2.5 bg-[#1E3A5F] hover:bg-[#2A4B75] text-white rounded-lg font-medium transition-colors border border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-[#2d2a26] hover:bg-[#3a3632] text-white rounded-lg font-medium transition-colors border border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSavingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {isSavingEmail ? "Updating Email..." : "Update Email"}
@@ -222,14 +222,14 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
               You will receive a confirmation link at both your old and new email addresses to verify the change.
             </p>
             {emailChangePending && (
-              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs text-blue-400 flex items-center gap-2">
+              <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs text-amber-400 flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 shrink-0" />
                 Check your inbox to confirm the email change.
               </div>
             )}
           </form>
 
-          <div className="border-t border-[#1E3A5F] pt-6"></div>
+          <div className="border-t border-[#2d2a26] pt-6"></div>
 
           <form onSubmit={handleSavePassword} className="max-w-md space-y-4">
             <h3 className="text-sm font-semibold text-gray-200">Change Password</h3>
@@ -244,7 +244,7 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full bg-[#1A263A] border border-[#2A4B75] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="w-full bg-[#1A263A] border border-[#3a3632] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                 placeholder="••••••••"
               />
             </div>
@@ -259,7 +259,7 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-[#1A263A] border border-[#2A4B75] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="w-full bg-[#1A263A] border border-[#3a3632] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                 placeholder="••••••••"
               />
             </div>
@@ -267,7 +267,7 @@ export function SettingsForm({ initialDisplayName, email }: SettingsFormProps) {
             <button
               type="submit"
               disabled={isSavingPassword || !newPassword || !confirmPassword}
-              className="px-6 py-2.5 bg-[#1E3A5F] hover:bg-[#2A4B75] text-white rounded-lg font-medium transition-colors border border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-[#2d2a26] hover:bg-[#3a3632] text-white rounded-lg font-medium transition-colors border border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSavingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {isSavingPassword ? "Updating Password..." : "Update Password"}

@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Application, JobAnalysis, InterviewSession } from "@/types";
 import { AnalyticsClient } from "@/components/analytics/AnalyticsClient";
 
-export const metadata = { title: "Analytics — CareerPilot" };
+export const metadata = { title: "Analytics — CareerOS" };
 
 export default async function AnalyticsPage() {
   const supabase = await createClient();

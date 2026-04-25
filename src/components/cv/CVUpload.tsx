@@ -177,7 +177,7 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
           {onCancel ? "Update Your CV / Resume" : "Upload Your CV / Resume"}
         </h1>
         <p className="text-gray-400 leading-relaxed">
-          Upload your latest CV or Resume in PDF, DOCX, or DOC format. CareerPilot&apos;s AI will analyse your background to power all dashboard features.
+          Upload your latest CV or Resume in PDF, DOCX, or DOC format. CareerOS&apos;s AI will analyse your background to power all dashboard features.
         </p>
       </div>
 
@@ -185,18 +185,18 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
         {...(uploadState === "idle" ? getRootProps() : {})}
         className={`border-2 border-dashed rounded-xl p-12 text-center transition-all ${uploadState === "idle" ? "cursor-pointer" : "cursor-default"} flex flex-col items-center justify-center min-h-[300px] gap-4 ${
           isDragActive
-            ? "border-blue-500 bg-blue-500/10"
+            ? "border-amber-500 bg-amber-500/10"
             : uploadState === "failed" 
               ? "border-red-500/50 bg-red-500/5"
-              : "border-[#1E3A5F] bg-[#111827] hover:border-blue-500/50 hover:bg-[#111827]/80"
+              : "border-[#2d2a26] bg-[#1a1916] hover:border-amber-500/50 hover:bg-[#1a1916]/80"
         } ${uploadState === "uploading" ? "opacity-50 pointer-events-none" : ""}`}
       >
         <input {...(uploadState === "idle" ? getInputProps() : {})} disabled={uploadState !== "idle"} />
         
         {uploadState === "idle" && (
           <>
-            <div className="p-4 bg-blue-500/10 rounded-full mb-2">
-              <UploadCloud className="w-10 h-10 text-blue-500" />
+            <div className="p-4 bg-amber-500/10 rounded-full mb-2">
+              <UploadCloud className="w-10 h-10 text-amber-500" />
             </div>
             <div>
               <p className="text-xl font-medium text-white mb-1">
@@ -211,14 +211,14 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
 
         {uploadState === "uploading" && (
           <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+            <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
             <p className="text-xl font-medium text-white">Uploading CV...</p>
           </div>
         )}
 
         {uploadState === "parsing" && (
           <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+            <Loader2 className="w-10 h-10 text-amber-500 animate-spin" />
             <p className="text-xl font-medium text-white">Analysing with AI...</p>
             <p className="text-sm text-gray-500">This might take a few seconds</p>
           </div>
@@ -253,14 +253,14 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
                   setParseError(null);
                   setCurrentCvId(null);
                 }}
-                className="px-6 py-2.5 bg-[#1E3A5F] hover:bg-[#2A4B75] text-white rounded-lg font-medium transition-colors border border-[#1E3A5F]"
+                className="px-6 py-2.5 bg-[#2d2a26] hover:bg-[#3a3632] text-white rounded-lg font-medium transition-colors border border-[#2d2a26]"
               >
                 Upload Different File
               </button>
               <button
                 type="button"
                 onClick={handleRetry}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20"
+                className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20"
               >
                 Retry Analysis
               </button>
@@ -269,14 +269,14 @@ export function CVUpload({ onCancel }: { onCancel?: () => void }) {
         )}
       </div>
 
-      <div className="p-5 rounded-xl border flex flex-col sm:flex-row items-start gap-4" style={{ backgroundColor: "#0A0F1C", borderColor: "#1E3A5F" }}>
-        <div className="p-2.5 bg-blue-500/10 rounded-lg shrink-0">
-          <FileType className="w-5 h-5 text-blue-500" />
+      <div className="p-5 rounded-xl border flex flex-col sm:flex-row items-start gap-4" style={{ backgroundColor: "#0f0e0c", borderColor: "#2d2a26" }}>
+        <div className="p-2.5 bg-amber-500/10 rounded-lg shrink-0">
+          <FileType className="w-5 h-5 text-amber-500" />
         </div>
         <div>
           <h3 className="font-semibold text-white text-base mb-1">Why do we need your CV / Resume?</h3>
           <p className="text-sm text-gray-400 leading-relaxed">
-            Your file is the foundation for CareerPilot. It allows our AI to instantly identify your skill gaps when you look at a job listing, ask highly relevant mock interview questions, and build realistic career roadmaps based on your actual experience.
+            Your file is the foundation for CareerOS. It allows our AI to instantly identify your skill gaps when you look at a job listing, ask highly relevant mock interview questions, and build realistic career roadmaps based on your actual experience.
           </p>
         </div>
       </div>

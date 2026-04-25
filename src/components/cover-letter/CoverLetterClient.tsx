@@ -170,7 +170,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
               setJobRawText("");
               setMode("form");
             }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors text-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 rounded-lg font-medium transition-colors text-sm"
           >
             <Plus className="w-4 h-4" />
             Generate New
@@ -191,8 +191,8 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                 onClick={() => { setActiveLetter(letter); setMode("view"); }}
                 className={`w-full text-left p-4 rounded-xl border transition-all ${
                   activeLetter?.id === letter.id
-                    ? "bg-blue-600/10 border-blue-500/40 text-white"
-                    : "bg-[#111827] border-[#1E3A5F] hover:border-blue-500/30 text-gray-300"
+                    ? "bg-amber-500/10 border-amber-500/40 text-white"
+                    : "bg-[#1a1916] border-[#2d2a26] hover:border-amber-500/30 text-gray-300"
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
@@ -219,9 +219,9 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
           {mode === "generating" && (
             <div className="flex flex-col items-center justify-center py-24 gap-6 animate-fade-in-up">
               <div className="relative w-20 h-20">
-                <div className="absolute inset-0 rounded-full bg-blue-600/20 animate-ping" />
-                <div className="relative z-10 w-20 h-20 rounded-full bg-blue-600/10 border border-blue-500/30 flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-blue-400" />
+                <div className="absolute inset-0 rounded-full bg-amber-500/15 animate-ping" />
+                <div className="relative z-10 w-20 h-20 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-amber-400" />
                 </div>
               </div>
               <div className="text-center space-y-1">
@@ -235,9 +235,9 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
 
           {/* Form */}
           {mode === "form" && (
-            <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 sm:p-8 space-y-6">
+            <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 sm:p-8 space-y-6">
               {prefillAnalysis && (
-                <div className="flex items-start gap-3 bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-sm text-blue-300">
+                <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-sm text-amber-300">
                   <Briefcase className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>Pre-filled from your job analysis for <strong>{prefillAnalysis.job_title}</strong>.</span>
                 </div>
@@ -247,7 +247,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-gray-300 flex items-center gap-1.5">
-                      <Briefcase className="w-4 h-4 text-blue-400" />
+                      <Briefcase className="w-4 h-4 text-amber-400" />
                       Job Title <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -255,7 +255,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                       value={jobTitle}
                       onChange={(e) => setJobTitle(e.target.value)}
                       placeholder="e.g. Senior Frontend Engineer"
-                      className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition-colors"
+                      className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-colors"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -267,7 +267,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       placeholder="e.g. Stripe"
-                      className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition-colors"
+                      className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-colors"
                     />
                   </div>
                 </div>
@@ -282,7 +282,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                     value={jobRawText}
                     onChange={(e) => setJobRawText(e.target.value)}
                     placeholder="Paste the full job listing here…"
-                    className="w-full bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg px-4 py-3 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition-colors resize-none leading-relaxed"
+                    className="w-full bg-[#0f0e0c] border border-[#2d2a26] rounded-lg px-4 py-3 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/40 transition-colors resize-none leading-relaxed"
                   />
                 </div>
 
@@ -290,7 +290,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                   <button
                     type="submit"
                     disabled={!jobTitle.trim()}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors text-sm"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-stone-900 font-semibold rounded-lg transition-colors text-sm"
                   >
                     <Sparkles className="w-4 h-4" />
                     Generate Cover Letter
@@ -328,14 +328,14 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
                     onClick={() => handleCopy(activeLetter.content)}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-[#1E3A5F]/40 hover:bg-[#1E3A5F] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#1E3A5F]"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-[#2d2a26]/40 hover:bg-[#2d2a26] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#2d2a26]"
                   >
                     {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
                     {copied ? "Copied!" : "Copy"}
                   </button>
                   <button
                     onClick={() => handleDownload(activeLetter)}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-[#1E3A5F]/40 hover:bg-[#1E3A5F] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#1E3A5F]"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-[#2d2a26]/40 hover:bg-[#2d2a26] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#2d2a26]"
                   >
                     <Download className="w-3.5 h-3.5" />
                     .txt
@@ -347,7 +347,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                   />
                   <button
                     onClick={handleRegenerate}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-[#1E3A5F]/40 hover:bg-[#1E3A5F] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#1E3A5F]"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-[#2d2a26]/40 hover:bg-[#2d2a26] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#2d2a26]"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     Regenerate
@@ -355,7 +355,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
                   {activeLetter.job_analysis_id && (
                     <Link
                       href={`/jobs/${activeLetter.job_analysis_id}`}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-[#1E3A5F]/40 hover:bg-[#1E3A5F] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#1E3A5F]"
+                      className="flex items-center gap-1.5 px-3 py-2 bg-[#2d2a26]/40 hover:bg-[#2d2a26] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors border border-[#2d2a26]"
                     >
                       <Briefcase className="w-3.5 h-3.5" />
                       View Analysis
@@ -372,7 +372,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
               </div>
 
               {/* Letter content */}
-              <div className="bg-[#111827] border border-[#1E3A5F] rounded-xl p-6 sm:p-8">
+              <div className="bg-[#1a1916] border border-[#2d2a26] rounded-xl p-6 sm:p-8">
                 <div className="prose prose-invert max-w-none">
                   <div
                     className="text-gray-200 text-sm leading-[1.9] whitespace-pre-wrap font-[system-ui]"
@@ -387,9 +387,9 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
 
           {/* Empty state (no letters, not in form mode) */}
           {mode === "list" && letters.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 border-2 border-dashed border-[#1E3A5F] rounded-xl animate-fade-in-up">
-              <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                <FileEdit className="w-7 h-7 text-blue-400" />
+            <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 border-2 border-dashed border-[#2d2a26] rounded-xl animate-fade-in-up">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                <FileEdit className="w-7 h-7 text-amber-400" />
               </div>
               <div className="space-y-2 max-w-sm">
                 <h2 className="text-lg font-semibold text-white">No cover letters yet</h2>
@@ -399,7 +399,7 @@ export function CoverLetterClient({ initialLetters, prefillAnalysis }: Props) {
               </div>
               <Link
                 href="/jobs"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors text-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-900 rounded-lg font-medium transition-colors text-sm"
               >
                 Analyse a job first
                 <ArrowLeft className="w-4 h-4 rotate-180" />

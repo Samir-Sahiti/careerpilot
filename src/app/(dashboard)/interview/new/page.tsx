@@ -54,8 +54,8 @@ export default async function NewInterviewPage({ searchParams }: PageProps) {
       </Link>
 
       <div>
-        <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-6">
-          <Mic className="w-6 h-6 text-blue-400" />
+        <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-6">
+          <Mic className="w-6 h-6 text-amber-400" />
         </div>
         <h1 className="text-3xl font-extrabold text-white" style={{ fontFamily: "var(--font-heading)" }}>
           Start Mock Interview

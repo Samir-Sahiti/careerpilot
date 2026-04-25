@@ -22,8 +22,8 @@ export async function JobAnalysisList() {
 
   if (error || !analyses || analyses.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed border-[#1E3A5F] rounded-xl bg-[#0A0F1C]/50 mt-12 animate-fade-in-up">
-        <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-[#1E3A5F]/30 mb-4">
+      <div className="flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed border-[#2d2a26] rounded-xl bg-[#0f0e0c]/50 mt-12 animate-fade-in-up">
+        <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-[#2d2a26]/30 mb-4">
           <MousePointerClick className="w-6 h-6 text-gray-500" />
         </div>
         <h3 className="text-lg font-semibold text-white mb-2" style={{ fontFamily: "var(--font-heading)" }}>
@@ -41,7 +41,7 @@ export async function JobAnalysisList() {
     <div className="mt-16 space-y-6 animate-fade-in-up">
       <div>
         <h2 className="text-xl font-bold text-white flex items-center gap-2" style={{ fontFamily: "var(--font-heading)" }}>
-          <Briefcase className="w-5 h-5 text-blue-500" />
+          <Briefcase className="w-5 h-5 text-amber-500" />
           Previous Analyses
         </h2>
         <p className="text-sm text-gray-400 mt-1">Review your past job matches and recommendations.</p>
@@ -62,11 +62,11 @@ export async function JobAnalysisList() {
             <Link
               key={job.id}
               href={`/jobs/${job.id}`}
-              className="group block bg-[#111827] border border-[#1E3A5F] rounded-xl p-5 hover:bg-[#1E3A5F]/20 hover:border-blue-500/50 transition-all"
+              className="group block bg-[#1a1916] border border-[#2d2a26] rounded-xl p-5 hover:bg-[#2d2a26]/20 hover:border-amber-500/50 transition-all"
             >
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="min-w-0">
-                  <h3 className="text-white font-semibold truncate group-hover:text-blue-400 transition-colors" title={job.job_title}>
+                  <h3 className="text-white font-semibold truncate group-hover:text-amber-400 transition-colors" title={job.job_title}>
                     {job.job_title}
                   </h3>
                   {job.company && (
@@ -80,11 +80,11 @@ export async function JobAnalysisList() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs border-t border-[#1E3A5F]/50 pt-4 mt-auto">
+              <div className="flex items-center justify-between text-xs border-t border-[#2d2a26]/50 pt-4 mt-auto">
                 <span className="text-gray-500">
                   {format(new Date(job.created_at), "MMM d, yyyy")}
                 </span>
-                <span className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 font-medium">
+                <span className="text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 font-medium">
                   View <ArrowRight className="w-3 h-3" />
                 </span>
               </div>

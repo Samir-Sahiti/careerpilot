@@ -53,7 +53,7 @@ export function TailoredCvView({ jobAnalysisId, originalCv, initialTailored }: P
           <button
             onClick={generate}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-900 text-sm font-semibold rounded-lg transition-colors"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
             {tailored ? "Re-tailor" : "Tailor CV for this role"}
@@ -61,11 +61,11 @@ export function TailoredCvView({ jobAnalysisId, originalCv, initialTailored }: P
 
           {tailored && (
             <>
-              <div className="flex rounded-lg border border-[#1E3A5F] overflow-hidden">
+              <div className="flex rounded-lg border border-[#2d2a26] overflow-hidden">
                 <button
                   onClick={() => setView("tailored")}
                   className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                    view === "tailored" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
+                    view === "tailored" ? "bg-amber-500 text-stone-900" : "text-gray-400 hover:text-white"
                   }`}
                 >
                   Tailored
@@ -73,7 +73,7 @@ export function TailoredCvView({ jobAnalysisId, originalCv, initialTailored }: P
                 <button
                   onClick={() => setView("original")}
                   className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-                    view === "original" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
+                    view === "original" ? "bg-amber-500 text-stone-900" : "text-gray-400 hover:text-white"
                   }`}
                 >
                   Original
@@ -93,7 +93,7 @@ export function TailoredCvView({ jobAnalysisId, originalCv, initialTailored }: P
         {tailored && (
           <button
             onClick={exportPdf}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1E3A5F] hover:bg-[#2A4B75] text-gray-300 hover:text-white border border-[#1E3A5F] rounded-lg text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2d2a26] hover:bg-[#3a3632] text-gray-300 hover:text-white border border-[#2d2a26] rounded-lg text-xs font-medium transition-colors"
           >
             <Printer className="w-3.5 h-3.5" />
             Export PDF

@@ -72,8 +72,8 @@ export function FollowUpWidget({ applications: initialApps }: Props) {
   if (visibleApps.length === 0) return null;
 
   return (
-    <div className="bg-[#111827] border border-amber-500/20 rounded-xl overflow-hidden">
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-[#1E3A5F]">
+    <div className="bg-[#1a1916] border border-amber-500/20 rounded-xl overflow-hidden">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-[#2d2a26]">
         <div className="p-2 bg-amber-500/10 rounded-lg">
           <Mail className="w-4 h-4 text-amber-400" />
         </div>
@@ -85,7 +85,7 @@ export function FollowUpWidget({ applications: initialApps }: Props) {
         </div>
       </div>
 
-      <div className="divide-y divide-[#1E3A5F]">
+      <div className="divide-y divide-[#2d2a26]">
         {visibleApps.map((app) => {
           const s = states[app.id];
           if (!s) return null;
@@ -122,13 +122,13 @@ export function FollowUpWidget({ applications: initialApps }: Props) {
 
               {s.draft && s.expanded && (
                 <div className="space-y-2">
-                  <div className="bg-[#0A0F1C] border border-[#1E3A5F] rounded-lg p-3">
+                  <div className="bg-[#0f0e0c] border border-[#2d2a26] rounded-lg p-3">
                     <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{s.draft}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => copyDraft(app.id, s.draft!)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1E3A5F] hover:bg-[#2A4B75] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2d2a26] hover:bg-[#3a3632] text-gray-300 hover:text-white rounded-lg text-xs font-medium transition-colors"
                     >
                       {copied === app.id ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
                       Copy
