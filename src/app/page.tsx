@@ -92,15 +92,15 @@ export default async function LandingPage() {
             AI-Powered · Built for Ambitious Professionals
           </div>
 
-          <h1 className="animate-fade-in-up delay-100 text-4xl md:text-5xl font-extrabold leading-tight tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>
+          <h1 className="animate-fade-in-up delay-100 text-2xl sm:text-3xl md:text-4xl font-semibold leading-snug tracking-[-0.01em] text-white" style={{ fontFamily: "var(--font-body)" }}>
             Paste a job listing.{" "}
-            <span className="bg-gradient-to-r from-amber-400 to-amber-200 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent">
               Know in 30 seconds
             </span>{" "}
             if it&apos;s worth your time.
           </h1>
 
-          <p className="animate-fade-in-up delay-200 text-lg text-gray-400 max-w-xl leading-relaxed">
+          <p className="animate-fade-in-up delay-200 text-lg text-gray-300 max-w-xl leading-relaxed">
             CareerOS scores your fit, identifies gaps, preps your interview, and learns from every outcome — all from your CV.
           </p>
 
