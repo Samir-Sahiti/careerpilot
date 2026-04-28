@@ -58,11 +58,11 @@ export async function POST(req: NextRequest) {
         role_title: z.string(),
         seniority_level: z.enum(["Junior", "Mid", "Senior", "Lead", "Principal"]),
         role_family: z.string(),
-        top_required_skills: z.array(z.string()).max(6),
-        nice_to_have_skills: z.array(z.string()).max(4),
-        key_responsibilities: z.array(z.string()).max(4),
+        top_required_skills: z.array(z.string()),
+        nice_to_have_skills: z.array(z.string()),
+        key_responsibilities: z.array(z.string()),
         what_makes_a_strong_candidate: z.string(),
-        red_flags_to_watch: z.array(z.string()).max(3),
+        red_flags_to_watch: z.array(z.string()),
       }),
       prompt: `Parse this job listing and extract structured insights a job seeker would find useful.
 

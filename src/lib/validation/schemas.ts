@@ -31,8 +31,8 @@ export const interviewFeedbackSchema = z.object({
 
 export const InterviewFeedbackOutputSchema = z.object({
   feedback: z.string().min(20),
-  strengths: z.array(z.string()).min(1).max(5),
-  improvements: z.array(z.string()).min(1).max(5),
+  strengths: z.array(z.string()).min(1),
+  improvements: z.array(z.string()).min(1),
   score: z.number().int().min(0).max(100),
   star_coverage: z
     .object({
